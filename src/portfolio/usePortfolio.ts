@@ -12,10 +12,16 @@ export function usePortfolio() {
     return snap;
   }, []);
 
+  const importText = useCallback(async (text: string) => {
+    const snap = importSnapshotFile(text);
+    setSnapshot(snap);
+    return snap;
+  }, []);
+
   const clear = useCallback(() => {
     clearImportedSnapshot();
     setSnapshot(null);
   }, []);
 
-  return { snapshot, importFile, clear };
+  return { snapshot, importFile, importText, clear };
 }

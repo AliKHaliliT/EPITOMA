@@ -115,11 +115,21 @@ export interface PortfolioGardenPost extends PortfolioItem {
   desc?: string;
 }
 
+/** The owner's chosen look, carried so the sister apps can adopt it. */
+export interface PortfolioPalette {
+  basedOn?: string;
+  light: Record<string, string>;
+  dark: Record<string, string>;
+}
+
 export interface PortfolioSnapshot {
   format: typeof PORTFOLIO_FORMAT;
   version: number;
   exportedAt: string;
   settings: PortfolioSettings;
+  /** Optional since older exports predate it; when present, the builder
+   *  adopts it as its own chrome palette. */
+  palette?: PortfolioPalette;
   /** Collections keyed by the site's content-type ids ("experience", …).
    *  Items carry whatever the site exports; the builder reads the subset
    *  described by the Portfolio* interfaces above. */

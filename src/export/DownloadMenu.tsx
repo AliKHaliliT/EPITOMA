@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, ChevronDown, FileType2, FileCode2, FileText } from "lucide-react";
+import { Download, ChevronDown, FileType2, FileCode2, FileText, FileJson2 } from "lucide-react";
 import { ResumeDocument } from "@/types/resume";
 import { exportPdf } from "./pdf";
 import { exportLatex } from "./latex";
 import { exportWord } from "./word";
+import { downloadFile, slugify } from "./shared";
 
-type Format = "pdf" | "latex" | "word";
+type Format = "pdf" | "latex" | "word" | "json";
 
 const OPTIONS: { key: Format; label: string; hint: string; icon: typeof FileType2 }[] = [
   { key: "pdf", label: "PDF", hint: "Print → Save as PDF", icon: FileType2 },
   { key: "latex", label: "LaTeX (.tex)", hint: "Editable source", icon: FileCode2 },
   { key: "word", label: "Word (.doc)", hint: "Opens in Word", icon: FileText },
+  { key: "json", label: "Document (.json)", hint: "Portable copy, styling included", icon: FileJson2 },
 ];
 
 export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
@@ -29,7 +31,15 @@ export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
     setOpen(false);
     if (format === "pdf") exportPdf(doc);
     else if (format === "latex") exportLatex(doc);
-    else exportWord(doc);
+    else if (format === "word") exportWord(doc);
+    else
+      // The whole document, style and all: re-importing it reproduces the
+      // exact look on any machine.
+      downloadFile(
+        `${slugify(doc.name)}.json`,
+        "application/json",
+        JSON.stringify(doc, null, 2) + "\n"
+      );
   };
 
   return (

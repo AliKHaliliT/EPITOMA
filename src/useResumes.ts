@@ -84,6 +84,19 @@ export function useResumes() {
     [update]
   );
 
+  /** Add a document parsed from an exported .json file. It arrives under a
+   *  fresh id (imports must never collide with existing documents) but keeps
+   *  its own name and, crucially, its style. */
+  const importDoc = useCallback((parsed: ResumeDocument) => {
+    const doc = {
+      ...ResumeService.cloneDocument(parsed, new Date().toISOString()),
+      name: parsed.name || "Imported document",
+    };
+    setDocs((prev) => [doc, ...prev]);
+    setActiveId(doc.id);
+    return doc;
+  }, []);
+
   const sync = useCallback(() => {
     const snapshot = currentSnapshot();
     if (!snapshot) return; // UI disables Sync until a portfolio is imported
@@ -100,6 +113,7 @@ export function useResumes() {
     duplicate,
     remove,
     rename,
+    importDoc,
     sync,
   };
 }

@@ -29,7 +29,9 @@ interface DocumentBarProps {
   onSync: () => void;
   /** The imported portfolio.json: the builder's only content source. */
   snapshot: PortfolioSnapshot | null;
-  onImportPortfolio: (file: File) => Promise<PortfolioSnapshot>;
+  /** Handles both file kinds: a portfolio.json (content) and an exported
+   *  document .json (comes back as a new document, styling intact). */
+  onImportPortfolio: (file: File) => Promise<unknown>;
   onClearPortfolio: () => void;
 }
 

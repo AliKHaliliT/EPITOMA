@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { LazyMotion, domMax } from "framer-motion";
 import { LayoutGrid, FileBadge, FileText, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isResumeDocumentFile } from "@/types/resume";
 import { useResumes } from "./useResumes";
 import { usePortfolio } from "./portfolio/usePortfolio";
 import { DocumentBar } from "./DocumentBar";
@@ -19,16 +19,32 @@ const TABS: { id: WorkspaceTab; label: string; icon: typeof FileText }[] = [
 ];
 
 /**
- * The resume/CV builder: a standalone app routed at /resume (future separate
- * repo; imports nothing from the rest of src/). Content arrives exclusively
- * via an imported portfolio.json (exported from the site's admin). The nested
- * LazyMotion loads domMax: the drag/layout features the builder's Reorder
- * lists need, which the host page's domAnimation set doesn't include.
+ * The resume/CV builder, the whole of this app. Content arrives exclusively
+ * via an imported portfolio.json (exported from the admin panel); the motion
+ * runtime (domMax, for the Reorder drag lists) is provided by the App shell.
  */
 export const ResumeBuilder = () => {
   const rs = useResumes();
   const portfolio = usePortfolio();
   const [tab, setTab] = useState<WorkspaceTab>("overview");
+
+  // One Import button, two file kinds: a portfolio.json feeds content, an
+  // exported document (.json) comes back as a new document with its styling
+  // intact. Routed by shape, so no extra UI is needed.
+  const handleImportFile = async (file: File) => {
+    const text = await file.text();
+    let parsed: unknown = null;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      // fall through: the portfolio importer reports the JSON error
+    }
+    if (isResumeDocumentFile(parsed)) {
+      rs.importDoc(parsed);
+      return;
+    }
+    await portfolio.importText(text);
+  };
 
   const toggleSection = (sectionId: string) =>
     rs.update((d) => ({
@@ -39,7 +55,6 @@ export const ResumeBuilder = () => {
     }));
 
   return (
-    <LazyMotion features={domMax} strict>
     <div className="space-y-8 pb-12">
       <div>
         <div className="flex items-center gap-3 mb-2">
@@ -66,7 +81,7 @@ export const ResumeBuilder = () => {
         onRename={rs.rename}
         onSync={rs.sync}
         snapshot={portfolio.snapshot}
-        onImportPortfolio={portfolio.importFile}
+        onImportPortfolio={handleImportFile}
         onClearPortfolio={portfolio.clear}
       />
 
@@ -137,6 +152,5 @@ export const ResumeBuilder = () => {
       )}
       </div>
     </div>
-    </LazyMotion>
   );
 };

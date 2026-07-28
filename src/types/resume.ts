@@ -191,3 +191,17 @@ export interface ResumeDocument {
   sections: ResumeSection[]; // order is significant
   style: ResumeStyle;
 }
+
+/** Loose shape check for an exported document (.json) being re-imported.
+ *  Structural: an export from any machine or version qualifies as long as it
+ *  carries the load-bearing parts, style included. */
+export function isResumeDocumentFile(value: unknown): value is ResumeDocument {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.name === "string" &&
+    typeof v.personal === "object" && v.personal !== null &&
+    Array.isArray(v.sections) &&
+    typeof v.style === "object" && v.style !== null
+  );
+}
