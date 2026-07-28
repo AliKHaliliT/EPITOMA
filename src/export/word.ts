@@ -3,7 +3,7 @@
 // content, links, and most inline styling carry over: layout is best-effort,
 // which is the accepted trade-off for a dependency-free Word export.
 
-import { ResumeDocument } from "@/resume/types/resume";
+import { ResumeDocument } from "@/types/resume";
 import {
   cssFontStack,
   downloadFile,

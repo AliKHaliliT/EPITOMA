@@ -2,8 +2,8 @@
 // document model (not the DOM). Entry descriptions (stored as HTML) are
 // converted to LaTeX. Designed to compile with pdflatex out of the box.
 
-import { ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/resume/types/resume";
-import { fmtResumeDate } from "@/resume/lib/resumeDates";
+import { ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
+import { fmtResumeDate } from "@/lib/resumeDates";
 import { downloadFile, slugify } from "./shared";
 
 // ── text / html escaping ────────────────────────────────────────────────────

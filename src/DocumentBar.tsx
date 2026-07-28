@@ -12,9 +12,9 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { cn } from "@/resume/lib/utils";
-import { DocumentKind, ResumeDocument } from "@/resume/types/resume";
-import { PortfolioSnapshot } from "@/resume/types/portfolio";
+import { cn } from "@/lib/utils";
+import { DocumentKind, ResumeDocument } from "@/types/resume";
+import { PortfolioSnapshot } from "@/types/portfolio";
 import { DownloadMenu } from "./export/DownloadMenu";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 

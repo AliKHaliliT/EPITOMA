@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, ChevronDown, FileType2, FileCode2, FileText } from "lucide-react";
-import { ResumeDocument } from "@/resume/types/resume";
+import { ResumeDocument } from "@/types/resume";
 import { exportPdf } from "./pdf";
 import { exportLatex } from "./latex";
 import { exportWord } from "./word";

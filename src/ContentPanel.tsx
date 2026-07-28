@@ -10,14 +10,14 @@ import {
   Plus,
   UserCircle,
 } from "lucide-react";
-import { currentSnapshot } from "@/resume/portfolio/source";
-import { buildSection } from "@/resume/lib/resumeDefaults";
-import { ResumeDocument, ResumeSection, SectionKind } from "@/resume/types/resume";
+import { currentSnapshot } from "@/portfolio/source";
+import { buildSection } from "@/lib/resumeDefaults";
+import { ResumeDocument, ResumeSection, SectionKind } from "@/types/resume";
 import { NamedIcon } from "./icons";
 import { SectionEditor } from "./SectionEditor";
 import { PersonalDetailsEditor } from "./PersonalDetailsEditor";
 import { AddSectionModal } from "./AddSectionModal";
-import { cn } from "@/resume/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ContentPanelProps {
   doc: ResumeDocument;

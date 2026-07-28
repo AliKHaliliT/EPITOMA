@@ -1,7 +1,7 @@
 import { m, AnimatePresence } from "framer-motion";
 import { X, Plus } from "lucide-react";
-import { SECTION_CATALOG } from "@/resume/lib/resumeDefaults";
-import { SectionKind } from "@/resume/types/resume";
+import { SECTION_CATALOG } from "@/lib/resumeDefaults";
+import { SectionKind } from "@/types/resume";
 import { iconByName } from "./icons";
 
 interface AddSectionModalProps {

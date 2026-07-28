@@ -3,14 +3,14 @@
 // per-entry hidden/order), blank creation, and duplication.
 
 import { beforeEach, describe, expect, it } from "vitest";
-import { installLocalStorageMock } from "@/resume/test/localStorageMock";
+import { installLocalStorageMock } from "@/test/localStorageMock";
 import { ResumeService } from "./resumeService";
-import { ResumeDocument, ResumeSection } from "@/resume/types/resume";
+import { ResumeDocument, ResumeSection } from "@/types/resume";
 import {
   PORTFOLIO_FORMAT,
   PORTFOLIO_VERSION,
   PortfolioSnapshot,
-} from "@/resume/types/portfolio";
+} from "@/types/portfolio";
 
 const NOW = "2026-07-06T12:00:00.000Z";
 

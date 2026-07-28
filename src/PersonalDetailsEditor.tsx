@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, X, ChevronDown, ChevronUp } from "lucide-react";
-import { PersonalDetails, PersonalLink } from "@/resume/types/resume";
+import { PersonalDetails, PersonalLink } from "@/types/resume";
 
 interface PersonalDetailsEditorProps {
   personal: PersonalDetails;

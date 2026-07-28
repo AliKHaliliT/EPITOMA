@@ -17,7 +17,7 @@ EPITOMA is one of three sister repositories. [VITA](https://github.com/AliKHalil
 is the public site that renders the record, TABULARIUM is the admin panel that edits it,
 and this app turns it into documents. All three talk through files rather than imports;
 this repo carries its own copy of the snapshot contract in
-`src/resume/types/portfolio.ts` (format `vita-portfolio`, versioned).
+`src/types/portfolio.ts` (format `vita-portfolio`, versioned).
 
 ---
 

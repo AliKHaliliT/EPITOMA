@@ -4,8 +4,8 @@
 // (its computed inline styles travel with it), LaTeX is plain string templating,
 // and Word uses the well-known Word-compatible-HTML (.doc) trick.
 
-import { FONT_OPTIONS, fontStack } from "@/resume/lib/resumeDefaults";
-import { ResumeStyle } from "@/resume/types/resume";
+import { FONT_OPTIONS, fontStack } from "@/lib/resumeDefaults";
+import { ResumeStyle } from "@/types/resume";
 
 /** Google Fonts stylesheet href for the document's body + name fonts (or null). */
 export function googleFontHref(style: ResumeStyle): string | null {

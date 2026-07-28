@@ -5,8 +5,8 @@ import {
   Mail, Phone, MapPin, Globe, Github, Linkedin, Twitter, GraduationCap,
   BookOpen, Link2, ExternalLink, type LucideIcon,
 } from "lucide-react";
-import { ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/resume/types/resume";
-import { fmtResumeDate } from "@/resume/lib/resumeDates";
+import { ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
+import { fmtResumeDate } from "@/lib/resumeDates";
 import { iconByName } from "../icons";
 import {
   pageStyle, nameStyle, jobTitleStyle, headingStyle, subtitleStyle, dateStyle,

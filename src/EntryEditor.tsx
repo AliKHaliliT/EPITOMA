@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link2, X } from "lucide-react";
-import { ResumeEntry, SectionKind } from "@/resume/types/resume";
+import { ResumeEntry, SectionKind } from "@/types/resume";
 import { ResumeRichText } from "./ResumeRichText";
 
 interface EntryEditorProps {

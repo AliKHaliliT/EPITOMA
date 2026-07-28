@@ -1,4 +1,4 @@
-import { ResumeBuilder } from "@/resume/ResumeBuilder";
+import { ResumeBuilder } from "@/ResumeBuilder";
 
 /**
  * EPITOMA is one page: the builder. It brings its own LazyMotion (domMax,

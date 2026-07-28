@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { Minus, Plus, GripVertical, Check as CheckIcon } from "lucide-react";
-import { ResumeSection, ResumeStyle } from "@/resume/types/resume";
-import { TEMPLATE_PRESETS, FONT_OPTIONS } from "@/resume/lib/resumeDefaults";
-import { cn } from "@/resume/lib/utils";
+import { ResumeSection, ResumeStyle } from "@/types/resume";
+import { TEMPLATE_PRESETS, FONT_OPTIONS } from "@/lib/resumeDefaults";
+import { cn } from "@/lib/utils";
 
 interface CustomizePanelProps {
   style: ResumeStyle;

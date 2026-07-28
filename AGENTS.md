@@ -36,7 +36,7 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   drag lists need it): always import and use `m.` from framer-motion, never `motion.`.
 - **Self-containment.** This app imports only npm packages plus its own `src/`. It carries
   its own copies of shared helpers and the portfolio contract
-  (`src/resume/types/portfolio.ts`); nothing is imported from the sister repos, and the
+  (`src/types/portfolio.ts`); nothing is imported from the sister repos, and the
   `format`/`version` fields of the contract keep the sides honest.
 - **Content arrives only through `portfolio.json`.** There is no live content source; with
   no import, new documents are blank and Sync is disabled with guidance.

@@ -2,13 +2,13 @@
 // rejection of malformed files.
 
 import { beforeEach, describe, expect, it } from "vitest";
-import { installLocalStorageMock } from "@/resume/test/localStorageMock";
+import { installLocalStorageMock } from "@/test/localStorageMock";
 import { clearImportedSnapshot, currentSnapshot, importSnapshotFile } from "./source";
 import {
   PORTFOLIO_FORMAT,
   PORTFOLIO_VERSION,
   isPortfolioSnapshot,
-} from "@/resume/types/portfolio";
+} from "@/types/portfolio";
 
 const VALID = {
   format: PORTFOLIO_FORMAT,

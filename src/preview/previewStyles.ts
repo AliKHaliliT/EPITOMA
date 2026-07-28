@@ -2,8 +2,8 @@
 // resolves to something here so the preview reflects it live.
 
 import { CSSProperties } from "react";
-import { ResumeStyle } from "@/resume/types/resume";
-import { FONT_OPTIONS, fontStack } from "@/resume/lib/resumeDefaults";
+import { ResumeStyle } from "@/types/resume";
+import { FONT_OPTIONS, fontStack } from "@/lib/resumeDefaults";
 
 /** 8%-opacity tint of a #rrggbb accent over white (for page/heading fills). */
 const tint = (hex: string, alpha = "14"): string =>

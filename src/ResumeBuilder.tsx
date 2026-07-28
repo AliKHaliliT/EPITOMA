@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LazyMotion, domMax } from "framer-motion";
 import { LayoutGrid, FileBadge, FileText, Wand2 } from "lucide-react";
-import { cn } from "@/resume/lib/utils";
+import { cn } from "@/lib/utils";
 import { useResumes } from "./useResumes";
 import { usePortfolio } from "./portfolio/usePortfolio";
 import { DocumentBar } from "./DocumentBar";

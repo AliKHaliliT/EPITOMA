@@ -14,25 +14,25 @@
 ## The shape of the app
 
 One page. `src/App.tsx` provides the ground and the reading rail;
-`src/resume/ResumeBuilder.tsx` is the whole product: a header, the `DocumentBar` (document
+`src/ResumeBuilder.tsx` is the whole product: a header, the `DocumentBar` (document
 list, New, Import, Sync, Download), the Overview, Content, and Customize tabs, and a
 persistent preview. There is no router and no server.
 
 ## The portfolio bridge
 
 Content arrives exclusively as a `portfolio.json` file exported by the ecosystem's admin
-panel (format `vita-portfolio`, versioned). `src/resume/portfolio/source.ts` validates an
+panel (format `vita-portfolio`, versioned). `src/portfolio/source.ts` validates an
 imported file and persists it under `os_resume_portfolio`; `usePortfolio.ts` holds it for
-the UI. The app keeps its **own copy of the contract** in `src/resume/types/portfolio.ts`,
+the UI. The app keeps its **own copy of the contract** in `src/types/portfolio.ts`,
 and the `format`/`version` fields keep it honest against the exporter. With no import, New
 creates blank documents and Sync is disabled with guidance.
 
 ## Data model and sync
 
-A `ResumeDocument` (`src/resume/types/resume.ts`) is `{ personal, sections[], style }` plus
+A `ResumeDocument` (`src/types/resume.ts`) is `{ personal, sections[], style }` plus
 metadata; each section holds entries whose `sourceId` links back to the portfolio item.
 Documents live in localStorage under `os_resumes` (active id in `os_resumes_active`),
-managed by `src/resume/services/resumeService.ts` through the `useResumes` hook.
+managed by `src/services/resumeService.ts` through the `useResumes` hook.
 
 `createDocument(kind, now, snapshot)` builds a Resume or CV from
 `DEFAULT_SECTION_SPECS[kind]` (`lib/resumeDefaults.ts`); the two kinds differ only in that
@@ -49,7 +49,7 @@ represent), edited via `ResumeRichText` and seeded from Markdown through Showdow
 CSS. The `.resume-page` is an always-white document, deliberately independent of the app
 theme tokens.
 
-Export (`src/resume/export/`) is dependency-free in three formats: **PDF** (opens the
+Export (`src/export/`) is dependency-free in three formats: **PDF** (opens the
 rendered page in a clean print window), **LaTeX** (a `.tex` file compilable with
 `pdflatex`), and **Word** (a `.doc` via Word-compatible HTML).
 

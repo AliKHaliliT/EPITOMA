@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { Eye, EyeOff, Trash2, Pencil, Plus, GripVertical } from "lucide-react";
-import { ResumeEntry, ResumeSection } from "@/resume/types/resume";
+import { ResumeEntry, ResumeSection } from "@/types/resume";
 import { ICON_CHOICES } from "./icons";
 import { EntryEditor } from "./EntryEditor";
-import { cn } from "@/resume/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface SectionEditorProps {
   section: ResumeSection;

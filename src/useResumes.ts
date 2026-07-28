@@ -3,10 +3,10 @@
 // imported portfolio snapshot (portfolio/source.ts).
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ResumeService } from "@/resume/services/resumeService";
-import { DocumentKind, ResumeDocument } from "@/resume/types/resume";
-import { currentSnapshot } from "@/resume/portfolio/source";
-import { safeSetItem } from "@/resume/lib/storage";
+import { ResumeService } from "@/services/resumeService";
+import { DocumentKind, ResumeDocument } from "@/types/resume";
+import { currentSnapshot } from "@/portfolio/source";
+import { safeSetItem } from "@/lib/storage";
 
 const ACTIVE_KEY = "os_resumes_active";
 

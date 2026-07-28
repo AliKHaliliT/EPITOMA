@@ -1,6 +1,6 @@
 import { Eye, EyeOff, CircleCheck, CircleDashed } from "lucide-react";
-import { ResumeDocument } from "@/resume/types/resume";
-import { cn } from "@/resume/lib/utils";
+import { ResumeDocument } from "@/types/resume";
+import { cn } from "@/lib/utils";
 
 interface OverviewPanelProps {
   doc: ResumeDocument;
