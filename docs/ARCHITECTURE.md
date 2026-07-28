@@ -60,3 +60,13 @@ rendered page in a clean print window), **LaTeX** (a `.tex` file compilable with
   re-export and re-import, which is the deliberate cross-repo contract.
 - Framer `Reorder` drag does not respond to synthetic test events; drive it with native
   `PointerEvent`s when testing.
+
+## Adopting the owner's look
+
+An imported portfolio.json may carry the owner's palette (the contract's optional
+`palette` field). When it does, `lib/palette.ts` applies it to the builder chrome as an
+override style tag, persists it per browser, and re-applies it on boot, so the app keeps
+matching the site between launches; clearing the imported portfolio clears the look too.
+The `.resume-page` preview stays token-independent regardless. The Import button routes by
+shape: a portfolio feeds content, and a previously exported Document (.json) comes back as
+a new document with its styling intact.

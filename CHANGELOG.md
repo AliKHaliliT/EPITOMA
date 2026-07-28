@@ -17,3 +17,7 @@ Changelog; the Unreleased section is the staging area until the first version is
 - Dependency-free export to PDF (print window), LaTeX (`.tex` for `pdflatex`), and Word
   (`.doc` via Word-compatible HTML).
 - The house documentation system and repository baseline.
+- The house theme switch, and palette adoption: importing a portfolio that carries the
+  owner's palette restyles the builder chrome to match the site, persistently.
+- A Document (.json) download that carries the whole document including its styling, and
+  an Import button that recognizes such files and restores them as new documents.

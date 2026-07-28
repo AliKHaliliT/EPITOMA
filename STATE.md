@@ -5,8 +5,9 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Now
 
-- The repo just became a standalone app: the builder extracted from VITA got its own
-  scaffold, documentation spine, and green gates (2026-07-28).
+- The builder now adopts the owner's look from the imported portfolio, ships the house
+  theme switch, and exports documents as portable .json files that re-import with their
+  styling intact (2026-07-28).
 
 ## Next
 
