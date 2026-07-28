@@ -1,0 +1,319 @@
+// Live A4 preview of a resume document, fully driven by doc.style.
+
+import { useEffect } from "react";
+import {
+  Mail, Phone, MapPin, Globe, Github, Linkedin, Twitter, GraduationCap,
+  BookOpen, Link2, ExternalLink, type LucideIcon,
+} from "lucide-react";
+import { ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/resume/types/resume";
+import { fmtResumeDate } from "@/resume/lib/resumeDates";
+import { iconByName } from "../icons";
+import {
+  pageStyle, nameStyle, jobTitleStyle, headingStyle, subtitleStyle, dateStyle,
+  entryHeaderStyle, linkStyle, descriptionClass, descriptionStyle, bodyStyle,
+  sectionStyle, loadFonts,
+} from "./previewStyles";
+
+const CONTACT_ICONS: Record<string, LucideIcon> = {
+  Globe, Github, Linkedin, Twitter, GraduationCap, BookOpen, Link2,
+};
+
+// ── date formatting (honours style.dateFormat) ──────────────────────────────
+const fmtDate = fmtResumeDate;
+const range = (s: string | undefined, e: string | undefined, fmt: string) => {
+  if (!s && !e) return "";
+  if (s && e) return `${fmtDate(s, fmt)} – ${fmtDate(e, fmt)}`;
+  if (s && !e) return `${fmtDate(s, fmt)} – Present`;
+  return fmtDate(e, fmt);
+};
+
+function Desc({ html, style }: { html?: string; style: ResumeStyle }) {
+  if (!html) return null;
+  return (
+    <div
+      className={descriptionClass(style)}
+      style={{ ...descriptionStyle(style), fontSize: "0.92em", marginTop: "1px" }}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
+function LinkIcon({ style }: { style: ResumeStyle }) {
+  if (!style.linkIcon) return null;
+  const I = style.linkIconStyle === "chain" ? Link2 : ExternalLink;
+  return <I size={10} className="inline ml-0.5 align-baseline" style={{ color: style.accentApply.linkIcons ? style.accentColor : undefined }} />;
+}
+
+function EntryRow({ entry, style }: { entry: ResumeEntry; style: ResumeStyle }) {
+  const dates = range(entry.startDate, entry.endDate, style.dateFormat);
+  const dateRight = style.entryLayout === 1 || style.entryLayout === 3;
+  const subtitleInline = style.subtitlePlacement === "same" || style.entryLayout === 3;
+
+  const titleEl = entry.title && (
+    <span style={entryHeaderStyle(style)}>
+      {entry.link ? (
+        <a href={entry.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
+          {entry.title}
+          <LinkIcon style={style} />
+        </a>
+      ) : (
+        entry.title
+      )}
+    </span>
+  );
+  const subtitleEl = entry.subtitle && (
+    <span style={subtitleStyle(style)}>
+      {subtitleInline ? " · " : ""}
+      {entry.subtitle}
+    </span>
+  );
+
+  return (
+    <div style={{ marginBottom: "var(--r-gap)" }}>
+      <div className={dateRight ? "flex justify-between items-baseline gap-3" : ""}>
+        <div className="min-w-0">
+          {titleEl}
+          {subtitleInline && subtitleEl}
+          {!subtitleInline && <div>{subtitleEl}</div>}
+        </div>
+        {dates && <span style={dateStyle(style)}>{dates}</span>}
+      </div>
+      {entry.location && <div style={{ fontSize: "0.85em", color: "#6b7280" }}>{entry.location}</div>}
+      <Desc html={entry.description} style={style} />
+    </div>
+  );
+}
+
+function SectionBody({ section, style }: { section: ResumeSection; style: ResumeStyle }) {
+  const visible = section.entries.filter((e) => !e.hidden);
+  if (visible.length === 0) return <p style={{ opacity: 0.4, fontSize: "0.85em", fontStyle: "italic" }}>No entries.</p>;
+
+  const kind = section.customType === "skill" ? "skills" : section.kind;
+  const layout = section.layout || "list";
+
+  switch (kind) {
+    case "summary":
+    case "declaration":
+      return <Desc html={visible[0]?.description} style={style} />;
+
+    case "skills":
+      if (layout === "bubble") {
+        return (
+          <div className="flex flex-wrap gap-1.5">
+            {visible.flatMap((e) =>
+              ((e.meta?.items as string[]) || [e.title || ""]).map((it, i) => (
+                <span key={e.id + i} className="px-2 py-0.5 rounded-full" style={{ background: `${style.accentColor}1f` }}>
+                  {it}
+                </span>
+              ))
+            )}
+          </div>
+        );
+      }
+      return (
+        <div className="space-y-0.5">
+          {visible.map((e) => (
+            <div key={e.id} className="flex flex-wrap items-baseline gap-x-2">
+              <span style={{ fontWeight: 600 }}>{e.title}:</span>
+              <span style={{ opacity: 0.85 }}>{(e.meta?.items as string[] | undefined)?.join(", ")}</span>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "languages":
+      if (layout === "grid") {
+        return (
+          <div className="grid grid-cols-2 gap-x-6 gap-y-0.5">
+            {visible.map((e) => (
+              <span key={e.id}>
+                <span style={{ fontWeight: 600 }}>{e.title}</span>
+                {e.subtitle && <span style={{ opacity: 0.75 }}> · {e.subtitle}</span>}
+              </span>
+            ))}
+          </div>
+        );
+      }
+      return (
+        <div className="flex flex-wrap gap-x-6 gap-y-0.5">
+          {visible.map((e) => (
+            <span key={e.id}>
+              <span style={{ fontWeight: 600 }}>{e.title}</span>
+              {e.subtitle && <span style={{ opacity: 0.75 }}> · {e.subtitle}</span>}
+            </span>
+          ))}
+        </div>
+      );
+
+    case "interests":
+      return (
+        <div className="flex flex-wrap gap-1.5">
+          {visible.map((e) => (
+            <span key={e.id} className="px-2 py-0.5 rounded-full" style={{ border: "1px solid #d1d5db", fontSize: "0.85em" }}>
+              {e.title}
+            </span>
+          ))}
+        </div>
+      );
+
+    case "blog":
+    case "garden":
+      return (
+        <ul className="space-y-0.5">
+          {visible.map((e) => (
+            <li key={e.id} className="flex justify-between items-baseline gap-3">
+              <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
+                {e.title}
+                <LinkIcon style={style} />
+              </a>
+              {e.startDate && <span style={dateStyle(style)}>{fmtDate(e.startDate, style.dateFormat)}</span>}
+            </li>
+          ))}
+        </ul>
+      );
+
+    case "references":
+      return (
+        <div className={layout === "rows" ? "space-y-2" : "grid grid-cols-2 gap-3"}>
+          {visible.map((e) => (
+            <div key={e.id}>
+              <div style={entryHeaderStyle(style)}>{e.title}</div>
+              {e.subtitle && <div style={{ ...subtitleStyle(style), fontSize: "0.9em" }}>{e.subtitle}</div>}
+              {(e.meta?.organization as string) && <div style={{ fontSize: "0.85em", color: "#6b7280" }}>{e.meta?.organization as string}</div>}
+              {(e.meta?.email as string) && <div style={{ fontSize: "0.85em", color: "#6b7280" }}>{e.meta?.email as string}</div>}
+            </div>
+          ))}
+        </div>
+      );
+
+    default: {
+      const wrapCls = layout === "grid" ? "grid grid-cols-2 gap-x-4" : "";
+      return (
+        <div className={wrapCls}>
+          {visible.map((e) => (
+            <EntryRow key={e.id} entry={e} style={style} />
+          ))}
+        </div>
+      );
+    }
+  }
+}
+
+export const ResumePreview = ({ doc }: { doc: ResumeDocument }) => {
+  const { personal, style } = doc;
+  const sections = doc.sections.filter((s) => s.visible);
+
+  useEffect(() => {
+    loadFonts(style.bodyFont, style.nameFont);
+  }, [style.bodyFont, style.nameFont]);
+
+  const headerAlign = style.headerAlign === "center" ? "center" : "left";
+  const sep = style.headerDetails === "bar" ? "|" : style.headerDetails === "bullet" ? "•" : "";
+
+  const contactItems: { icon?: LucideIcon; node: React.ReactNode; key: string }[] = [];
+  if (personal.location) contactItems.push({ icon: MapPin, node: personal.location, key: "loc" });
+  if (personal.email) contactItems.push({ icon: Mail, node: personal.email, key: "email" });
+  if (personal.phone) contactItems.push({ icon: Phone, node: personal.phone, key: "phone" });
+  personal.links?.forEach((l) =>
+    contactItems.push({
+      icon: CONTACT_ICONS[l.icon] || Link2,
+      node: (
+        <a href={l.url} target="_blank" rel="noreferrer" style={linkStyle(style)}>
+          {l.label}
+        </a>
+      ),
+      key: l.label,
+    })
+  );
+
+  const showIcons = style.headerDetails === "icon";
+  const iconColor = style.accentApply.headerIcons ? style.accentColor : "#6b7280";
+
+  return (
+    <div className="overflow-auto bg-[var(--color-background)] rounded-xl p-4 flex justify-center">
+      <div className="resume-page bg-white shadow-xl" style={pageStyle(style)}>
+        {/* Header */}
+        <header style={{ textAlign: headerAlign as "left" | "center", marginBottom: "var(--r-gap)" }}>
+          {personal.photo && style.showPhoto && (
+            <img
+              src={personal.photo}
+              alt={personal.name}
+              style={{
+                width: style.photoSize, height: style.photoSize, objectFit: "cover",
+                borderRadius: style.photoShape === "circle" ? "9999px" : style.photoShape === "rounded" ? "12px" : "0",
+                margin: headerAlign === "center" ? "0 auto 6px" : "0 0 6px",
+              }}
+            />
+          )}
+          {personal.name && <h1 style={nameStyle(style)}>{personal.name}</h1>}
+          {personal.title && <p style={{ ...jobTitleStyle(style), fontSize: "0.95em", opacity: 0.9 }}>{personal.title}</p>}
+
+          <div
+            className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1"
+            style={{ fontSize: "0.8em", color: "#4b5563", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
+          >
+            {contactItems.map((c, i) => (
+              <span key={c.key} className="inline-flex items-center gap-1">
+                {showIcons && c.icon && <c.icon size={11} style={{ color: iconColor }} />}
+                {!showIcons && sep && i > 0 && <span className="opacity-50 mr-1">{sep}</span>}
+                {c.node}
+              </span>
+            ))}
+          </div>
+
+          {personal.extra && Object.keys(personal.extra).length > 0 && (
+            <div
+              className="flex flex-wrap gap-x-3 mt-0.5"
+              style={{ fontSize: "0.75em", color: "#6b7280", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
+            >
+              {Object.entries(personal.extra)
+                .filter(([, v]) => v)
+                .map(([k, v]) => (
+                  <span key={k}>
+                    {k}: {v}
+                  </span>
+                ))}
+            </div>
+          )}
+        </header>
+
+        {/* Sections */}
+        <div style={bodyStyle(style)}>
+          {sections.map((section) => {
+            const Icon = iconByName(section.icon);
+            return (
+              <section key={section.id} style={sectionStyle(style)}>
+                <h2 style={headingStyle(style)}>
+                  {style.headingIcons !== "none" && (
+                    <Icon
+                      size={13}
+                      className="inline mr-1 align-[-2px]"
+                      fill={style.headingIcons === "filled" ? "currentColor" : "none"}
+                    />
+                  )}
+                  {section.heading}
+                </h2>
+                <SectionBody section={section} style={style} />
+              </section>
+            );
+          })}
+          {sections.length === 0 && (
+            <p style={{ textAlign: "center", opacity: 0.4, marginTop: "3rem" }}>
+              No visible sections. Add content to get started.
+            </p>
+          )}
+        </div>
+
+        {/* Footer */}
+        {(style.footerText || style.showPageNumbers) && (
+          <footer
+            style={{ marginTop: "var(--r-gap)", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af", display: "flex", justifyContent: "space-between" }}
+          >
+            <span>{style.footerText}</span>
+            {style.showPageNumbers && <span>1</span>}
+          </footer>
+        )}
+      </div>
+    </div>
+  );
+};
