@@ -45,7 +45,7 @@ export interface ResumeEntry {
   meta?: Record<string, unknown>;
 }
 
-export type SectionLayout = "list" | "grid" | "rows" | "compact" | "bubble";
+export type SectionLayout = "list" | "grid" | "rows" | "compact" | "bubble" | "dots";
 
 export interface ResumeSection {
   id: string;
@@ -59,6 +59,8 @@ export interface ResumeSection {
   /** Custom sections render either as normal entries or as a skill chip group. */
   customType?: "normal" | "skill";
   layout?: SectionLayout;
+  /** Sidebar column assignment; unset falls back to a per-kind default. */
+  region?: "main" | "side";
   /** Per-section structural options (titleSubtitleOrder, groupPromotions, …). */
   options?: Record<string, unknown>;
   entries: ResumeEntry[];
@@ -87,7 +89,7 @@ export interface PersonalDetails {
 
 // ── Style ───────────────────────────────────────────────────────────────────
 
-export type ColumnMode = "one" | "two" | "mix";
+export type ColumnMode = "one" | "two" | "mix" | "sidebar";
 export type PaletteMode = "single" | "image";
 export type ColorScope = "page" | "header" | "border";
 export type HeadingCase = "capitalize" | "uppercase";

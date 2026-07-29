@@ -42,3 +42,37 @@ Changelog; the Unreleased section is the staging area until the first version is
   column mode became real (two columns with the summary and declaration spanning full
   width), and preview page numbers are honest, one per printed page instead of a
   hardcoded 1.
+- The physical-preview overhaul: the sheet is always a whole number of printed pages
+  tall, the footer pins to the final page's bottom wherever content ends, page numbers
+  center in each page's bottom margin, oversized formats (A3) scale to fit the preview
+  column, and the sheet's shadow no longer reads as a phantom next page.
+- Controls that show their work: every segmented option carries a small glyph of its
+  effect (entry layouts, the six heading styles in the live accent, column modes, and
+  more), sliders are real draggable range inputs, every settings pane has a Reset that
+  restores exactly its own fields, heading icons center on the baseline and take a size
+  control, and the colored header band's fill is separately controllable with an Auto
+  option that derives it from the accent.
+- The sample document exercises every setting: grouped skills, language rows, interest
+  bubbles, a declaration, and a linked, located experience entry.
+- Repo-backed sync, read-only and tokenless: point the Repo button at a public VITA
+  repository and Sync pulls the profile, palette, and every content seed straight from
+  its head, assembled into the same snapshot shape the admin exports. The file import
+  stays as the offline path.
+- The EPITOMA identity: the app wears its name and a pixel mark derived from VITA's
+  (the mosaic with a dog-eared page corner), in the header and the favicon.
+- A true sidebar layout after the researched two-column looks (AltaCV, the executive
+  two-tone): a rail column with a full-height fill that bleeds to the page edge, light
+  type on dark fills, and per-section main/rail assignment in the Layout pane. Languages
+  gained a dot-rating layout that reads proficiency words (Native, Fluent, B2, …).
+- Templates are offered per document kind, with three new looks: Rail (tinted sidebar
+  resume), Slate (deep-teal rail in light type), and Scholar (single serif column with
+  year-only dates, made for long CVs).
+
+### Fixed
+
+- Exports grabbed the first rendered sheet in the page, which, once template thumbnails
+  became real miniatures, was a thumbnail: PDF, Word, and LaTeX now target the live
+  sheet explicitly.
+- Fast-clicking a stepper no longer triggers the browser's text-selection popup, and
+  renaming a document replaces the duplicate and delete buttons so neither can act on a
+  half-renamed document.

@@ -22,6 +22,26 @@ const dims = (style: ResumeStyle) => {
   return { width: `${d.w}mm`, minHeight: `${d.h}mm` };
 };
 
+/** Perceived lightness of a hex color, 0..1 (for flipping type on fills). */
+export const luminance = (hex: string): number => {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return 1;
+  const c = (i: number) => parseInt(hex.slice(i, i + 2), 16) / 255;
+  return 0.299 * c(1) + 0.587 * c(3) + 0.114 * c(5);
+};
+
+/** The sidebar rail's fill and type colors. The fill doubles with the header
+ *  band's control; dark fills flip the rail's ink to light. */
+export function railColors(style: ResumeStyle): { bg: string; ink?: string; muted?: string } {
+  const bg = style.headerFillColor || tint(style.accentColor);
+  if (luminance(bg) < 0.55) {
+    return { bg, ink: "#f8fafc", muted: "rgba(248,250,252,0.72)" };
+  }
+  return { bg };
+}
+
+/** Rail width as a fraction of the content width (between the margins). */
+export const RAIL_FRAC = 0.34;
+
 /** Root page style incl. CSS custom properties used by descendants. */
 export function pageStyle(style: ResumeStyle): CSSProperties {
   const background =
@@ -100,7 +120,8 @@ export const subtitleStyle = (style: ResumeStyle): CSSProperties => ({
 });
 
 export const dateStyle = (style: ResumeStyle): CSSProperties => ({
-  color: a(style, style.accentApply.dates) || "#4b5563",
+  // The fallback rides a CSS variable so a dark sidebar rail can lift it.
+  color: a(style, style.accentApply.dates) || "var(--r-muted, #4b5563)",
   fontSize: "0.85em",
   whiteSpace: "nowrap",
 });

@@ -389,10 +389,20 @@ export const DEFAULT_STYLE: ResumeStyle = {
   showPageNumbers: false,
 };
 
+/** Which sidebar column a section belongs to when the document doesn't say:
+ *  reference-card material rides the rail, the story stays in the main flow. */
+const SIDE_KINDS = new Set([
+  "skills", "languages", "interests", "certificates", "awards", "references", "organizations",
+]);
+export const sectionRegion = (s: ResumeSection): "main" | "side" =>
+  s.region ?? (s.customType === "skill" || SIDE_KINDS.has(s.kind) ? "side" : "main");
+
 export interface TemplatePreset {
   key: string;
   label: string;
   description: string;
+  /** Which document kinds offer this look; resumes and CVs get distinct sets. */
+  kinds: DocumentKind[];
   style: Partial<ResumeStyle>;
 }
 
@@ -401,6 +411,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "classic",
     label: "Classic",
     description: "Centered header, ruled headings. The safe default for any application.",
+    kinds: ["resume", "cv"],
     style: {
       columns: "one", headerAlign: "center", headingStyle: 1, headingCase: "uppercase",
       bodyFont: "Inter", accentColor: "#2563eb", colorScope: "header", showPhoto: false,
@@ -411,6 +422,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "modern",
     label: "Modern",
     description: "Two columns, plain headings, color on the details. Reads fast.",
+    kinds: ["resume"],
     style: {
       columns: "two", headerAlign: "left", headingStyle: 3, headingCase: "capitalize",
       bodyFont: "Source Sans 3", accentColor: "#7c3aed", colorScope: "border", showPhoto: false,
@@ -422,6 +434,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "compact",
     label: "Compact",
     description: "Small type, tight spacing. One page even with a long record.",
+    kinds: ["resume"],
     style: {
       columns: "one", baseFontSize: 9, lineHeight: 1.15, elementSpacing: 5, marginX: 10, marginY: 10,
       headingStyle: 5, headingCase: "uppercase", bodyFont: "Roboto", accentColor: "#0f766e",
@@ -432,6 +445,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "twocol",
     label: "Two-Column",
     description: "Photo beside a left-set header, underlined headings, dense body.",
+    kinds: ["resume"],
     style: {
       columns: "two", headerAlign: "left", headingStyle: 2, headingCase: "uppercase",
       bodyFont: "Lato", accentColor: "#be123c", colorScope: "header", showPhoto: true,
@@ -442,6 +456,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "portrait",
     label: "Portrait",
     description: "Photo-forward with a circle portrait and accent-barred headings.",
+    kinds: ["resume", "cv"],
     style: {
       columns: "one", headerAlign: "left", headingStyle: 6, headingCase: "capitalize",
       bodyFont: "Source Sans 3", nameFont: "Merriweather", accentColor: "#0e7490",
@@ -454,6 +469,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "executive",
     label: "Executive",
     description: "Serif headings between double rules, near-black restraint.",
+    kinds: ["resume", "cv"],
     style: {
       columns: "one", headerAlign: "center", headingStyle: 4, headingCase: "uppercase",
       bodyFont: "Merriweather", accentColor: "#111827", colorScope: "page", showPhoto: false,
@@ -464,6 +480,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "banner",
     label: "Banner",
     description: "Tinted header block with a square photo. Confident opener.",
+    kinds: ["resume"],
     style: {
       columns: "one", headerAlign: "center", headingStyle: 1, headingCase: "capitalize",
       bodyFont: "Titillium Web", accentColor: "#1d4ed8", colorScope: "header", showPhoto: true,
@@ -475,11 +492,49 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
     key: "ledger",
     label: "Ledger",
     description: "Lora serif, hyphen lists, understated ochre. Quietly archival.",
+    kinds: ["cv"],
     style: {
       columns: "one", headerAlign: "left", headingStyle: 2, headingCase: "uppercase",
       bodyFont: "Lora", accentColor: "#a16207", colorScope: "page", showPhoto: false,
       headerDetails: "bullet", listStyle: "hyphen", lineHeight: 1.3,
       accentApply: { ...DEFAULT_STYLE.accentApply, headings: true, dates: true },
+    },
+  },
+  {
+    key: "rail",
+    label: "Rail",
+    description: "A tinted sidebar carries skills and languages; the story keeps the wide column.",
+    kinds: ["resume"],
+    style: {
+      columns: "sidebar", headerAlign: "left", headingStyle: 6, headingCase: "uppercase",
+      bodyFont: "Source Sans 3", accentColor: "#0f766e", colorScope: "header", showPhoto: true,
+      photoShape: "circle", photoSize: 72, headerDetails: "icon", elementSpacing: 9,
+      accentApply: { ...DEFAULT_STYLE.accentApply, headings: true, headerIcons: true },
+    },
+  },
+  {
+    key: "slate",
+    label: "Slate",
+    description: "A deep-teal rail set in light type. The executive two-tone look.",
+    kinds: ["resume", "cv"],
+    style: {
+      columns: "sidebar", headerAlign: "left", headingStyle: 3, headingCase: "uppercase",
+      bodyFont: "Lato", accentColor: "#0d9488", colorScope: "border", showPhoto: true,
+      photoShape: "circle", photoSize: 76, headerDetails: "icon",
+      headerFillColor: "#134e4a", elementSpacing: 9,
+      accentApply: { ...DEFAULT_STYLE.accentApply, headings: true, dates: true },
+    },
+  },
+  {
+    key: "scholar",
+    label: "Scholar",
+    description: "Single serif column, year-only dates, framed headings. Made for long CVs.",
+    kinds: ["cv"],
+    style: {
+      columns: "one", headerAlign: "center", headingStyle: 4, headingCase: "uppercase",
+      bodyFont: "Source Serif 4", accentColor: "#374151", colorScope: "page", showPhoto: false,
+      headerDetails: "bar", dateFormat: "YYYY", lineHeight: 1.4, marginX: 20, marginY: 18,
+      elementSpacing: 11,
     },
   },
 ];

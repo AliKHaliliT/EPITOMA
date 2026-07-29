@@ -8,11 +8,13 @@ import {
 import { PAGE_DIMS, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
 import { fmtResumeDate, languageLocale, presentWord } from "@/lib/resumeDates";
 import { iconByName } from "../icons";
+import type { CSSProperties } from "react";
 import {
   pageStyle, nameStyle, jobTitleStyle, headingStyle, subtitleStyle, dateStyle,
   entryHeaderStyle, linkStyle, descriptionClass, descriptionStyle, bodyStyle,
-  sectionStyle, loadFonts, tint,
+  sectionStyle, loadFonts, tint, railColors, RAIL_FRAC,
 } from "./previewStyles";
+import { sectionRegion } from "@/lib/resumeDefaults";
 
 const CONTACT_ICONS: Record<string, LucideIcon> = {
   Globe, Github, Linkedin, Twitter, GraduationCap, BookOpen, Link2,
@@ -84,6 +86,18 @@ function EntryRow({ entry, style }: { entry: ResumeEntry; style: ResumeStyle }) 
   );
 }
 
+/** Map a free-text proficiency ("Fluent", "B2", "Native…") to a 1–5 dot
+ *  rating for the languages "dots" layout. Unknown words read as solid 3. */
+function proficiencyDots(subtitle?: string): number {
+  const s = (subtitle || "").toLowerCase();
+  if (/native|mother|bilingual|c2/.test(s)) return 5;
+  if (/fluent|advanced|proficien|c1/.test(s)) return 4;
+  if (/intermediate|conversational|b2/.test(s)) return 3;
+  if (/elementary|basic|b1|a2/.test(s)) return 2;
+  if (/beginner|a1/.test(s)) return 1;
+  return 3;
+}
+
 function SectionBody({ section, style }: { section: ResumeSection; style: ResumeStyle }) {
   const visible = section.entries.filter((e) => !e.hidden);
   if (visible.length === 0) return <p style={{ opacity: 0.4, fontSize: "0.85em", fontStyle: "italic" }}>No entries.</p>;
@@ -122,6 +136,30 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
       );
 
     case "languages":
+      if (layout === "dots") {
+        return (
+          <div className="space-y-1">
+            {visible.map((e) => (
+              <div key={e.id} className="flex items-baseline justify-between gap-3">
+                <span style={{ fontWeight: 600 }}>{e.title}</span>
+                <span className="inline-flex items-center gap-[3px]" title={e.subtitle}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <span
+                      key={n}
+                      style={{
+                        width: "0.5em", height: "0.5em", borderRadius: "9999px",
+                        background: n <= proficiencyDots(e.subtitle) ? style.accentColor : "transparent",
+                        boxShadow: `inset 0 0 0 1px ${style.accentColor}`,
+                        opacity: n <= proficiencyDots(e.subtitle) ? 1 : 0.45,
+                      }}
+                    />
+                  ))}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      }
       if (layout === "grid") {
         return (
           <div className="grid grid-cols-2 gap-x-6 gap-y-0.5">
@@ -149,7 +187,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
       return (
         <div className="flex flex-wrap gap-1.5">
           {visible.map((e) => (
-            <span key={e.id} className="px-2 py-0.5 rounded-full" style={{ border: "1px solid #d1d5db", fontSize: "0.85em" }}>
+            <span key={e.id} className="px-2 py-0.5 rounded-full" style={{ border: "1px solid var(--r-chip-border, #d1d5db)", fontSize: "0.85em" }}>
               {e.title}
             </span>
           ))}
@@ -179,8 +217,8 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
             <div key={e.id}>
               <div style={entryHeaderStyle(style)}>{e.title}</div>
               {e.subtitle && <div style={{ ...subtitleStyle(style), fontSize: "0.9em" }}>{e.subtitle}</div>}
-              {(e.meta?.organization as string) && <div style={{ fontSize: "0.85em", color: "#6b7280" }}>{e.meta?.organization as string}</div>}
-              {(e.meta?.email as string) && <div style={{ fontSize: "0.85em", color: "#6b7280" }}>{e.meta?.email as string}</div>}
+              {(e.meta?.organization as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.organization as string}</div>}
+              {(e.meta?.email as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.email as string}</div>}
             </div>
           ))}
         </div>
@@ -262,6 +300,42 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
   const showIcons = style.headerDetails === "icon";
   const iconColor = style.accentApply.headerIcons ? style.accentColor : "#6b7280";
 
+  // Sidebar geometry: the rail is a fraction of the content width, and its
+  // band bleeds through the right margin to the sheet edge.
+  const pageWmm = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).w;
+  const railWidthMm = (pageWmm - style.marginX * 2) * RAIL_FRAC;
+  const rail = railColors(style);
+
+  const renderSection = (section: ResumeSection) => {
+    const Icon = iconByName(section.icon);
+    return (
+      <section
+        key={section.id}
+        style={{
+          ...sectionStyle(style),
+          // Mix layout: prose sections escape the columns.
+          ...(style.columns === "mix" &&
+          (section.kind === "summary" || section.kind === "declaration")
+            ? { columnSpan: "all" as const }
+            : {}),
+        }}
+      >
+        <h2 style={headingStyle(style)}>
+          {style.headingIcons !== "none" && (
+            <Icon
+              size={style.headingIconSize || 13}
+              className="mr-1 inline"
+              style={{ verticalAlign: "-0.125em" }}
+              fill={style.headingIcons === "filled" ? "currentColor" : "none"}
+            />
+          )}
+          {section.heading}
+        </h2>
+        <SectionBody section={section} style={style} />
+      </section>
+    );
+  };
+
   return (
     <div
       {...(live ? { "data-live-sheet": "" } : {})}
@@ -272,17 +346,37 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
         height: `${pages * pageHmm}mm`,
         display: "flex",
         flexDirection: "column",
+        position: "relative",
         // A tight lift, not a blur that reads as a phantom next page.
         boxShadow: "0 0 0 1px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.12)",
       }}
     >
-      <div ref={contentRef}>
+      {/* The rail's band: painted on the sheet so it runs the full height of
+          every page and bleeds through the right margin to the edge. */}
+      {style.columns === "sidebar" && (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: `${railWidthMm + style.marginX + 3.5}mm`,
+            background: rail.bg,
+          }}
+        />
+      )}
+      <div ref={contentRef} style={{ position: "relative" }}>
         {/* Header: with the "header" color scope, the name block sits on a
             full-bleed tinted band (negative margins undo the page padding). */}
         <header
           style={{
             textAlign: headerAlign as "left" | "center",
             marginBottom: "var(--r-gap)",
+            // Without a full-bleed band, the header stays off the rail.
+            ...(style.columns === "sidebar" && style.colorScope !== "header"
+              ? { paddingRight: `${railWidthMm + 7}mm` }
+              : {}),
             ...(style.colorScope === "header"
               ? {
                   background: style.headerFillColor || tint(style.accentColor),
@@ -336,49 +430,44 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
         </header>
 
         {/* Sections */}
-        <div style={bodyStyle(style)}>
-          {sections.map((section) => {
-            const Icon = iconByName(section.icon);
-            return (
-              <section
-                key={section.id}
-                style={{
-                  ...sectionStyle(style),
-                  // Mix layout: prose sections escape the columns.
-                  ...(style.columns === "mix" &&
-                  (section.kind === "summary" || section.kind === "declaration")
-                    ? { columnSpan: "all" as const }
-                    : {}),
-                }}
-              >
-                <h2 style={headingStyle(style)}>
-                  {style.headingIcons !== "none" && (
-                    <Icon
-                      size={style.headingIconSize || 13}
-                      className="mr-1 inline"
-                      style={{ verticalAlign: "-0.125em" }}
-                      fill={style.headingIcons === "filled" ? "currentColor" : "none"}
-                    />
-                  )}
-                  {section.heading}
-                </h2>
-                <SectionBody section={section} style={style} />
-              </section>
-            );
-          })}
-          {sections.length === 0 && (
-            <p style={{ textAlign: "center", opacity: 0.4, marginTop: "3rem" }}>
-              No visible sections. Add content to get started.
-            </p>
-          )}
-        </div>
+        {style.columns === "sidebar" ? (
+          // Two independent flows: the story keeps the wide column, the
+          // reference-card sections ride the rail (the tinted band behind it
+          // is painted at the sheet level so it spans every page).
+          <div style={{ display: "flex", gap: "7mm" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {sections.filter((s) => sectionRegion(s) === "main").map(renderSection)}
+            </div>
+            <div
+              style={{
+                width: `${railWidthMm}mm`,
+                flexShrink: 0,
+                ...(rail.ink ? { color: rail.ink } : {}),
+                ...(rail.muted
+                  ? ({ "--r-muted": rail.muted, "--r-chip-border": rail.muted } as CSSProperties)
+                  : {}),
+              }}
+            >
+              {sections.filter((s) => sectionRegion(s) === "side").map(renderSection)}
+            </div>
+          </div>
+        ) : (
+          <div style={bodyStyle(style)}>
+            {sections.map(renderSection)}
+          </div>
+        )}
+        {sections.length === 0 && (
+          <p style={{ textAlign: "center", opacity: 0.4, marginTop: "3rem" }}>
+            No visible sections. Add content to get started.
+          </p>
+        )}
 
         {/* Footer */}
       </div>
         {style.footerText && (
           <footer
             ref={footerRef}
-            style={{ marginTop: "auto", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af" }}
+            style={{ marginTop: "auto", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af", position: "relative" }}
           >
             {style.footerText}
           </footer>

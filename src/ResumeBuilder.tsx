@@ -165,6 +165,7 @@ export const ResumeBuilder = () => {
               {tab === "customize" && (
                 <CustomizePanel
                   style={rs.activeDoc.style}
+                  docKind={rs.activeDoc.kind}
                   onStyleChange={(style) => rs.update((d) => ({ ...d, style }))}
                   sections={rs.activeDoc.sections}
                   onSectionsChange={(sections) => rs.update((d) => ({ ...d, sections }))}

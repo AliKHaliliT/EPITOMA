@@ -4,13 +4,15 @@ import {
   Minus, Plus, GripVertical, Check as CheckIcon, Eye, RotateCcw,
   Link2, ExternalLink, MapPin, Image as ImageIcon, Square,
 } from "lucide-react";
-import { ResumeSection, ResumeStyle } from "@/types/resume";
-import { DEFAULT_STYLE, TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, type TemplatePreset } from "@/lib/resumeDefaults";
+import { DocumentKind, ResumeSection, ResumeStyle } from "@/types/resume";
+import { DEFAULT_STYLE, TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, sectionRegion, type TemplatePreset } from "@/lib/resumeDefaults";
 import { ResumeSheet } from "@/preview/ResumePreview";
 import { cn } from "@/lib/utils";
 
 interface CustomizePanelProps {
   style: ResumeStyle;
+  /** The active document's kind; templates are offered per kind. */
+  docKind: DocumentKind;
   onStyleChange: (style: ResumeStyle) => void;
   sections: ResumeSection[];
   onSectionsChange: (sections: ResumeSection[]) => void;
@@ -101,7 +103,7 @@ const SWATCHES = [
   "#0891b2", "#4f46e5", "#db2777", "#374151", "#111827", "#a16207",
 ];
 
-export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChange, sampleMode, onSampleModeChange }: CustomizePanelProps) => {
+export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSectionsChange, sampleMode, onSampleModeChange }: CustomizePanelProps) => {
   const [pane, setPane] = useState<Pane>("templates");
   const set = (patch: Partial<ResumeStyle>) => onStyleChange({ ...style, ...patch });
   const setAccent = (patch: Partial<ResumeStyle["accentApply"]>) =>
@@ -208,7 +210,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
             </span>
           </button>
           <div className="grid grid-cols-2 gap-3">
-            {TEMPLATE_PRESETS.map((t) => (
+            {TEMPLATE_PRESETS.filter((t) => t.kinds.includes(docKind)).map((t) => (
               <button
                 key={t.key}
                 onClick={() => set({ ...t.style, template: t.key })}
@@ -237,15 +239,31 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
                 { value: "one", label: "One", glyph: <ColumnsGlyph mode="one" /> },
                 { value: "two", label: "Two", glyph: <ColumnsGlyph mode="two" /> },
                 { value: "mix", label: "Mix", glyph: <ColumnsGlyph mode="mix" /> },
+                { value: "sidebar", label: "Sidebar", glyph: <ColumnsGlyph mode="sidebar" /> },
               ]} />
             <p className="m-0 text-xs text-[var(--color-text-secondary)]">
-              Mix keeps two columns but lets the summary and declaration span the full width.
+              {style.columns === "sidebar"
+                ? "Sidebar sets a tinted rail beside the main flow; assign each section below. The rail's fill is under Colors."
+                : "Mix keeps two columns but lets the summary and declaration span the full width."}
             </p>
             <div className="space-y-1.5">
               <Label>Section order</Label>
               <Reorder.Group axis="y" values={sections} onReorder={onSectionsChange} className="space-y-1">
                 {sections.map((s) => (
-                  <OrderRow key={s.id} section={s} />
+                  <OrderRow
+                    key={s.id}
+                    section={s}
+                    region={style.columns === "sidebar" ? sectionRegion(s) : undefined}
+                    onRegionToggle={() =>
+                      onSectionsChange(
+                        sections.map((x) =>
+                          x.id === s.id
+                            ? { ...x, region: sectionRegion(x) === "side" ? "main" as const : "side" as const }
+                            : x
+                        )
+                      )
+                    }
+                  />
                 ))}
               </Reorder.Group>
             </div>
@@ -341,9 +359,9 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
                 { value: "header", label: "Header", glyph: <ScopeGlyph mode="header" accent={style.accentColor} /> },
                 { value: "border", label: "Border", glyph: <ScopeGlyph mode="border" accent={style.accentColor} /> },
               ]} />
-            {style.colorScope === "header" && (
+            {(style.colorScope === "header" || style.columns === "sidebar") && (
               <div className="space-y-1.5">
-                <Label>Header fill</Label>
+                <Label>{style.columns === "sidebar" ? "Rail & header fill" : "Header fill"}</Label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -505,7 +523,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
 // Per-kind layout options offered in the Sections pane.
 const SECTION_LAYOUTS: Partial<Record<string, NonNullable<ResumeSection["layout"]>[]>> = {
   skills: ["compact", "bubble"],
-  languages: ["rows", "grid"],
+  languages: ["rows", "grid", "dots"],
   certificates: ["list", "rows", "grid"],
   interests: ["bubble", "rows"],
   references: ["grid", "rows"],
@@ -519,7 +537,16 @@ const Bar = ({ w, faint }: { w: string; faint?: boolean }) => (
   <span className={cn("block h-[3px] rounded-full bg-current", w, faint ? "opacity-40" : "opacity-70")} />
 );
 
-function ColumnsGlyph({ mode }: { mode: "one" | "two" | "mix" }) {
+function ColumnsGlyph({ mode }: { mode: "one" | "two" | "mix" | "sidebar" }) {
+  if (mode === "sidebar")
+    return (
+      <span className="flex w-7 gap-[3px]">
+        <span className="flex flex-1 flex-col gap-[2px]">
+          <Bar w="w-full" /><Bar w="w-5/6" /><Bar w="w-full" />
+        </span>
+        <span className="block w-2 rounded-[1px] bg-current opacity-40" />
+      </span>
+    );
   if (mode === "one")
     return (
       <span className="flex w-7 flex-col gap-[2px]">
@@ -781,7 +808,12 @@ function Check({ label, checked, onChange, compact }: {
   );
 }
 
-function OrderRow({ section }: { section: ResumeSection }) {
+function OrderRow({ section, region, onRegionToggle }: {
+  section: ResumeSection;
+  /** Set only in sidebar mode: which column this section lives in. */
+  region?: "main" | "side";
+  onRegionToggle?: () => void;
+}) {
   const controls = useDragControls();
   return (
     <Reorder.Item value={section} dragListener={false} dragControls={controls}
@@ -795,9 +827,23 @@ function OrderRow({ section }: { section: ResumeSection }) {
       </button>
       <span className="truncate text-sm text-[var(--color-text-primary)]">{section.heading}</span>
       {!section.visible && (
-        <span className="ml-auto font-mono text-[9px] uppercase tracking-wide text-[var(--color-text-secondary)] opacity-60">
+        <span className="font-mono text-[9px] uppercase tracking-wide text-[var(--color-text-secondary)] opacity-60">
           hidden
         </span>
+      )}
+      {region && (
+        <button
+          onClick={onRegionToggle}
+          className={cn(
+            "ml-auto rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em] transition-colors",
+            region === "side"
+              ? "border-signal text-signal"
+              : "border-[var(--color-border-strong)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+          )}
+          title="Toggle between the main column and the sidebar rail"
+        >
+          {region === "side" ? "rail" : "main"}
+        </button>
       )}
     </Reorder.Item>
   );
