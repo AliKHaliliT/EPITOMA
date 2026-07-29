@@ -25,3 +25,7 @@ Changelog; the Unreleased section is the staging area until the first version is
   guides showing exactly where printed pages end, a live page-count readout, eight
   templates with schematic thumbnails (photo-forward Portrait and Banner included), and a
   Customize panel rebuilt with grouped navigation and house-standard controls.
+- Template cards render real typeset miniatures of a sample document instead of abstract
+  schematics, the defaults gained breathing room (line height, margins, spacing), and the
+  font catalog became fully libre: every family is SIL OFL or Apache 2.0, with Lora
+  replacing the proprietary Georgia.

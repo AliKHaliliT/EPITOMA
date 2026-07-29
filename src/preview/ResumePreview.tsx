@@ -201,29 +201,16 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
 
 const MM_TO_PX = 96 / 25.4; // CSS reference pixel: 96 per inch, 25.4mm per inch
 
-export const ResumePreview = ({ doc }: { doc: ResumeDocument }) => {
+/** The bare rendered sheet: the whole document, no chrome. The live preview
+ *  wraps it with a toolbar and cut guides; template thumbnails render it at
+ *  small scale with sample content. */
+export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?: React.Ref<HTMLDivElement> }) => {
   const { personal, style } = doc;
   const sections = doc.sections.filter((s) => s.visible);
-  const pageRef = useRef<HTMLDivElement>(null);
-  const [pageCount, setPageCount] = useState(1);
-  const pageHeightPx = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h * MM_TO_PX;
 
   useEffect(() => {
     loadFonts(style.bodyFont, style.nameFont);
   }, [style.bodyFont, style.nameFont]);
-
-  // Watch the rendered sheet and translate its height into printed pages,
-  // so the cut guides always sit where the printer would cut.
-  useEffect(() => {
-    const el = pageRef.current;
-    if (!el) return;
-    const measure = () =>
-      setPageCount(Math.max(1, Math.ceil((el.offsetHeight - 1) / pageHeightPx)));
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [pageHeightPx]);
 
   const headerAlign = style.headerAlign === "center" ? "center" : "left";
   const sep = style.headerDetails === "bar" ? "|" : style.headerDetails === "bullet" ? "•" : "";
@@ -248,34 +235,7 @@ export const ResumePreview = ({ doc }: { doc: ResumeDocument }) => {
   const iconColor = style.accentApply.headerIcons ? style.accentColor : "#6b7280";
 
   return (
-    <div className="bg-[var(--color-background)] rounded-xl">
-      {/* Preview toolbar: the physical reality of the document at a glance. */}
-      <div className="flex items-center justify-between px-4 pt-3 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
-        <span>
-          {style.pageFormat} · {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).w} ×{" "}
-          {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h} mm
-        </span>
-        <span>
-          {pageCount} page{pageCount === 1 ? "" : "s"}
-        </span>
-      </div>
-      <div className="overflow-auto p-4 flex justify-center">
-      <div className="relative">
-        {/* Cut guides: one dashed line per printed page boundary. */}
-        {Array.from({ length: pageCount - 1 }, (_, i) => (
-          <div
-            key={i}
-            aria-hidden
-            className="pointer-events-none absolute left-0 right-0 z-10"
-            style={{ top: (i + 1) * pageHeightPx }}
-          >
-            <div className="border-t-2 border-dashed border-red-400/70" />
-            <span className="absolute right-1 top-0.5 rounded-sm bg-red-400/90 px-1 py-px font-mono text-[8.5px] uppercase tracking-wide text-white">
-              Page {i + 2}
-            </span>
-          </div>
-        ))}
-        <div ref={pageRef} className="resume-page bg-white shadow-xl" style={pageStyle(style)}>
+    <div ref={sheetRef} className="resume-page bg-white shadow-xl" style={pageStyle(style)}>
         {/* Header */}
         <header style={{ textAlign: headerAlign as "left" | "center", marginBottom: "var(--r-gap)" }}>
           {personal.photo && style.showPhoto && (
@@ -357,8 +317,59 @@ export const ResumePreview = ({ doc }: { doc: ResumeDocument }) => {
             {style.showPageNumbers && <span>1</span>}
           </footer>
         )}
-        </div>
+    </div>
+  );
+};
+
+export const ResumePreview = ({ doc }: { doc: ResumeDocument }) => {
+  const { style } = doc;
+  const pageRef = useRef<HTMLDivElement>(null);
+  const [pageCount, setPageCount] = useState(1);
+  const pageHeightPx = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h * MM_TO_PX;
+
+  // Watch the rendered sheet and translate its height into printed pages,
+  // so the cut guides always sit where the printer would cut.
+  useEffect(() => {
+    const el = pageRef.current;
+    if (!el) return;
+    const measure = () =>
+      setPageCount(Math.max(1, Math.ceil((el.offsetHeight - 1) / pageHeightPx)));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [pageHeightPx]);
+
+  return (
+    <div className="bg-[var(--color-background)] rounded-xl">
+      {/* Preview toolbar: the physical reality of the document at a glance. */}
+      <div className="flex items-center justify-between px-4 pt-3 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+        <span>
+          {style.pageFormat} · {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).w} ×{" "}
+          {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h} mm
+        </span>
+        <span>
+          {pageCount} page{pageCount === 1 ? "" : "s"}
+        </span>
       </div>
+      <div className="overflow-auto p-4 flex justify-center">
+        <div className="relative">
+          {/* Cut guides: one dashed line per printed page boundary. */}
+          {Array.from({ length: pageCount - 1 }, (_, i) => (
+            <div
+              key={i}
+              aria-hidden
+              className="pointer-events-none absolute left-0 right-0 z-10"
+              style={{ top: (i + 1) * pageHeightPx }}
+            >
+              <div className="border-t-2 border-dashed border-red-400/70" />
+              <span className="absolute right-1 top-0.5 rounded-sm bg-red-400/90 px-1 py-px font-mono text-[8.5px] uppercase tracking-wide text-white">
+                Page {i + 2}
+              </span>
+            </div>
+          ))}
+          <ResumeSheet doc={doc} sheetRef={pageRef} />
+        </div>
       </div>
     </div>
   );

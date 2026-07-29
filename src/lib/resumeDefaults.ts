@@ -27,6 +27,7 @@ import {
   PortfolioVolunteering,
 } from "../types/portfolio";
 import {
+  ResumeDocument,
   ResumeEntry,
   ResumeSection,
   ResumeStyle,
@@ -336,12 +337,12 @@ export const DEFAULT_STYLE: ResumeStyle = {
   baseFontSize: 10,
   nameFontSize: 14,
   headingFontSize: 3,
-  entryHeaderFontSize: 0,
+  entryHeaderFontSize: 1,
 
-  lineHeight: 1.25,
-  elementSpacing: 8,
-  marginX: 14,
-  marginY: 14,
+  lineHeight: 1.35,
+  elementSpacing: 9,
+  marginX: 16,
+  marginY: 16,
 
   entryLayout: 1,
   columnWidth: "auto",
@@ -474,10 +475,10 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   {
     key: "ledger",
     label: "Ledger",
-    description: "Georgia, hyphen lists, understated ochre. Quietly archival.",
+    description: "Lora serif, hyphen lists, understated ochre. Quietly archival.",
     style: {
       columns: "one", headerAlign: "left", headingStyle: 2, headingCase: "uppercase",
-      bodyFont: "Georgia", accentColor: "#a16207", colorScope: "page", showPhoto: false,
+      bodyFont: "Lora", accentColor: "#a16207", colorScope: "page", showPhoto: false,
       headerDetails: "bullet", listStyle: "hyphen", lineHeight: 1.3,
       accentApply: { ...DEFAULT_STYLE.accentApply, headings: true, dates: true },
     },
@@ -492,6 +493,9 @@ export interface FontOption {
   google?: string;
 }
 
+// Every family here is libre (SIL OFL or Apache 2.0) and loads from Google
+// Fonts at runtime; nothing proprietary is named, so documents render the
+// same everywhere and the template stays permissively licensed end to end.
 export const FONT_OPTIONS: FontOption[] = [
   { label: "Inter", stack: "'Inter', system-ui, sans-serif", google: "Inter:wght@400;500;600;700" },
   { label: "Source Sans 3", stack: "'Source Sans 3', system-ui, sans-serif", google: "Source+Sans+3:wght@400;600;700" },
@@ -499,8 +503,95 @@ export const FONT_OPTIONS: FontOption[] = [
   { label: "Roboto", stack: "'Roboto', system-ui, sans-serif", google: "Roboto:wght@400;500;700" },
   { label: "Titillium Web", stack: "'Titillium Web', system-ui, sans-serif", google: "Titillium+Web:wght@400;600;700" },
   { label: "Merriweather", stack: "'Merriweather', Georgia, serif", google: "Merriweather:wght@400;700" },
-  { label: "Georgia", stack: "Georgia, 'Times New Roman', serif" },
+  { label: "Lora", stack: "'Lora', Georgia, serif", google: "Lora:wght@400;600;700" },
+  { label: "Source Serif 4", stack: "'Source Serif 4', Georgia, serif", google: "Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" },
 ];
 
 export const fontStack = (label: string): string =>
   FONT_OPTIONS.find((f) => f.label === label)?.stack || FONT_OPTIONS[0].stack;
+
+// ── Template sample content ──────────────────────────────────────────────
+// A tiny fictional document rendered inside each template card, so choosing
+// a template means seeing it typeset, not guessing from an abstraction. The
+// portrait is the ecosystem's own hand-drawn SVG (original artwork; nothing
+// here carries a restrictive license).
+
+export const SAMPLE_PHOTO =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMyMjFiMTQiLz4gPGNpcmNsZSBjeD0iMjIiIGN5PSIyNCIgcj0iMS40IiBmaWxsPSIjZjBlN2Q4IiBvcGFjaXR5PSIwLjUiLz4gPGNpcmNsZSBjeD0iMTAyIiBjeT0iNjYiIHI9IjEuMSIgZmlsbD0iI2YwZTdkOCIgb3BhY2l0eT0iMC4zNSIvPiA8Y2lyY2xlIGN4PSIxNCIgY3k9Ijc4IiByPSIxLjIiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuMyIvPiA8Y2lyY2xlIGN4PSI5NSIgY3k9IjE0IiByPSIxLjMiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuNDUiLz4gPHBhdGggZD0iTTE4IDEyMCBDMTggODYgMzggNzAgNjAgNzAgQzgyIDcwIDEwMiA4NiAxMDIgMTIwIFoiIGZpbGw9IiM0YTNiMmEiLz4gPHBhdGggZD0iTTYwIDE0IEM0MCAxNCAzMCAzOCAzMiA2MCBDNDAgNTIgNTAgNDcgNjAgNDcgQzcwIDQ3IDgwIDUyIDg4IDYwIEM5MCAzOCA4MCAxNCA2MCAxNCBaIiBmaWxsPSIjNWM0YTMzIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNTIiIHI9IjE1IiBmaWxsPSIjMTUwZjBhIi8+IDxjaXJjbGUgY3g9IjU0IiBjeT0iNTEiIHI9IjIuNiIgZmlsbD0iI2ZmYjA2NiIvPiA8Y2lyY2xlIGN4PSI2NiIgY3k9IjUxIiByPSIyLjYiIGZpbGw9IiNmZmIwNjYiLz4gPHBhdGggZD0iTTg5IDI0IGwyLjQgNi40IDYuNCAyLjQgLTYuNCAyLjQgLTIuNCA2LjQgLTIuNCAtNi40IC02LjQgLTIuNCA2LjQgLTIuNCBaIiBmaWxsPSIjZmY4YTUwIi8+IDxjaXJjbGUgY3g9IjMxIiBjeT0iNDIiIHI9IjEuNiIgZmlsbD0iI2ZmOGE1MCIgb3BhY2l0eT0iMC43Ii8+IDwvc3ZnPg==";
+
+export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument {
+  return {
+    id: "sample",
+    name: "Sample",
+    kind: "resume",
+    createdAt: "",
+    updatedAt: "",
+    lastSyncedAt: "",
+    personal: {
+      name: "Wren Emberquill",
+      title: "Artificer",
+      location: "Cinderfen",
+      email: "wren@example.com",
+      photo: SAMPLE_PHOTO,
+      links: [{ id: "l1", label: "Portfolio", url: "#", icon: "Globe" }],
+    },
+    sections: [
+      {
+        id: "s1",
+        kind: "summary",
+        heading: "Summary",
+        visible: true,
+        source: "custom",
+        entries: [
+          {
+            id: "e0",
+            description:
+              "<p>Artificer of wards and golems; nine years of keeping intricate systems lit, calibrated, and shipped on time.</p>",
+          },
+        ],
+      },
+      {
+        id: "s2",
+        kind: "experience",
+        heading: "Experience",
+        visible: true,
+        source: "custom",
+        entries: [
+          {
+            id: "e1",
+            title: "Guild Artificer",
+            subtitle: "The Artificers' Guild",
+            startDate: "2024-03",
+            description:
+              "<ul><li>Keeps the eastern quarter's wards lit through every storm season.</li><li>Calibrated the golem fleet to a fault rate the guild had never seen.</li></ul>",
+          },
+          {
+            id: "e2",
+            title: "Foundry Enchanter",
+            subtitle: "Ironspire Foundry",
+            startDate: "2022-06",
+            endDate: "2024-02",
+            description: "<ul><li>Runesmithing at production scale.</li></ul>",
+          },
+        ],
+      },
+      {
+        id: "s3",
+        kind: "education",
+        heading: "Education",
+        visible: true,
+        source: "custom",
+        entries: [
+          {
+            id: "e3",
+            title: "Magister of Aetheric Systems",
+            subtitle: "The Academy of Aetheric Studies",
+            startDate: "2018-09",
+            endDate: "2020-06",
+          },
+        ],
+      },
+    ],
+    style: { ...DEFAULT_STYLE, ...stylePatch },
+  };
+}

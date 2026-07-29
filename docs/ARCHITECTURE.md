@@ -59,6 +59,14 @@ Export (`src/export/`) is dependency-free in three formats: **PDF** (opens the
 rendered page in a clean print window), **LaTeX** (a `.tex` file compilable with
 `pdflatex`), and **Word** (a `.doc` via Word-compatible HTML).
 
+## Licensing posture
+
+Everything the app ships or names is permissively licensed, matching the sister repos:
+the dependencies are MIT, ISC, BSD, or Apache, the document font catalog is entirely SIL
+OFL or Apache 2.0 families loaded from Google Fonts at runtime, and the sample portrait
+in the template cards is the ecosystem's own hand-drawn SVG. No proprietary font is
+named anywhere, so documents render identically on every machine.
+
 ## Known constraints
 
 - Everything is client-side; clearing browser storage deletes all documents.

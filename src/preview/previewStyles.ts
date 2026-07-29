@@ -128,21 +128,22 @@ export const sectionStyle = (_style: ResumeStyle): CSSProperties => ({
   breakInside: "avoid",
 });
 
-let loadedFonts = "";
-/** Inject a Google Fonts <link> for the chosen body/name fonts (once). */
+const loadedFamilies = new Set<string>();
+/** Inject a Google Fonts <link> for the chosen fonts. Cumulative: template
+ *  thumbnails render many families at once, so requested fonts stay loaded. */
 export function loadFonts(bodyFont: string, nameFont: string) {
   const families = [bodyFont, nameFont]
     .filter(Boolean)
     .map((label) => FONT_OPTIONS.find((f) => f.label === label)?.google)
     .filter(Boolean) as string[];
-  if (families.length === 0) return;
-  const key = families.sort().join("|");
-  if (key === loadedFonts) return;
-  loadedFonts = key;
+  const before = loadedFamilies.size;
+  families.forEach((f) => loadedFamilies.add(f));
+  if (loadedFamilies.size === before || loadedFamilies.size === 0) return;
 
   const id = "resume-fonts";
   let link = document.getElementById(id) as HTMLLinkElement | null;
-  const href = `https://fonts.googleapis.com/css2?${families
+  const href = `https://fonts.googleapis.com/css2?${[...loadedFamilies]
+    .sort()
     .map((f) => `family=${f}`)
     .join("&")}&display=swap`;
   if (!link) {

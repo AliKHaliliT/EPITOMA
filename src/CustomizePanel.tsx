@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { Minus, Plus, GripVertical, Check as CheckIcon } from "lucide-react";
 import { ResumeSection, ResumeStyle } from "@/types/resume";
-import { TEMPLATE_PRESETS, FONT_OPTIONS, type TemplatePreset } from "@/lib/resumeDefaults";
+import { TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, type TemplatePreset } from "@/lib/resumeDefaults";
+import { ResumeSheet } from "@/preview/ResumePreview";
 import { cn } from "@/lib/utils";
 
 interface CustomizePanelProps {
@@ -362,53 +363,35 @@ const SECTION_LAYOUTS: Partial<Record<string, NonNullable<ResumeSection["layout"
 
 // ── template thumbnail ──────────────────────────────────────────────────────
 
-/** A schematic mini-sheet honoring the preset's real decisions: header
- *  alignment, photo, color scope, and column count. */
+/** A real typeset miniature: the actual sheet renderer at small scale, fed
+ *  a fixed sample document, so choosing a template means seeing it set. */
 function TemplateThumb({ preset }: { preset: TemplatePreset }) {
-  const s = preset.style;
-  const accent = s.accentColor ?? "#2563eb";
-  const center = s.headerAlign === "center";
-  const two = s.columns === "two";
-  const align = center ? "items-center" : "items-start";
-
-  const bodyLine = (w: string, k: number) => (
-    <div key={k} className={cn("h-[3px] rounded-full bg-gray-300", w)} />
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.26);
+  const doc = useMemo(
+    () => sampleDocument({ ...preset.style, template: preset.key, pageFormat: "A4" }),
+    [preset]
   );
+
+  // Fit the 210mm sheet to whatever width the card actually has.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setScale(el.clientWidth / 794);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <div
-      className="relative h-28 w-full overflow-hidden rounded-[3px] border border-[var(--color-border)] bg-white"
-      style={{
-        background: s.colorScope === "page" ? `${accent}10` : "#ffffff",
-        borderLeft: s.colorScope === "border" ? `3px solid ${accent}` : undefined,
-      }}
+      ref={ref}
+      className="relative h-56 w-full overflow-hidden rounded-[3px] border border-[var(--color-border)] bg-white"
+      aria-hidden
     >
-      {/* Header block */}
-      <div
-        className={cn("flex flex-col gap-[3px] px-3 pb-2 pt-2.5", align)}
-        style={{ background: s.colorScope === "header" ? `${accent}1c` : undefined }}
-      >
-        {s.showPhoto && (
-          <div
-            className="mb-0.5 h-4 w-4 bg-gray-400"
-            style={{
-              borderRadius: s.photoShape === "circle" ? "9999px" : s.photoShape === "rounded" ? "4px" : "0",
-            }}
-          />
-        )}
-        <div className="h-[5px] w-16 rounded-full bg-gray-800" />
-        <div className="h-[3px] w-10 rounded-full" style={{ background: accent }} />
-      </div>
-      {/* Body */}
-      <div className={cn("px-3 pt-1.5", two ? "grid grid-cols-2 gap-x-2.5" : "")}>
-        <div className="space-y-[4px]">
-          <div className="h-[4px] w-8 rounded-full" style={{ background: accent }} />
-          {["w-full", "w-11/12", "w-4/5"].map(bodyLine)}
-        </div>
-        <div className={cn("space-y-[4px]", two ? "" : "mt-2")}>
-          <div className="h-[4px] w-8 rounded-full" style={{ background: accent }} />
-          {["w-11/12", "w-full", "w-3/4"].map(bodyLine)}
-        </div>
+      <div className="pointer-events-none origin-top-left" style={{ transform: `scale(${scale})`, width: 794 }}>
+        <ResumeSheet doc={doc} />
       </div>
     </div>
   );
