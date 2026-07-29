@@ -32,3 +32,8 @@ Changelog; the Unreleased section is the staging area until the first version is
 - A sample-data preview mode: a toggle in the Templates pane typesets the fixed sample
   document on the big sheet while you browse looks, with an amber chip on the preview
   marking the state and exiting it; the real document is never touched.
+- The document language is wired: month names and the open-ended range word render in
+  the chosen language (English, UK English, French, German, Spanish, Turkish, and
+  Azerbaijani), the sheet carries the matching lang attribute, and the LaTeX export
+  follows. Page and heading tints became opaque blends so a tinted sheet stays paper-white
+  under the app dark theme, and the header color scope finally renders its tinted band.

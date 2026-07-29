@@ -3,7 +3,7 @@
 // converted to LaTeX. Designed to compile with pdflatex out of the box.
 
 import { PAGE_DIMS, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
-import { fmtResumeDate } from "@/lib/resumeDates";
+import { fmtResumeDate, presentWord } from "@/lib/resumeDates";
 import { downloadFile, slugify } from "./shared";
 
 // ── text / html escaping ────────────────────────────────────────────────────
@@ -75,12 +75,16 @@ function htmlToLatex(html?: string): string {
 
 // ── dates ─────────────────────────────────────────────────────────────────
 
-const fmtDate = fmtResumeDate;
+// The document's language, set once per export so every date helper renders
+// month names and the open-ended range word in it.
+let currentLanguage = "English";
+const fmtDate = (d: string | undefined, fmt: string) =>
+  fmtResumeDate(d, fmt, currentLanguage);
 
 function dateRange(s: string | undefined, e: string | undefined, fmt: string): string {
   if (!s && !e) return "";
   if (s && e) return `${fmtDate(s, fmt)} -- ${fmtDate(e, fmt)}`;
-  if (s && !e) return `${fmtDate(s, fmt)} -- Present`;
+  if (s && !e) return `${fmtDate(s, fmt)} -- ${presentWord(currentLanguage)}`;
   return fmtDate(e, fmt);
 }
 
@@ -210,6 +214,7 @@ function renderHeader(doc: ResumeDocument): string {
 
 export function documentToLatex(doc: ResumeDocument): string {
   const { style } = doc;
+  currentLanguage = style.language;
   const paper = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).latex;
   const ptClass = style.baseFontSize <= 10 ? 10 : style.baseFontSize >= 12 ? 12 : 11;
   const accent = hexNoHash(style.accentColor);

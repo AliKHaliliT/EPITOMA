@@ -5,9 +5,17 @@ import { CSSProperties } from "react";
 import { PAGE_DIMS, ResumeStyle } from "@/types/resume";
 import { FONT_OPTIONS, fontStack } from "@/lib/resumeDefaults";
 
-/** 8%-opacity tint of a #rrggbb accent over white (for page/heading fills). */
-const tint = (hex: string, alpha = "14"): string =>
-  /^#[0-9a-fA-F]{6}$/.test(hex) ? `${hex}${alpha}` : "#f3f4f6";
+/** Opaque tint: the accent blended over WHITE, so a tinted page or heading
+ *  is a solid color. A translucent tint would let the app's dark theme bleed
+ *  through the sheet, which must always read as paper. */
+export const tint = (hex: string, alpha = 0.08): string => {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return "#f3f4f6";
+  const ch = (i: number) =>
+    Math.round(parseInt(hex.slice(i, i + 2), 16) * alpha + 255 * (1 - alpha))
+      .toString(16)
+      .padStart(2, "0");
+  return `#${ch(1)}${ch(3)}${ch(5)}`;
+};
 
 const dims = (style: ResumeStyle) => {
   const d = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;
@@ -77,7 +85,7 @@ export function headingStyle(style: ResumeStyle): CSSProperties {
     case 4:
       return { ...base, borderTop: `1px solid ${lineColor}`, borderBottom: `1px solid ${lineColor}`, padding: "2px 0" };
     case 5:
-      return { ...base, background: tint(style.accentColor, "1f"), padding: "2px 6px", borderRadius: "3px", color: a(style, style.accentApply.headings) };
+      return { ...base, background: tint(style.accentColor, 0.12), padding: "2px 6px", borderRadius: "3px", color: a(style, style.accentApply.headings) };
     case 6:
       return { ...base, borderLeft: `3px solid ${style.accentColor}`, paddingLeft: "6px" };
     default:

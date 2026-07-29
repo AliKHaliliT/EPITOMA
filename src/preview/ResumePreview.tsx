@@ -6,25 +6,25 @@ import {
   BookOpen, Link2, ExternalLink, type LucideIcon,
 } from "lucide-react";
 import { PAGE_DIMS, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
-import { fmtResumeDate } from "@/lib/resumeDates";
+import { fmtResumeDate, languageLocale, presentWord } from "@/lib/resumeDates";
 import { iconByName } from "../icons";
 import {
   pageStyle, nameStyle, jobTitleStyle, headingStyle, subtitleStyle, dateStyle,
   entryHeaderStyle, linkStyle, descriptionClass, descriptionStyle, bodyStyle,
-  sectionStyle, loadFonts,
+  sectionStyle, loadFonts, tint,
 } from "./previewStyles";
 
 const CONTACT_ICONS: Record<string, LucideIcon> = {
   Globe, Github, Linkedin, Twitter, GraduationCap, BookOpen, Link2,
 };
 
-// ── date formatting (honours style.dateFormat) ──────────────────────────────
-const fmtDate = fmtResumeDate;
-const range = (s: string | undefined, e: string | undefined, fmt: string) => {
+// ── date formatting (honours style.dateFormat + style.language) ─────────────
+const range = (s: string | undefined, e: string | undefined, style: ResumeStyle) => {
+  const f = (d: string | undefined) => fmtResumeDate(d, style.dateFormat, style.language);
   if (!s && !e) return "";
-  if (s && e) return `${fmtDate(s, fmt)} – ${fmtDate(e, fmt)}`;
-  if (s && !e) return `${fmtDate(s, fmt)} – Present`;
-  return fmtDate(e, fmt);
+  if (s && e) return `${f(s)} – ${f(e)}`;
+  if (s && !e) return `${f(s)} – ${presentWord(style.language)}`;
+  return f(e);
 };
 
 function Desc({ html, style }: { html?: string; style: ResumeStyle }) {
@@ -45,7 +45,7 @@ function LinkIcon({ style }: { style: ResumeStyle }) {
 }
 
 function EntryRow({ entry, style }: { entry: ResumeEntry; style: ResumeStyle }) {
-  const dates = range(entry.startDate, entry.endDate, style.dateFormat);
+  const dates = range(entry.startDate, entry.endDate, style);
   const dateRight = style.entryLayout === 1 || style.entryLayout === 3;
   const subtitleInline = style.subtitlePlacement === "same" || style.entryLayout === 3;
 
@@ -166,7 +166,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
                 {e.title}
                 <LinkIcon style={style} />
               </a>
-              {e.startDate && <span style={dateStyle(style)}>{fmtDate(e.startDate, style.dateFormat)}</span>}
+              {e.startDate && <span style={dateStyle(style)}>{fmtResumeDate(e.startDate, style.dateFormat, style.language)}</span>}
             </li>
           ))}
         </ul>
@@ -235,9 +235,22 @@ export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?:
   const iconColor = style.accentApply.headerIcons ? style.accentColor : "#6b7280";
 
   return (
-    <div ref={sheetRef} className="resume-page bg-white shadow-xl" style={pageStyle(style)}>
-        {/* Header */}
-        <header style={{ textAlign: headerAlign as "left" | "center", marginBottom: "var(--r-gap)" }}>
+    <div ref={sheetRef} lang={languageLocale(style.language)} className="resume-page bg-white shadow-xl" style={pageStyle(style)}>
+        {/* Header: with the "header" color scope, the name block sits on a
+            full-bleed tinted band (negative margins undo the page padding). */}
+        <header
+          style={{
+            textAlign: headerAlign as "left" | "center",
+            marginBottom: "var(--r-gap)",
+            ...(style.colorScope === "header"
+              ? {
+                  background: tint(style.accentColor),
+                  margin: `-${style.marginY}mm -${style.marginX}mm var(--r-gap)`,
+                  padding: `${style.marginY}mm ${style.marginX}mm 12px`,
+                }
+              : {}),
+          }}
+        >
           {personal.photo && style.showPhoto && (
             <img
               src={personal.photo}

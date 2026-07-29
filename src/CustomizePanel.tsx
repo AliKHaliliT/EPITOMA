@@ -128,7 +128,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         {pane === "document" && (
           <>
             <Select label="Language" value={style.language} onChange={(v) => set({ language: v })}
-              options={["English", "English (UK)", "French", "German", "Spanish"]} />
+              options={["English", "English (UK)", "French", "German", "Spanish", "Turkish", "Azerbaijani"]} />
             <Select label="Date format" value={style.dateFormat} onChange={(v) => set({ dateFormat: v })}
               options={["MMM YYYY", "MMM DD, YYYY", "MM/YYYY", "YYYY"]} />
             <Segmented label="Page size" value={style.pageFormat} onChange={(v) => set({ pageFormat: v as ResumeStyle["pageFormat"] })}
