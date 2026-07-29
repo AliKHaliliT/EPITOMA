@@ -321,7 +321,12 @@ export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?:
   );
 };
 
-export const ResumePreview = ({ doc }: { doc: ResumeDocument }) => {
+export const ResumePreview = ({ doc, sample, onExitSample }: {
+  doc: ResumeDocument;
+  /** True when the sheet shows the fixed sample document, not the record. */
+  sample?: boolean;
+  onExitSample?: () => void;
+}) => {
   const { style } = doc;
   const pageRef = useRef<HTMLDivElement>(null);
   const [pageCount, setPageCount] = useState(1);
@@ -348,7 +353,16 @@ export const ResumePreview = ({ doc }: { doc: ResumeDocument }) => {
           {style.pageFormat} · {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).w} ×{" "}
           {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h} mm
         </span>
-        <span>
+        <span className="flex items-center gap-2">
+          {sample && (
+            <button
+              onClick={onExitSample}
+              className="rounded-sm border border-amber-500/60 bg-amber-500/10 px-1.5 py-px text-amber-600 transition-colors hover:border-amber-500 dark:text-amber-400"
+              title="The sheet is showing sample data. Click to show your document."
+            >
+              Sample data ×
+            </button>
+          )}
           {pageCount} page{pageCount === 1 ? "" : "s"}
         </span>
       </div>

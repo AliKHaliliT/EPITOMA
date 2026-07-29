@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
-import { Minus, Plus, GripVertical, Check as CheckIcon } from "lucide-react";
+import { Minus, Plus, GripVertical, Check as CheckIcon, Eye } from "lucide-react";
 import { ResumeSection, ResumeStyle } from "@/types/resume";
 import { TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, type TemplatePreset } from "@/lib/resumeDefaults";
 import { ResumeSheet } from "@/preview/ResumePreview";
@@ -11,6 +11,9 @@ interface CustomizePanelProps {
   onStyleChange: (style: ResumeStyle) => void;
   sections: ResumeSection[];
   onSectionsChange: (sections: ResumeSection[]) => void;
+  /** When on, the live preview typesets the sample document instead of the record. */
+  sampleMode: boolean;
+  onSampleModeChange: (on: boolean) => void;
 }
 
 type Pane =
@@ -79,7 +82,7 @@ const SWATCHES = [
   "#0891b2", "#4f46e5", "#db2777", "#374151", "#111827", "#a16207",
 ];
 
-export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChange }: CustomizePanelProps) => {
+export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChange, sampleMode, onSampleModeChange }: CustomizePanelProps) => {
   const [pane, setPane] = useState<Pane>("templates");
   const set = (patch: Partial<ResumeStyle>) => onStyleChange({ ...style, ...patch });
   const setAccent = (patch: Partial<ResumeStyle["accentApply"]>) =>
@@ -140,6 +143,30 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         )}
 
         {pane === "templates" && (
+          <>
+          <button
+            onClick={() => onSampleModeChange(!sampleMode)}
+            className={cn(
+              "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+              sampleMode
+                ? "border-signal bg-[var(--color-background)] text-[var(--color-text-primary)]"
+                : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)]"
+            )}
+          >
+            <Eye size={15} className={sampleMode ? "text-signal" : undefined} />
+            <span className="flex-1">
+              Preview with sample data
+              <span className="block text-[11px] leading-snug opacity-80">
+                The big sheet typesets the sample record while you browse; your document is untouched.
+              </span>
+            </span>
+            <span className={cn(
+              "font-mono text-[9.5px] uppercase tracking-[0.1em]",
+              sampleMode ? "text-signal" : "opacity-60"
+            )}>
+              {sampleMode ? "on" : "off"}
+            </span>
+          </button>
           <div className="grid grid-cols-2 gap-3">
             {TEMPLATE_PRESETS.map((t) => (
               <button
@@ -160,6 +187,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
               </button>
             ))}
           </div>
+          </>
         )}
 
         {pane === "layout" && (

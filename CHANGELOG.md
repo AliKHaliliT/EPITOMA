@@ -29,3 +29,6 @@ Changelog; the Unreleased section is the staging area until the first version is
   schematics, the defaults gained breathing room (line height, margins, spacing), and the
   font catalog became fully libre: every family is SIL OFL or Apache 2.0, with Lora
   replacing the proprietary Georgia.
+- A sample-data preview mode: a toggle in the Templates pane typesets the fixed sample
+  document on the big sheet while you browse looks, with an amber chip on the preview
+  marking the state and exiting it; the real document is never touched.

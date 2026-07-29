@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LayoutGrid, FileBadge, FileText, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isResumeDocumentFile } from "@/types/resume";
+import { sampleDocument } from "@/lib/resumeDefaults";
 import { useResumes } from "./useResumes";
 import { usePortfolio } from "./portfolio/usePortfolio";
 import { DocumentBar } from "./DocumentBar";
@@ -27,6 +28,14 @@ export const ResumeBuilder = () => {
   const rs = useResumes();
   const portfolio = usePortfolio();
   const [tab, setTab] = useState<WorkspaceTab>("overview");
+  // Sample mode: the live preview typesets the fixed sample document with
+  // the CURRENT style, so templates can be judged full-size without the
+  // real record in the way. View-only; the document is never touched.
+  const [sampleMode, setSampleMode] = useState(false);
+  const previewDoc = useMemo(
+    () => (sampleMode && rs.activeDoc ? sampleDocument(rs.activeDoc.style) : rs.activeDoc),
+    [sampleMode, rs.activeDoc]
+  );
 
   // One Import button, two file kinds: a portfolio.json feeds content, an
   // exported document (.json) comes back as a new document with its styling
@@ -138,13 +147,15 @@ export const ResumeBuilder = () => {
                   onStyleChange={(style) => rs.update((d) => ({ ...d, style }))}
                   sections={rs.activeDoc.sections}
                   onSectionsChange={(sections) => rs.update((d) => ({ ...d, sections }))}
+                  sampleMode={sampleMode}
+                  onSampleModeChange={setSampleMode}
                 />
               )}
             </div>
 
             <div className="min-w-0">
               <div className="xl:sticky xl:top-4">
-                <ResumePreview doc={rs.activeDoc} />
+                <ResumePreview doc={previewDoc ?? rs.activeDoc} sample={sampleMode} onExitSample={() => setSampleMode(false)} />
               </div>
             </div>
           </div>
