@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { LayoutGrid, FileBadge, FileText, Wand2 } from "lucide-react";
+import { LayoutGrid, FileText, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isResumeDocumentFile } from "@/types/resume";
 import { sampleDocument } from "@/lib/resumeDefaults";
@@ -12,6 +12,19 @@ import { CustomizePanel } from "./CustomizePanel";
 import { ResumePreview } from "./preview/ResumePreview";
 
 type WorkspaceTab = "overview" | "content" | "customize";
+
+/** EPITOMA's pixel mark: VITA's 3×2 mosaic read as a sheet of paper, its
+ *  top-right cell dog-eared like a folded page corner (matches favicon.svg). */
+const BrandMark = () => (
+  <svg viewBox="0 0 32 32" className="h-9 w-9 text-[var(--color-text-primary)]" aria-hidden="true">
+    <rect x="2.5" y="7.5" width="7.5" height="7.5" fill="currentColor" />
+    <rect x="12.25" y="7.5" width="7.5" height="7.5" fill="#ff6b2e" />
+    <path d="M22 7.5 L29.5 15 L22 15 Z" fill="currentColor" />
+    <rect x="2.5" y="17" width="7.5" height="7.5" fill="currentColor" />
+    <rect x="12.25" y="17" width="7.5" height="7.5" fill="currentColor" />
+    <rect x="22" y="17" width="7.5" height="7.5" fill="#7fb5c9" />
+  </svg>
+);
 
 const TABS: { id: WorkspaceTab; label: string; icon: typeof FileText }[] = [
   { id: "overview", label: "Overview", icon: LayoutGrid },
@@ -74,15 +87,13 @@ export const ResumeBuilder = () => {
     <div className="space-y-8 pb-12">
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-[var(--color-background)] rounded-lg">
-            <FileBadge size={22} className="text-[var(--color-text-primary)]" />
-          </div>
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
-            Resume builder
+          <BrandMark />
+          <h1 className="text-3xl font-bold tracking-[0.06em] text-[var(--color-text-primary)]">
+            EPITOMA
           </h1>
         </div>
         <p className="text-[var(--color-text-secondary)] ml-12">
-          Build resumes and CVs from a portfolio exported by the TABULARIUM admin panel
+          The resume builder: resumes and CVs typeset from a VITA portfolio
         </p>
       </div>
 
