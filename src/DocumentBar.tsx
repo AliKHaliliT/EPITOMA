@@ -11,12 +11,15 @@ import {
   FileBadge,
   Upload,
   X,
+  BookMarked,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DocumentKind, ResumeDocument } from "@/types/resume";
 import { PortfolioSnapshot } from "@/types/portfolio";
+import type { RepoRef } from "./portfolio/repoSource";
 import { DownloadMenu } from "./export/DownloadMenu";
 import { ConfirmDialog } from "./components/ConfirmDialog";
+import { RepoConnectDialog } from "./components/RepoConnectDialog";
 
 interface DocumentBarProps {
   docs: ResumeDocument[];
@@ -26,9 +29,15 @@ interface DocumentBarProps {
   onDuplicate: () => void;
   onRemove: (id: string) => void;
   onRename: (name: string) => void;
-  onSync: () => void;
-  /** The imported portfolio.json: the builder's only content source. */
+  /** With a repo connected this refetches first, so it can take a moment
+   *  and it can fail; the bar owns the busy state and the error strip. */
+  onSync: () => Promise<unknown>;
+  /** The portfolio snapshot: the builder's only content source. */
   snapshot: PortfolioSnapshot | null;
+  /** The public VITA repo Sync refreshes from, when one is connected. */
+  repoRef: RepoRef | null;
+  onConnectRepo: (ref: RepoRef) => Promise<unknown>;
+  onDisconnectRepo: () => void;
   /** Handles both file kinds: a portfolio.json (content) and an exported
    *  document .json (comes back as a new document, styling intact). */
   onImportPortfolio: (file: File) => Promise<unknown>;
@@ -51,6 +60,9 @@ export const DocumentBar = ({
   onRename,
   onSync,
   snapshot,
+  repoRef,
+  onConnectRepo,
+  onDisconnectRepo,
   onImportPortfolio,
   onClearPortfolio,
 }: DocumentBarProps) => {
@@ -60,8 +72,22 @@ export const DocumentBar = ({
   const [newMenu, setNewMenu] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
+  const [repoDialog, setRepoDialog] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const runSync = async () => {
+    setSyncing(true);
+    setImportError(null);
+    try {
+      await onSync();
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : "Sync failed.");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const handleImportFile = async (file: File | undefined) => {
     if (!file) return;
@@ -184,8 +210,28 @@ export const DocumentBar = ({
       >
         <Upload size={14} /> Import
       </button>
+      <button
+        onClick={() => setRepoDialog(true)}
+        className={cn(
+          "flex items-center gap-1.5 px-3 py-2 border rounded-lg text-sm font-medium hover:bg-[var(--color-background)]",
+          repoRef
+            ? "border-signal/50 text-[var(--color-text-primary)]"
+            : "border-[var(--color-border)] text-[var(--color-text-primary)]"
+        )}
+        title={
+          repoRef
+            ? `Connected to ${repoRef.owner}/${repoRef.repo}; Sync refreshes from it`
+            : "Connect a public VITA repository as the content source (read-only, no token)"
+        }
+      >
+        <BookMarked size={14} className={repoRef ? "text-signal" : undefined} /> Repo
+      </button>
       <span className="hidden items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--color-text-secondary)] md:flex">
-        {snapshot ? (
+        {repoRef ? (
+          <span className="max-w-44 truncate" title={`${repoRef.owner}/${repoRef.repo}@${repoRef.branch}`}>
+            {repoRef.owner}/{repoRef.repo}
+          </span>
+        ) : snapshot ? (
           <>
             Portfolio · {relativeDate(snapshot.exportedAt)}
             <button
@@ -267,15 +313,18 @@ export const DocumentBar = ({
           </span>
           <button
             onClick={() => setPending("sync")}
-            disabled={!snapshot}
+            disabled={(!snapshot && !repoRef) || syncing}
             className="flex items-center gap-1.5 px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-background)] disabled:cursor-not-allowed disabled:opacity-45"
             title={
-              snapshot
+              repoRef
+                ? `Fetch the latest from ${repoRef.owner}/${repoRef.repo}, then sync this document`
+                : snapshot
                 ? "Sync from the imported portfolio"
-                : "Import a portfolio.json first: Sync pulls from it"
+                : "Import a portfolio.json or connect a repo first: Sync pulls from it"
             }
           >
-            <RefreshCw size={14} /> Sync
+            <RefreshCw size={14} className={syncing ? "animate-spin" : undefined} />
+            {syncing ? "Syncing…" : "Sync"}
           </button>
           <DownloadMenu doc={activeDoc} />
         </>
@@ -324,13 +373,24 @@ export const DocumentBar = ({
       <ConfirmDialog
         open={pending === "sync"}
         title="Sync from the portfolio?"
-        message="Synced content is overwritten with the imported portfolio's data. Custom sections, styling, and your show/hide and ordering choices are kept."
+        message={
+          repoRef
+            ? `The latest content is fetched from ${repoRef.owner}/${repoRef.repo} and synced sections are updated from it. Custom sections, styling, and your show/hide and ordering choices are kept.`
+            : "Synced content is overwritten with the imported portfolio's data. Custom sections, styling, and your show/hide and ordering choices are kept."
+        }
         confirmLabel="Sync"
         onConfirm={() => {
-          onSync();
           setPending(null);
+          void runSync();
         }}
         onCancel={() => setPending(null)}
+      />
+      <RepoConnectDialog
+        open={repoDialog}
+        repoRef={repoRef}
+        onConnect={onConnectRepo}
+        onDisconnect={onDisconnectRepo}
+        onClose={() => setRepoDialog(false)}
       />
     </div>
   );

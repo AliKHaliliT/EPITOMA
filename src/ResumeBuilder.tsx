@@ -55,6 +55,13 @@ export const ResumeBuilder = () => {
     await portfolio.importText(text);
   };
 
+  // Sync: with a repo connected, refresh the snapshot from it first so the
+  // document is brought up to the repo's head, not last import's state.
+  const handleSync = async () => {
+    if (portfolio.repoRef) await portfolio.refreshFromRepo();
+    rs.sync();
+  };
+
   const toggleSection = (sectionId: string) =>
     rs.update((d) => ({
       ...d,
@@ -88,8 +95,11 @@ export const ResumeBuilder = () => {
         onDuplicate={rs.duplicate}
         onRemove={rs.remove}
         onRename={rs.rename}
-        onSync={rs.sync}
+        onSync={handleSync}
         snapshot={portfolio.snapshot}
+        repoRef={portfolio.repoRef}
+        onConnectRepo={portfolio.connectRepo}
+        onDisconnectRepo={portfolio.disconnectRepo}
         onImportPortfolio={handleImportFile}
         onClearPortfolio={portfolio.clear}
       />
@@ -105,9 +115,9 @@ export const ResumeBuilder = () => {
           ) : (
             <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-md mx-auto">
               Start by clicking <strong>Import</strong> above and choosing a{" "}
-              <code className="font-mono text-xs">portfolio.json</code>, downloaded from
-              the admin panel under <strong>Site → Portfolio export</strong>. A blank
-              document works too, filled in by hand.
+              <code className="font-mono text-xs">portfolio.json</code> from the admin
+              panel, or <strong>Repo</strong> to pull straight from a public VITA
+              repository. A blank document works too, filled in by hand.
             </p>
           )}
         </div>
