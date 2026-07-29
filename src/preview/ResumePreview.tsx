@@ -285,7 +285,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
             marginBottom: "var(--r-gap)",
             ...(style.colorScope === "header"
               ? {
-                  background: tint(style.accentColor),
+                  background: style.headerFillColor || tint(style.accentColor),
                   margin: `-${style.marginY}mm -${style.marginX}mm var(--r-gap)`,
                   padding: `${style.marginY}mm ${style.marginX}mm 12px`,
                 }

@@ -361,6 +361,7 @@ export const DEFAULT_STYLE: ResumeStyle = {
   colorScope: "header",
   palette: "single",
   accentColor: "#2563eb",
+  headerFillColor: "",
   accentApply: {
     name: true,
     jobTitle: false,

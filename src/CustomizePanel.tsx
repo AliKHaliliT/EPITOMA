@@ -1,8 +1,11 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
-import { Minus, Plus, GripVertical, Check as CheckIcon, Eye } from "lucide-react";
+import {
+  Minus, Plus, GripVertical, Check as CheckIcon, Eye, RotateCcw,
+  Link2, ExternalLink, MapPin, Image as ImageIcon, Square,
+} from "lucide-react";
 import { ResumeSection, ResumeStyle } from "@/types/resume";
-import { TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, type TemplatePreset } from "@/lib/resumeDefaults";
+import { DEFAULT_STYLE, TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, type TemplatePreset } from "@/lib/resumeDefaults";
 import { ResumeSheet } from "@/preview/ResumePreview";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +80,22 @@ const PANE_HINTS: Record<Pane, string> = {
   footer: "The last line of every page.",
 };
 
+/** Which style fields each pane owns, so its Reset restores exactly those. */
+const PANE_FIELDS: Partial<Record<Pane, (keyof ResumeStyle)[]>> = {
+  document: ["language", "dateFormat", "pageFormat"],
+  layout: ["columns"],
+  font: ["bodyFont", "nameFont"],
+  fontsize: ["baseFontSize", "nameFontSize", "headingFontSize", "entryHeaderFontSize"],
+  spacing: ["lineHeight", "elementSpacing", "marginX", "marginY"],
+  entries: ["entryLayout", "subtitleStyle", "subtitlePlacement", "indentBody", "listStyle"],
+  headings: ["headingStyle", "headingCase", "headingIcons", "headingIconSize"],
+  colors: ["colorScope", "palette", "accentColor", "headerFillColor", "backgroundImage", "accentApply"],
+  header: ["headerAlign", "headerDetails"],
+  photo: ["showPhoto", "photoShape", "photoSize"],
+  links: ["linkUnderline", "linkColored", "linkIcon", "linkIconStyle"],
+  footer: ["footerText", "showPageNumbers"],
+};
+
 const SWATCHES = [
   "#2563eb", "#7c3aed", "#0f766e", "#be123c", "#ea580c", "#16a34a",
   "#0891b2", "#4f46e5", "#db2777", "#374151", "#111827", "#a16207",
@@ -89,6 +108,16 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
     set({ accentApply: { ...style.accentApply, ...patch } });
 
   const paneLabel = NAV.flatMap((g) => g.items).find((i) => i.id === pane)?.label ?? "";
+
+  const resetPane = () => {
+    const fields = PANE_FIELDS[pane];
+    if (!fields) return;
+    const patch: Partial<ResumeStyle> = {};
+    for (const f of fields) {
+      (patch as Record<string, unknown>)[f] = structuredClone(DEFAULT_STYLE[f]);
+    }
+    set(patch);
+  };
 
   return (
     <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl flex min-h-[420px]">
@@ -119,9 +148,20 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
 
       {/* Pane */}
       <div className="flex-1 overflow-y-auto p-5">
-        <div className="mb-4 border-b border-dashed border-[var(--color-border)] pb-3">
-          <h3 className="m-0 text-sm font-semibold text-[var(--color-text-primary)]">{paneLabel}</h3>
-          <p className="m-0 mt-0.5 text-xs text-[var(--color-text-secondary)]">{PANE_HINTS[pane]}</p>
+        <div className="mb-4 flex items-start justify-between gap-3 border-b border-dashed border-[var(--color-border)] pb-3">
+          <div>
+            <h3 className="m-0 text-sm font-semibold text-[var(--color-text-primary)]">{paneLabel}</h3>
+            <p className="m-0 mt-0.5 text-xs text-[var(--color-text-secondary)]">{PANE_HINTS[pane]}</p>
+          </div>
+          {PANE_FIELDS[pane] && (
+            <button
+              onClick={resetPane}
+              className="flex shrink-0 items-center gap-1 rounded-md border border-[var(--color-border)] px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
+              title={`Reset the ${paneLabel} settings to their defaults`}
+            >
+              <RotateCcw size={11} /> Reset
+            </button>
+          )}
         </div>
 
         <div className="space-y-5">
@@ -193,7 +233,11 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         {pane === "layout" && (
           <>
             <Segmented label="Columns" value={style.columns} onChange={(v) => set({ columns: v as ResumeStyle["columns"] })}
-              options={[{ value: "one", label: "One" }, { value: "two", label: "Two" }, { value: "mix", label: "Mix" }]} />
+              options={[
+                { value: "one", label: "One", glyph: <ColumnsGlyph mode="one" /> },
+                { value: "two", label: "Two", glyph: <ColumnsGlyph mode="two" /> },
+                { value: "mix", label: "Mix", glyph: <ColumnsGlyph mode="mix" /> },
+              ]} />
             <p className="m-0 text-xs text-[var(--color-text-secondary)]">
               Mix keeps two columns but lets the summary and declaration span the full width.
             </p>
@@ -229,25 +273,50 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         {pane === "entries" && (
           <>
             <Segmented label="Entry layout" value={String(style.entryLayout)} onChange={(v) => set({ entryLayout: Number(v) as ResumeStyle["entryLayout"] })}
-              options={[{ value: "1", label: "1" }, { value: "2", label: "2" }, { value: "3", label: "3" }]} />
+              options={[
+                { value: "1", label: "Date right", glyph: <EntryGlyph variant={1} /> },
+                { value: "2", label: "Stacked", glyph: <EntryGlyph variant={2} /> },
+                { value: "3", label: "One line", glyph: <EntryGlyph variant={3} /> },
+              ]} />
             <Segmented label="Subtitle style" value={style.subtitleStyle} onChange={(v) => set({ subtitleStyle: v as ResumeStyle["subtitleStyle"] })}
-              options={[{ value: "normal", label: "Normal" }, { value: "bold", label: "Bold" }, { value: "italic", label: "Italic" }]} />
+              options={[
+                { value: "normal", label: "Normal", glyph: <span className="text-[11px] leading-none">Co</span> },
+                { value: "bold", label: "Bold", glyph: <span className="text-[11px] font-bold leading-none">Co</span> },
+                { value: "italic", label: "Italic", glyph: <span className="text-[11px] italic leading-none">Co</span> },
+              ]} />
             <Segmented label="Subtitle placement" value={style.subtitlePlacement} onChange={(v) => set({ subtitlePlacement: v as ResumeStyle["subtitlePlacement"] })}
-              options={[{ value: "same", label: "Same line" }, { value: "next", label: "Next line" }]} />
+              options={[
+                { value: "same", label: "Same line", glyph: <PlacementGlyph same /> },
+                { value: "next", label: "Next line", glyph: <PlacementGlyph /> },
+              ]} />
             <Check label="Indent body" checked={style.indentBody} onChange={(v) => set({ indentBody: v })} />
             <Segmented label="List style" value={style.listStyle} onChange={(v) => set({ listStyle: v as ResumeStyle["listStyle"] })}
-              options={[{ value: "bullet", label: "Bullet" }, { value: "hyphen", label: "Hyphen" }]} />
+              options={[
+                { value: "bullet", label: "Bullet", glyph: <span className="font-mono text-[11px] leading-none">•</span> },
+                { value: "hyphen", label: "Hyphen", glyph: <span className="font-mono text-[11px] leading-none">-</span> },
+              ]} />
           </>
         )}
 
         {pane === "headings" && (
           <>
             <Segmented label="Style" value={String(style.headingStyle)} onChange={(v) => set({ headingStyle: Number(v) as ResumeStyle["headingStyle"] })}
-              options={[1, 2, 3, 4, 5, 6].map((n) => ({ value: String(n), label: String(n) }))} />
+              options={[1, 2, 3, 4, 5, 6].map((n) => ({
+                value: String(n),
+                label: HEADING_STYLE_LABELS[n - 1],
+                glyph: <HeadingGlyph variant={n as 1 | 2 | 3 | 4 | 5 | 6} accent={style.accentColor} />,
+              }))} />
             <Segmented label="Capitalization" value={style.headingCase} onChange={(v) => set({ headingCase: v as ResumeStyle["headingCase"] })}
-              options={[{ value: "capitalize", label: "Capitalize" }, { value: "uppercase", label: "Uppercase" }]} />
+              options={[
+                { value: "capitalize", label: "Capitalize", glyph: <span className="text-[11px] leading-none">Aa</span> },
+                { value: "uppercase", label: "Uppercase", glyph: <span className="text-[10px] font-semibold leading-none tracking-wide">AA</span> },
+              ]} />
             <Segmented label="Icons" value={style.headingIcons} onChange={(v) => set({ headingIcons: v as ResumeStyle["headingIcons"] })}
-              options={[{ value: "none", label: "None" }, { value: "outline", label: "Outline" }, { value: "filled", label: "Filled" }]} />
+              options={[
+                { value: "none", label: "None", glyph: <span className="text-[11px] leading-none opacity-40">×</span> },
+                { value: "outline", label: "Outline", glyph: <Square size={11} /> },
+                { value: "filled", label: "Filled", glyph: <Square size={11} fill="currentColor" /> },
+              ]} />
             {style.headingIcons !== "none" && (
               <Stepper label="Icon size" value={style.headingIconSize || 13} min={9} max={22} step={1} suffix="px" onChange={(v) => set({ headingIconSize: v })} />
             )}
@@ -267,9 +336,41 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         {pane === "colors" && (
           <>
             <Segmented label="Color scope" value={style.colorScope} onChange={(v) => set({ colorScope: v as ResumeStyle["colorScope"] })}
-              options={[{ value: "page", label: "Full Page" }, { value: "header", label: "Header" }, { value: "border", label: "Border" }]} />
+              options={[
+                { value: "page", label: "Full page", glyph: <ScopeGlyph mode="page" accent={style.accentColor} /> },
+                { value: "header", label: "Header", glyph: <ScopeGlyph mode="header" accent={style.accentColor} /> },
+                { value: "border", label: "Border", glyph: <ScopeGlyph mode="border" accent={style.accentColor} /> },
+              ]} />
+            {style.colorScope === "header" && (
+              <div className="space-y-1.5">
+                <Label>Header fill</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={style.headerFillColor || "#eef2fb"}
+                    onChange={(e) => set({ headerFillColor: e.target.value })}
+                    aria-label="Header band color"
+                    className="h-7 w-9 cursor-pointer rounded-md border border-[var(--color-border-strong)] bg-transparent p-0.5"
+                  />
+                  <button
+                    onClick={() => set({ headerFillColor: "" })}
+                    className={cn(
+                      "rounded-md border px-2.5 py-1 text-xs font-medium transition-colors",
+                      !style.headerFillColor
+                        ? "border-signal text-signal"
+                        : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                    )}
+                  >
+                    Auto (from accent)
+                  </button>
+                </div>
+              </div>
+            )}
             <Segmented label="Palette" value={style.palette} onChange={(v) => set({ palette: v as ResumeStyle["palette"] })}
-              options={[{ value: "single", label: "Single" }, { value: "image", label: "Image" }]} />
+              options={[
+                { value: "single", label: "Single", glyph: <span className="block h-3 w-3 rounded-sm" style={{ background: style.accentColor }} /> },
+                { value: "image", label: "Image", glyph: <ImageIcon size={12} /> },
+              ]} />
             {style.palette === "image" && (
               <div className="space-y-1.5">
                 <Label>Background image URL</Label>
@@ -316,9 +417,16 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         {pane === "header" && (
           <>
             <Segmented label="Alignment" value={style.headerAlign} onChange={(v) => set({ headerAlign: v as ResumeStyle["headerAlign"] })}
-              options={[{ value: "left", label: "Left" }, { value: "center", label: "Center" }]} />
+              options={[
+                { value: "left", label: "Left", glyph: <AlignGlyph /> },
+                { value: "center", label: "Center", glyph: <AlignGlyph center /> },
+              ]} />
             <Segmented label="Details arrangement" value={style.headerDetails} onChange={(v) => set({ headerDetails: v as ResumeStyle["headerDetails"] })}
-              options={[{ value: "icon", label: "Icon" }, { value: "bullet", label: "Bullet" }, { value: "bar", label: "Bar" }]} />
+              options={[
+                { value: "icon", label: "Icon", glyph: <span className="flex items-center gap-0.5 text-[9px] leading-none"><MapPin size={9} /> a</span> },
+                { value: "bullet", label: "Bullet", glyph: <span className="font-mono text-[10px] leading-none">a•b</span> },
+                { value: "bar", label: "Bar", glyph: <span className="font-mono text-[10px] leading-none">a|b</span> },
+              ]} />
           </>
         )}
 
@@ -326,7 +434,11 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
           <>
             <Check label="Show photo" checked={style.showPhoto} onChange={(v) => set({ showPhoto: v })} />
             <Segmented label="Shape" value={style.photoShape} onChange={(v) => set({ photoShape: v as ResumeStyle["photoShape"] })}
-              options={[{ value: "circle", label: "Circle" }, { value: "rounded", label: "Rounded" }, { value: "square", label: "Square" }]} />
+              options={[
+                { value: "circle", label: "Circle", glyph: <span className="block h-3.5 w-3.5 rounded-full bg-current opacity-60" /> },
+                { value: "rounded", label: "Rounded", glyph: <span className="block h-3.5 w-3.5 rounded bg-current opacity-60" /> },
+                { value: "square", label: "Square", glyph: <span className="block h-3.5 w-3.5 bg-current opacity-60" /> },
+              ]} />
             <Stepper label="Size" value={style.photoSize} min={48} max={160} step={4} suffix="px" onChange={(v) => set({ photoSize: v })} />
             <p className="m-0 text-xs text-[var(--color-text-secondary)]">
               The image itself lives in the header's personal details, synced from the
@@ -341,7 +453,10 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
             <Check label="Colored" checked={style.linkColored} onChange={(v) => set({ linkColored: v })} />
             <Check label="Link icon" checked={style.linkIcon} onChange={(v) => set({ linkIcon: v })} />
             <Segmented label="Icon style" value={style.linkIconStyle} onChange={(v) => set({ linkIconStyle: v as ResumeStyle["linkIconStyle"] })}
-              options={[{ value: "chain", label: "Chain" }, { value: "external", label: "External" }]} />
+              options={[
+                { value: "chain", label: "Chain", glyph: <Link2 size={11} /> },
+                { value: "external", label: "External", glyph: <ExternalLink size={11} /> },
+              ]} />
           </>
         )}
 
@@ -350,6 +465,9 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
             <div className="space-y-1.5">
               <Label>Footer text</Label>
               <input className={INPUT} value={style.footerText} onChange={(e) => set({ footerText: e.target.value })} placeholder="e.g. References available on request" />
+              <p className="m-0 text-xs text-[var(--color-text-secondary)]">
+                Pinned to the bottom of the final page, wherever the content ends.
+              </p>
             </div>
             <Check label="Show page numbers" checked={style.showPageNumbers} onChange={(v) => set({ showPageNumbers: v })} />
           </>
@@ -392,6 +510,110 @@ const SECTION_LAYOUTS: Partial<Record<string, NonNullable<ResumeSection["layout"
   interests: ["bubble", "rows"],
   references: ["grid", "rows"],
 };
+
+const HEADING_STYLE_LABELS = ["Rule", "Tab", "Plain", "Framed", "Filled", "Edge"];
+
+// ── option glyphs: tiny honest previews of what each choice does ────────────
+
+const Bar = ({ w, faint }: { w: string; faint?: boolean }) => (
+  <span className={cn("block h-[3px] rounded-full bg-current", w, faint ? "opacity-40" : "opacity-70")} />
+);
+
+function ColumnsGlyph({ mode }: { mode: "one" | "two" | "mix" }) {
+  if (mode === "one")
+    return (
+      <span className="flex w-7 flex-col gap-[2px]">
+        <Bar w="w-full" /><Bar w="w-5/6" /><Bar w="w-full" />
+      </span>
+    );
+  if (mode === "two")
+    return (
+      <span className="grid w-7 grid-cols-2 gap-x-[3px] gap-y-[2px]">
+        <Bar w="w-full" /><Bar w="w-full" /><Bar w="w-5/6" /><Bar w="w-4/6" />
+      </span>
+    );
+  return (
+    <span className="flex w-7 flex-col gap-[2px]">
+      <Bar w="w-full" />
+      <span className="grid grid-cols-2 gap-x-[3px] gap-y-[2px]">
+        <Bar w="w-full" /><Bar w="w-5/6" />
+      </span>
+    </span>
+  );
+}
+
+function EntryGlyph({ variant }: { variant: 1 | 2 | 3 }) {
+  if (variant === 1)
+    return (
+      <span className="flex w-9 flex-col gap-[2px]">
+        <span className="flex items-center justify-between"><Bar w="w-4" /><Bar w="w-2" faint /></span>
+        <Bar w="w-6" faint />
+      </span>
+    );
+  if (variant === 2)
+    return (
+      <span className="flex w-9 flex-col gap-[2px]">
+        <Bar w="w-4" />
+        <Bar w="w-6" faint />
+        <Bar w="w-2" faint />
+      </span>
+    );
+  return (
+    <span className="flex w-9 items-center gap-[3px]">
+      <Bar w="w-3" /><Bar w="w-2" faint /><Bar w="w-2" faint />
+    </span>
+  );
+}
+
+function PlacementGlyph({ same }: { same?: boolean }) {
+  if (same)
+    return (
+      <span className="flex w-8 items-center gap-[3px]"><Bar w="w-3" /><Bar w="w-3" faint /></span>
+    );
+  return (
+    <span className="flex w-8 flex-col gap-[2px]"><Bar w="w-4" /><Bar w="w-3" faint /></span>
+  );
+}
+
+function AlignGlyph({ center }: { center?: boolean }) {
+  return (
+    <span className={cn("flex w-8 flex-col gap-[2px]", center ? "items-center" : "items-start")}>
+      <Bar w="w-5" /><Bar w="w-3" faint />
+    </span>
+  );
+}
+
+function HeadingGlyph({ variant, accent }: { variant: 1 | 2 | 3 | 4 | 5 | 6; accent: string }) {
+  const text = <span className="text-[10px] font-semibold leading-none">Aa</span>;
+  switch (variant) {
+    case 1:
+      return <span className="block border-b pb-[2px] px-1" style={{ borderColor: accent }}>{text}</span>;
+    case 2:
+      return <span className="inline-block border-b-2 pb-px" style={{ borderColor: accent }}>{text}</span>;
+    case 3:
+      return text;
+    case 4:
+      return <span className="border-y py-[2px]" style={{ borderColor: accent }}>{text}</span>;
+    case 5:
+      return <span className="rounded-sm px-1 py-[2px]" style={{ background: `${accent}26` }}>{text}</span>;
+    case 6:
+      return <span className="border-l-2 pl-1" style={{ borderColor: accent }}>{text}</span>;
+  }
+}
+
+function ScopeGlyph({ mode, accent }: { mode: "page" | "header" | "border"; accent: string }) {
+  return (
+    <span
+      className="block h-4 w-6 overflow-hidden rounded-[2px] border border-[var(--color-border-strong)]"
+      style={{
+        background: mode === "page" ? `${accent}2e` : "#fff",
+        borderLeft: mode === "border" ? `3px solid ${accent}` : undefined,
+      }}
+    >
+      {mode === "header" && <span className="block h-[6px] w-full" style={{ background: `${accent}55` }} />}
+    </span>
+  );
+}
 
 // ── template thumbnail ──────────────────────────────────────────────────────
 
@@ -487,8 +709,12 @@ function Stepper({ label, value, min, max, step, suffix, prefix, onChange }: {
 }
 
 function Segmented({ label, value, options, onChange }: {
-  label?: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void;
+  label?: string;
+  value: string;
+  options: { value: string; label: string; glyph?: React.ReactNode }[];
+  onChange: (v: string) => void;
 }) {
+  const hasGlyphs = options.some((o) => o.glyph);
   return (
     <div className="space-y-1.5">
       {label && <Label>{label}</Label>}
@@ -498,13 +724,17 @@ function Segmented({ label, value, options, onChange }: {
             key={o.value}
             onClick={() => onChange(o.value)}
             className={cn(
-              "border-r border-[var(--color-border)] px-3 py-1.5 text-xs font-medium transition-colors last:border-r-0",
+              "border-r border-[var(--color-border)] text-xs font-medium transition-colors last:border-r-0",
+              hasGlyphs
+                ? "flex min-w-14 flex-col items-center justify-end gap-1.5 px-2.5 py-2"
+                : "px-3 py-1.5",
               value === o.value
                 ? "bg-[var(--color-text-primary)] text-[var(--color-background)]"
                 : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
             )}
           >
-            {o.label}
+            {o.glyph}
+            <span className={hasGlyphs ? "text-[10px] leading-none" : undefined}>{o.label}</span>
           </button>
         ))}
       </div>

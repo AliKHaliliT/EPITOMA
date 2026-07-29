@@ -168,6 +168,8 @@ export interface ResumeStyle {
   colorScope: ColorScope;
   palette: PaletteMode;
   accentColor: string;
+  /** Header band fill when colorScope is "header"; "" derives from accent. */
+  headerFillColor: string;
   backgroundImage?: string; // when palette === "image"
   accentApply: AccentApply;
 
