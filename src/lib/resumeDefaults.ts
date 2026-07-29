@@ -560,6 +560,8 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
             id: "e1",
             title: "Guild Artificer",
             subtitle: "The Artificers' Guild",
+            location: "Cinderfen",
+            link: "#",
             startDate: "2024-03",
             description:
               "<ul><li>Keeps the eastern quarter's wards lit through every storm season.</li><li>Calibrated the golem fleet to a fault rate the guild had never seen.</li></ul>",
@@ -587,6 +589,55 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
             subtitle: "The Academy of Aetheric Studies",
             startDate: "2018-09",
             endDate: "2020-06",
+          },
+        ],
+      },
+      // The rest exist so every Customize control has something to act on:
+      // grouped skill rows, language rows, interest bubbles, a declaration.
+      {
+        id: "s4",
+        kind: "skills",
+        heading: "Skills",
+        visible: true,
+        source: "custom",
+        entries: [
+          { id: "e4", title: "Wardcraft", meta: { items: ["Sigils", "Glyph tuning", "Stormproofing"] } },
+          { id: "e5", title: "Golemry", meta: { items: ["Calibration", "Core etching"] } },
+        ],
+      },
+      {
+        id: "s5",
+        kind: "languages",
+        heading: "Languages",
+        visible: true,
+        source: "custom",
+        entries: [
+          { id: "e6", title: "Common", subtitle: "Native" },
+          { id: "e7", title: "Old Runic", subtitle: "Fluent" },
+        ],
+      },
+      {
+        id: "s6",
+        kind: "interests",
+        heading: "Interests",
+        visible: true,
+        source: "custom",
+        entries: [
+          { id: "e8", title: "Clockwork birds" },
+          { id: "e9", title: "Foraging" },
+          { id: "e10", title: "Star charts" },
+        ],
+      },
+      {
+        id: "s7",
+        kind: "declaration",
+        heading: "Declaration",
+        visible: true,
+        source: "custom",
+        entries: [
+          {
+            id: "e11",
+            description: "<p>I certify that the wards described above were, at the time of writing, lit.</p>",
           },
         ],
       },
