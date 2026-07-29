@@ -353,6 +353,7 @@ export const DEFAULT_STYLE: ResumeStyle = {
   headingStyle: 1,
   headingCase: "uppercase",
   headingIcons: "none",
+  headingIconSize: 13,
 
   bodyFont: "Inter",
   nameFont: "",

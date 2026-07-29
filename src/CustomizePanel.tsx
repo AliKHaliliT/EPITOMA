@@ -128,7 +128,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         {pane === "document" && (
           <>
             <Select label="Language" value={style.language} onChange={(v) => set({ language: v })}
-              options={["English", "English (UK)", "French", "German", "Spanish", "Turkish", "Azerbaijani"]} />
+              options={["Azerbaijani", "English", "English (UK)", "French", "German", "Spanish", "Turkish"]} />
             <Select label="Date format" value={style.dateFormat} onChange={(v) => set({ dateFormat: v })}
               options={["MMM YYYY", "MMM DD, YYYY", "MM/YYYY", "YYYY"]} />
             <Segmented label="Page size" value={style.pageFormat} onChange={(v) => set({ pageFormat: v as ResumeStyle["pageFormat"] })}
@@ -248,6 +248,9 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
               options={[{ value: "capitalize", label: "Capitalize" }, { value: "uppercase", label: "Uppercase" }]} />
             <Segmented label="Icons" value={style.headingIcons} onChange={(v) => set({ headingIcons: v as ResumeStyle["headingIcons"] })}
               options={[{ value: "none", label: "None" }, { value: "outline", label: "Outline" }, { value: "filled", label: "Filled" }]} />
+            {style.headingIcons !== "none" && (
+              <Stepper label="Icon size" value={style.headingIconSize || 13} min={9} max={22} step={1} suffix="px" onChange={(v) => set({ headingIconSize: v })} />
+            )}
           </>
         )}
 
@@ -442,9 +445,8 @@ function Stepper({ label, value, min, max, step, suffix, prefix, onChange }: {
   suffix?: string; prefix?: string; onChange: (v: number) => void;
 }) {
   const clamp = (v: number) => Math.min(max, Math.max(min, Math.round(v / step) * step));
-  const pct = ((value - min) / (max - min)) * 100;
   return (
-    <div className="space-y-1.5">
+    <div className="select-none space-y-1.5">
       <div className="flex items-baseline justify-between">
         <Label>{label}</Label>
         <span className="font-mono text-[11px] text-[var(--color-text-primary)]">
@@ -454,20 +456,26 @@ function Stepper({ label, value, min, max, step, suffix, prefix, onChange }: {
       <div className="flex items-center gap-2">
         <button
           onClick={() => onChange(clamp(value - step))}
+          onMouseDown={(e) => e.preventDefault()}
           aria-label={`Decrease ${label}`}
           className="rounded-md border border-[var(--color-border)] p-1 text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
         >
           <Minus size={13} />
         </button>
-        <div className="relative h-1 flex-1 rounded-full bg-[var(--color-border)]">
-          <div className="absolute inset-y-0 left-0 rounded-full bg-signal" style={{ width: `${pct}%` }} />
-          <div
-            className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border border-signal bg-[var(--color-card)]"
-            style={{ left: `calc(${pct}% - 5px)` }}
-          />
-        </div>
+        {/* A real range input: draggable, keyboard-accessible, smooth. */}
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(clamp(Number(e.target.value)))}
+          aria-label={label}
+          className="h-1 flex-1 cursor-pointer accent-signal"
+        />
         <button
           onClick={() => onChange(clamp(value + step))}
+          onMouseDown={(e) => e.preventDefault()}
           aria-label={`Increase ${label}`}
           className="rounded-md border border-[var(--color-border)] p-1 text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
         >

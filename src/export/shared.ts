@@ -51,9 +51,11 @@ export function downloadFile(filename: string, mime: string, content: string | B
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/** Grab the live preview's A4 page element (rendered by ResumePreview). */
+/** Grab the LIVE preview's page element. The template thumbnails render
+ *  .resume-page too, so the live one carries a data marker; grabbing the
+ *  first .resume-page in the DOM used to export a thumbnail. */
 export const getResumePageEl = (): HTMLElement | null =>
-  document.querySelector<HTMLElement>(".resume-page");
+  document.querySelector<HTMLElement>('.resume-page[data-live-sheet]');
 
 /** Self-contained copy of the `.resume-prose` rules from index.css, so exported
  *  documents render entry descriptions (lists, alignment, underline) correctly

@@ -204,13 +204,41 @@ const MM_TO_PX = 96 / 25.4; // CSS reference pixel: 96 per inch, 25.4mm per inch
 /** The bare rendered sheet: the whole document, no chrome. The live preview
  *  wraps it with a toolbar and cut guides; template thumbnails render it at
  *  small scale with sample content. */
-export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?: React.Ref<HTMLDivElement> }) => {
+export const ResumeSheet = ({ doc, live, onPageCount }: {
+  doc: ResumeDocument;
+  /** Marks the sheet exports may grab (thumbnails never set it). */
+  live?: boolean;
+  onPageCount?: (n: number) => void;
+}) => {
   const { personal, style } = doc;
   const sections = doc.sections.filter((s) => s.visible);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+  const [pages, setPages] = useState(1);
+  const pageHmm = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h;
 
   useEffect(() => {
     loadFonts(style.bodyFont, style.nameFont);
   }, [style.bodyFont, style.nameFont]);
+
+  // The sheet is always a whole number of pages tall: content is measured,
+  // the count is derived, and the footer pins to the final page's bottom.
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const measure = () => {
+      const footerH = footerRef.current?.offsetHeight ?? 0;
+      const padY = style.marginY * 2 * MM_TO_PX;
+      const natural = el.offsetHeight + footerH + padY;
+      const n = Math.max(1, Math.ceil((natural - 1) / (pageHmm * MM_TO_PX)));
+      setPages(n);
+      onPageCount?.(n);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [pageHmm, style.marginY, style.footerText, onPageCount]);
 
   const headerAlign = style.headerAlign === "center" ? "center" : "left";
   const sep = style.headerDetails === "bar" ? "|" : style.headerDetails === "bullet" ? "•" : "";
@@ -235,7 +263,20 @@ export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?:
   const iconColor = style.accentApply.headerIcons ? style.accentColor : "#6b7280";
 
   return (
-    <div ref={sheetRef} lang={languageLocale(style.language)} className="resume-page bg-white shadow-xl" style={pageStyle(style)}>
+    <div
+      {...(live ? { "data-live-sheet": "" } : {})}
+      lang={languageLocale(style.language)}
+      className="resume-page bg-white"
+      style={{
+        ...pageStyle(style),
+        height: `${pages * pageHmm}mm`,
+        display: "flex",
+        flexDirection: "column",
+        // A tight lift, not a blur that reads as a phantom next page.
+        boxShadow: "0 0 0 1px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.12)",
+      }}
+    >
+      <div ref={contentRef}>
         {/* Header: with the "header" color scope, the name block sits on a
             full-bleed tinted band (negative margins undo the page padding). */}
         <header
@@ -313,8 +354,9 @@ export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?:
                 <h2 style={headingStyle(style)}>
                   {style.headingIcons !== "none" && (
                     <Icon
-                      size={13}
-                      className="inline mr-1 align-[-2px]"
+                      size={style.headingIconSize || 13}
+                      className="mr-1 inline"
+                      style={{ verticalAlign: "-0.125em" }}
                       fill={style.headingIcons === "filled" ? "currentColor" : "none"}
                     />
                   )}
@@ -332,9 +374,11 @@ export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?:
         </div>
 
         {/* Footer */}
+      </div>
         {style.footerText && (
           <footer
-            style={{ marginTop: "var(--r-gap)", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af" }}
+            ref={footerRef}
+            style={{ marginTop: "auto", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af" }}
           >
             {style.footerText}
           </footer>
@@ -350,22 +394,24 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
   onExitSample?: () => void;
 }) => {
   const { style } = doc;
-  const pageRef = useRef<HTMLDivElement>(null);
   const [pageCount, setPageCount] = useState(1);
-  const pageHeightPx = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h * MM_TO_PX;
+  const dims = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;
+  const pageHeightPx = dims.h * MM_TO_PX;
+  const sheetWidthPx = dims.w * MM_TO_PX;
 
-  // Watch the rendered sheet and translate its height into printed pages,
-  // so the cut guides always sit where the printer would cut.
+  // Fit the sheet to the available width: A3 shrinks to fit instead of
+  // overflowing, A5 renders at its real size.
+  const fitRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
   useEffect(() => {
-    const el = pageRef.current;
+    const el = fitRef.current;
     if (!el) return;
-    const measure = () =>
-      setPageCount(Math.max(1, Math.ceil((el.offsetHeight - 1) / pageHeightPx)));
+    const measure = () => setScale(Math.min(1, el.clientWidth / sheetWidthPx));
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [pageHeightPx]);
+  }, [sheetWidthPx]);
 
   return (
     <div className="bg-[var(--color-background)] rounded-xl">
@@ -388,17 +434,18 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
           {pageCount} page{pageCount === 1 ? "" : "s"}
         </span>
       </div>
-      <div className="overflow-auto p-4 flex justify-center">
-        <div className="relative">
-          {/* Real page numbers: one per printed page, sitting inside each
-              page's bottom margin (the PDF export prints the same flow). */}
+      <div className="p-4" ref={fitRef}>
+        <div style={{ width: sheetWidthPx * scale, height: pageCount * pageHeightPx * scale, margin: "0 auto" }}>
+        <div className="relative origin-top-left" style={{ width: sheetWidthPx, transform: "scale(" + scale + ")" }}>
+          {/* Real page numbers: one per printed page, centered inside each
+              page's bottom margin. */}
           {style.showPageNumbers &&
             Array.from({ length: pageCount }, (_, i) => (
               <span
                 key={`pn-${i}`}
                 aria-hidden
-                className="pointer-events-none absolute z-10 font-mono text-[8px] text-gray-400"
-                style={{ top: (i + 1) * pageHeightPx - 18, right: `${style.marginX}mm` }}
+                className="pointer-events-none absolute left-0 right-0 z-10 text-center font-mono text-[9px] text-gray-400"
+                style={{ top: (i + 1) * pageHeightPx - (style.marginY * MM_TO_PX) / 2 - 6 }}
               >
                 {i + 1} / {pageCount}
               </span>
@@ -417,7 +464,8 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
               </span>
             </div>
           ))}
-          <ResumeSheet doc={doc} sheetRef={pageRef} />
+          <ResumeSheet doc={doc} live onPageCount={setPageCount} />
+        </div>
         </div>
       </div>
     </div>

@@ -204,48 +204,61 @@ export const DocumentBar = ({
 
       {activeDoc && (
         <>
-          {/* Rename */}
+          {/* Rename replaces the whole action cluster while active: no
+              duplicating or deleting a document mid-rename. */}
           {editingName ? (
             <div className="flex items-center gap-1">
               <input
                 autoFocus
                 value={nameDraft}
                 onChange={(e) => setNameDraft(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && commitRename()}
-                className="px-2 py-1.5 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)] w-48"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitRename();
+                  if (e.key === "Escape") setEditingName(false);
+                }}
+                aria-label="Document name"
+                className="px-2 py-1.5 bg-[var(--color-input-bg)] border border-signal rounded-lg text-sm text-[var(--color-text-primary)] w-52"
               />
               <button
                 onClick={commitRename}
                 className="p-2 text-signal hover:bg-field/10 rounded-lg"
-                title="Save name"
+                title="Save name (Enter)"
               >
                 <Check size={15} />
               </button>
+              <button
+                onClick={() => setEditingName(false)}
+                className="p-2 text-[var(--color-text-secondary)] hover:text-red-500 rounded-lg"
+                title="Cancel (Esc)"
+              >
+                <X size={15} />
+              </button>
             </div>
           ) : (
-            <button
-              onClick={startRename}
-              className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
-              title="Rename"
-            >
-              <Pencil size={15} />
-            </button>
+            <>
+              <button
+                onClick={startRename}
+                className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
+                title="Rename"
+              >
+                <Pencil size={15} />
+              </button>
+              <button
+                onClick={onDuplicate}
+                className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
+                title="Duplicate"
+              >
+                <Copy size={15} />
+              </button>
+              <button
+                onClick={() => setPending("delete")}
+                className="p-2 text-[var(--color-text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                title="Delete"
+              >
+                <Trash2 size={15} />
+              </button>
+            </>
           )}
-
-          <button
-            onClick={onDuplicate}
-            className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
-            title="Duplicate"
-          >
-            <Copy size={15} />
-          </button>
-          <button
-            onClick={() => setPending("delete")}
-            className="p-2 text-[var(--color-text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-            title="Delete"
-          >
-            <Trash2 size={15} />
-          </button>
 
           <div className="flex-1" />
 

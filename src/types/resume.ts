@@ -158,6 +158,7 @@ export interface ResumeStyle {
   headingStyle: 1 | 2 | 3 | 4 | 5 | 6;
   headingCase: HeadingCase;
   headingIcons: HeadingIcons;
+  headingIconSize: number; // px
 
   // Font
   bodyFont: string;
