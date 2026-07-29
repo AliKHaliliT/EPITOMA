@@ -43,6 +43,12 @@ preserved. Structure and style are yours while content tracks the portfolio.
 
 ## Preview and export
 
+Page sizes come from one catalog (PAGE_DIMS in src/types/resume.ts: A3, A4, A5,
+Letter, Legal) that the preview, the PDF print window, the LaTeX class options, and the
+Word page setup all read, so the dashed cut guides drawn in the preview sit exactly where
+the printed page ends. A toolbar above the sheet reads out the format and the live page
+count.
+
 Entry descriptions are HTML (alignment and underline survive, which Markdown cannot
 represent), edited via `ResumeRichText` and seeded from Markdown through Showdown.
 `preview/ResumePreview.tsx` renders the A4 page; `previewStyles.ts` maps a `ResumeStyle` to

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { Minus, Plus, GripVertical, Check as CheckIcon } from "lucide-react";
 import { ResumeSection, ResumeStyle } from "@/types/resume";
-import { TEMPLATE_PRESETS, FONT_OPTIONS } from "@/lib/resumeDefaults";
+import { TEMPLATE_PRESETS, FONT_OPTIONS, type TemplatePreset } from "@/lib/resumeDefaults";
 import { cn } from "@/lib/utils";
 
 interface CustomizePanelProps {
@@ -16,22 +16,62 @@ type Pane =
   | "document" | "templates" | "layout" | "fontsize" | "spacing" | "entries"
   | "headings" | "font" | "colors" | "header" | "photo" | "links" | "footer" | "sections";
 
-const NAV: { id: Pane; label: string }[] = [
-  { id: "document", label: "Document" },
-  { id: "templates", label: "Templates" },
-  { id: "layout", label: "Layout" },
-  { id: "fontsize", label: "Font Size" },
-  { id: "spacing", label: "Spacing" },
-  { id: "entries", label: "Entries" },
-  { id: "headings", label: "Headings" },
-  { id: "font", label: "Font" },
-  { id: "colors", label: "Colors" },
-  { id: "header", label: "Header" },
-  { id: "photo", label: "Photo" },
-  { id: "links", label: "Links" },
-  { id: "footer", label: "Footer" },
-  { id: "sections", label: "Sections" },
+const NAV: { group: string; items: { id: Pane; label: string }[] }[] = [
+  {
+    group: "Page",
+    items: [
+      { id: "templates", label: "Templates" },
+      { id: "document", label: "Document" },
+      { id: "layout", label: "Layout" },
+    ],
+  },
+  {
+    group: "Type",
+    items: [
+      { id: "font", label: "Fonts" },
+      { id: "fontsize", label: "Sizes" },
+      { id: "spacing", label: "Spacing" },
+    ],
+  },
+  {
+    group: "Structure",
+    items: [
+      { id: "entries", label: "Entries" },
+      { id: "headings", label: "Headings" },
+      { id: "sections", label: "Sections" },
+    ],
+  },
+  {
+    group: "Identity",
+    items: [
+      { id: "colors", label: "Colors" },
+      { id: "header", label: "Header" },
+      { id: "photo", label: "Photo" },
+      { id: "links", label: "Links" },
+    ],
+  },
+  {
+    group: "Finish",
+    items: [{ id: "footer", label: "Footer" }],
+  },
 ];
+
+const PANE_HINTS: Record<Pane, string> = {
+  templates: "Start from a look, then tune anything below.",
+  document: "Language, dates, and the physical sheet.",
+  layout: "Columns and the order sections appear in.",
+  font: "The document's typefaces.",
+  fontsize: "Point sizes; the deltas ride on the base.",
+  spacing: "Breathing room, from line height to margins.",
+  entries: "How each job, degree, and item lays out.",
+  headings: "The section titles' shape and case.",
+  sections: "Per-section layout options, where a section has them.",
+  colors: "The accent, where it lands, and the page treatment.",
+  header: "The name block at the top of the sheet.",
+  photo: "The portrait, when the document carries one.",
+  links: "How hyperlinks read on paper and screen.",
+  footer: "The last line of every page.",
+};
 
 const SWATCHES = [
   "#2563eb", "#7c3aed", "#0f766e", "#be123c", "#ea580c", "#16a34a",
@@ -44,36 +84,57 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
   const setAccent = (patch: Partial<ResumeStyle["accentApply"]>) =>
     set({ accentApply: { ...style.accentApply, ...patch } });
 
+  const paneLabel = NAV.flatMap((g) => g.items).find((i) => i.id === pane)?.label ?? "";
+
   return (
-    <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl flex min-h-[400px]">
-      {/* Sub-nav */}
-      <div className="w-36 flex-shrink-0 border-r border-[var(--color-border)] py-2 overflow-y-auto">
-        {NAV.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setPane(n.id)}
-            className={cn(
-              "block w-full text-left px-3 py-1.5 text-sm",
-              pane === n.id
-                ? "bg-[var(--color-background)] text-[var(--color-text-primary)] font-medium"
-                : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-            )}
-          >
-            {n.label}
-          </button>
+    <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl flex min-h-[420px]">
+      {/* Sub-nav: grouped like the document itself. */}
+      <nav className="w-32 flex-shrink-0 border-r border-dashed border-[var(--color-border)] py-2 overflow-y-auto">
+        {NAV.map((g) => (
+          <div key={g.group} className="mb-1.5">
+            <p className="m-0 px-3 pb-1 pt-2 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--color-text-secondary)] opacity-70">
+              {g.group}
+            </p>
+            {g.items.map((n) => (
+              <button
+                key={n.id}
+                onClick={() => setPane(n.id)}
+                className={cn(
+                  "block w-full border-l-2 px-3 py-1.5 text-left text-[13px] transition-colors",
+                  pane === n.id
+                    ? "border-signal bg-[var(--color-background)] font-medium text-[var(--color-text-primary)]"
+                    : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                )}
+              >
+                {n.label}
+              </button>
+            ))}
+          </div>
         ))}
-      </div>
+      </nav>
 
       {/* Pane */}
-      <div className="flex-1 p-4 space-y-5 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-5">
+        <div className="mb-4 border-b border-dashed border-[var(--color-border)] pb-3">
+          <h3 className="m-0 text-sm font-semibold text-[var(--color-text-primary)]">{paneLabel}</h3>
+          <p className="m-0 mt-0.5 text-xs text-[var(--color-text-secondary)]">{PANE_HINTS[pane]}</p>
+        </div>
+
+        <div className="space-y-5">
         {pane === "document" && (
           <>
             <Select label="Language" value={style.language} onChange={(v) => set({ language: v })}
               options={["English", "English (UK)", "French", "German", "Spanish"]} />
             <Select label="Date format" value={style.dateFormat} onChange={(v) => set({ dateFormat: v })}
               options={["MMM YYYY", "MMM DD, YYYY", "MM/YYYY", "YYYY"]} />
-            <Segmented label="Page format" value={style.pageFormat} onChange={(v) => set({ pageFormat: v as ResumeStyle["pageFormat"] })}
-              options={[{ value: "A4", label: "A4" }, { value: "Letter", label: "Letter" }]} />
+            <Segmented label="Page size" value={style.pageFormat} onChange={(v) => set({ pageFormat: v as ResumeStyle["pageFormat"] })}
+              options={[
+                { value: "A3", label: "A3" }, { value: "A4", label: "A4" }, { value: "A5", label: "A5" },
+                { value: "Letter", label: "Letter" }, { value: "Legal", label: "Legal" },
+              ]} />
+            <p className="m-0 text-xs text-[var(--color-text-secondary)]">
+              The preview cuts the sheet with dashed guides wherever a printed page ends.
+            </p>
           </>
         )}
 
@@ -84,14 +145,17 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
                 key={t.key}
                 onClick={() => set({ ...t.style, template: t.key })}
                 className={cn(
-                  "p-3 rounded-lg border text-left",
+                  "rounded-lg border p-2.5 text-left transition-colors",
                   style.template === t.key
                     ? "border-signal ring-1 ring-signal/40"
-                    : "border-[var(--color-border)]"
+                    : "border-[var(--color-border)] hover:border-[var(--color-border-strong)]"
                 )}
               >
-                <div className="h-16 rounded mb-2" style={{ background: `linear-gradient(135deg, ${t.style.accentColor || "#2563eb"} 0%, #fff 100%)` }} />
-                <span className="text-sm font-medium text-[var(--color-text-primary)]">{t.label}</span>
+                <TemplateThumb preset={t} />
+                <span className="mt-2 block text-sm font-medium text-[var(--color-text-primary)]">{t.label}</span>
+                <span className="mt-0.5 block text-[11px] leading-snug text-[var(--color-text-secondary)]">
+                  {t.description}
+                </span>
               </button>
             ))}
           </div>
@@ -101,7 +165,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
           <>
             <Segmented label="Columns" value={style.columns} onChange={(v) => set({ columns: v as ResumeStyle["columns"] })}
               options={[{ value: "one", label: "One" }, { value: "two", label: "Two" }, { value: "mix", label: "Mix" }]} />
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>Section order</Label>
               <Reorder.Group axis="y" values={sections} onReorder={onSectionsChange} className="space-y-1">
                 {sections.map((s) => (
@@ -174,27 +238,33 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
             <Segmented label="Palette" value={style.palette} onChange={(v) => set({ palette: v as ResumeStyle["palette"] })}
               options={[{ value: "single", label: "Single" }, { value: "multi", label: "Multi" }, { value: "image", label: "Image" }]} />
             {style.palette === "image" && (
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label>Background image URL</Label>
                 <input className={INPUT} value={style.backgroundImage || ""} onChange={(e) => set({ backgroundImage: e.target.value })} placeholder="https://…" />
               </div>
             )}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>Accent color</Label>
-              <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex flex-wrap items-center gap-2">
                 {SWATCHES.map((c) => (
                   <button
                     key={c}
                     onClick={() => set({ accentColor: c })}
-                    className={cn("w-6 h-6 rounded-full border", style.accentColor === c ? "ring-2 ring-offset-1 ring-gray-400" : "border-[var(--color-border-strong)]")}
+                    aria-label={`Accent ${c}`}
+                    className={cn(
+                      "h-6 w-6 rounded-full border transition-transform hover:scale-110",
+                      style.accentColor === c
+                        ? "ring-2 ring-signal ring-offset-2 ring-offset-[var(--color-card)]"
+                        : "border-[var(--color-border-strong)]"
+                    )}
                     style={{ background: c }}
                   />
                 ))}
                 <input type="color" value={style.accentColor} onChange={(e) => set({ accentColor: e.target.value })}
-                  className="w-7 h-7 rounded cursor-pointer bg-transparent" title="Custom color" />
+                  className="h-7 w-7 cursor-pointer rounded-full bg-transparent" title="Custom color" />
               </div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>Apply accent to</Label>
               <div className="grid grid-cols-2 gap-1.5">
                 {([
@@ -225,6 +295,10 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
             <Segmented label="Shape" value={style.photoShape} onChange={(v) => set({ photoShape: v as ResumeStyle["photoShape"] })}
               options={[{ value: "circle", label: "Circle" }, { value: "rounded", label: "Rounded" }, { value: "square", label: "Square" }]} />
             <Stepper label="Size" value={style.photoSize} min={48} max={160} step={4} suffix="px" onChange={(v) => set({ photoSize: v })} />
+            <p className="m-0 text-xs text-[var(--color-text-secondary)]">
+              The image itself lives in the header's personal details, synced from the
+              portfolio's avatar or set per document.
+            </p>
           </>
         )}
 
@@ -240,7 +314,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
 
         {pane === "footer" && (
           <>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>Footer text</Label>
               <input className={INPUT} value={style.footerText} onChange={(e) => set({ footerText: e.target.value })} placeholder="e.g. References available on request" />
             </div>
@@ -252,14 +326,14 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
           <div className="space-y-3">
             {sections.filter((s) => SECTION_LAYOUTS[s.customType === "skill" ? "skills" : s.kind]).length === 0 && (
               <p className="text-sm text-[var(--color-text-secondary)]">
-                No sections with layout options. Skills, languages, certificates, and interests support grid / rows / compact / bubble layouts.
+                No sections with layout options. Skills, languages, certificates, and interests support grid, rows, compact, and bubble layouts.
               </p>
             )}
             {sections.map((s) => {
               const opts = SECTION_LAYOUTS[s.customType === "skill" ? "skills" : s.kind];
               if (!opts) return null;
               return (
-                <div key={s.id} className="space-y-1">
+                <div key={s.id} className="space-y-1.5">
                   <Label>{s.heading}</Label>
                   <Segmented
                     value={s.layout || opts[0]}
@@ -271,6 +345,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
             })}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
@@ -285,13 +360,69 @@ const SECTION_LAYOUTS: Partial<Record<string, NonNullable<ResumeSection["layout"
   references: ["grid", "rows"],
 };
 
+// ── template thumbnail ──────────────────────────────────────────────────────
+
+/** A schematic mini-sheet honoring the preset's real decisions: header
+ *  alignment, photo, color scope, and column count. */
+function TemplateThumb({ preset }: { preset: TemplatePreset }) {
+  const s = preset.style;
+  const accent = s.accentColor ?? "#2563eb";
+  const center = s.headerAlign === "center";
+  const two = s.columns === "two";
+  const align = center ? "items-center" : "items-start";
+
+  const bodyLine = (w: string, k: number) => (
+    <div key={k} className={cn("h-[3px] rounded-full bg-gray-300", w)} />
+  );
+
+  return (
+    <div
+      className="relative h-28 w-full overflow-hidden rounded-[3px] border border-[var(--color-border)] bg-white"
+      style={{
+        background: s.colorScope === "page" ? `${accent}10` : "#ffffff",
+        borderLeft: s.colorScope === "border" ? `3px solid ${accent}` : undefined,
+      }}
+    >
+      {/* Header block */}
+      <div
+        className={cn("flex flex-col gap-[3px] px-3 pb-2 pt-2.5", align)}
+        style={{ background: s.colorScope === "header" ? `${accent}1c` : undefined }}
+      >
+        {s.showPhoto && (
+          <div
+            className="mb-0.5 h-4 w-4 bg-gray-400"
+            style={{
+              borderRadius: s.photoShape === "circle" ? "9999px" : s.photoShape === "rounded" ? "4px" : "0",
+            }}
+          />
+        )}
+        <div className="h-[5px] w-16 rounded-full bg-gray-800" />
+        <div className="h-[3px] w-10 rounded-full" style={{ background: accent }} />
+      </div>
+      {/* Body */}
+      <div className={cn("px-3 pt-1.5", two ? "grid grid-cols-2 gap-x-2.5" : "")}>
+        <div className="space-y-[4px]">
+          <div className="h-[4px] w-8 rounded-full" style={{ background: accent }} />
+          {["w-full", "w-11/12", "w-4/5"].map(bodyLine)}
+        </div>
+        <div className={cn("space-y-[4px]", two ? "" : "mt-2")}>
+          <div className="h-[4px] w-8 rounded-full" style={{ background: accent }} />
+          {["w-11/12", "w-full", "w-3/4"].map(bodyLine)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── reusable controls ───────────────────────────────────────────────────────
 
 const INPUT =
-  "w-full px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)]";
+  "w-full px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)] outline-none focus:border-signal";
 
 const Label = ({ children }: { children: React.ReactNode }) => (
-  <label className="text-xs font-medium text-[var(--color-text-secondary)]">{children}</label>
+  <label className="block font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+    {children}
+  </label>
 );
 
 function Stepper({ label, value, min, max, step, suffix, prefix, onChange }: {
@@ -301,19 +432,33 @@ function Stepper({ label, value, min, max, step, suffix, prefix, onChange }: {
   const clamp = (v: number) => Math.min(max, Math.max(min, Math.round(v / step) * step));
   const pct = ((value - min) / (max - min)) * 100;
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between">
+    <div className="space-y-1.5">
+      <div className="flex items-baseline justify-between">
         <Label>{label}</Label>
-        <span className="text-xs text-[var(--color-text-secondary)]">{prefix}{value}{suffix}</span>
+        <span className="font-mono text-[11px] text-[var(--color-text-primary)]">
+          {prefix}{Number.isInteger(value) ? value : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "")}{suffix}
+        </span>
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={() => onChange(clamp(value - step))} className="p-1 rounded border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
+        <button
+          onClick={() => onChange(clamp(value - step))}
+          aria-label={`Decrease ${label}`}
+          className="rounded-md border border-[var(--color-border)] p-1 text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
+        >
           <Minus size={13} />
         </button>
-        <div className="flex-1 h-1.5 rounded-full bg-[var(--color-border)] relative">
+        <div className="relative h-1 flex-1 rounded-full bg-[var(--color-border)]">
           <div className="absolute inset-y-0 left-0 rounded-full bg-signal" style={{ width: `${pct}%` }} />
+          <div
+            className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border border-signal bg-[var(--color-card)]"
+            style={{ left: `calc(${pct}% - 5px)` }}
+          />
         </div>
-        <button onClick={() => onChange(clamp(value + step))} className="p-1 rounded border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
+        <button
+          onClick={() => onChange(clamp(value + step))}
+          aria-label={`Increase ${label}`}
+          className="rounded-md border border-[var(--color-border)] p-1 text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
+        >
           <Plus size={13} />
         </button>
       </div>
@@ -325,15 +470,15 @@ function Segmented({ label, value, options, onChange }: {
   label?: string; value: string; options: { value: string; label: string }[]; onChange: (v: string) => void;
 }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       {label && <Label>{label}</Label>}
-      <div className="inline-flex flex-wrap rounded-lg border border-[var(--color-border)] overflow-hidden">
+      <div className="inline-flex flex-wrap overflow-hidden rounded-md border border-[var(--color-border)]">
         {options.map((o) => (
           <button
             key={o.value}
             onClick={() => onChange(o.value)}
             className={cn(
-              "px-3 py-1.5 text-xs font-medium border-r border-[var(--color-border)] last:border-r-0",
+              "border-r border-[var(--color-border)] px-3 py-1.5 text-xs font-medium transition-colors last:border-r-0",
               value === o.value
                 ? "bg-[var(--color-text-primary)] text-[var(--color-background)]"
                 : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
@@ -351,7 +496,7 @@ function Select({ label, value, options, optionLabels, onChange }: {
   label: string; value: string; options: string[]; optionLabels?: Record<string, string>; onChange: (v: string) => void;
 }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       <Label>{label}</Label>
       <select className={INPUT} value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map((o) => (
@@ -368,12 +513,17 @@ function Check({ label, checked, onChange, compact }: {
   return (
     <button
       onClick={() => onChange(!checked)}
-      className={cn("flex items-center gap-2", compact ? "text-xs" : "text-sm")}
+      className={cn("group flex items-center gap-2 text-left", compact ? "text-xs" : "text-sm")}
     >
-      <span className={cn(
-        "w-4 h-4 rounded border flex items-center justify-center",
-        checked ? "bg-signal border-signal text-white" : "border-[var(--color-border-strong)]"
-      )}>
+      {/* Data is square: a 3px-radius check, not a pill. */}
+      <span
+        className={cn(
+          "flex h-4 w-4 items-center justify-center rounded-[3px] border transition-colors",
+          checked
+            ? "border-signal bg-signal text-white"
+            : "border-[var(--color-border-strong)] group-hover:border-signal"
+        )}
+      >
         {checked && <CheckIcon size={11} />}
       </span>
       <span className="text-[var(--color-text-primary)]">{label}</span>
@@ -385,12 +535,20 @@ function OrderRow({ section }: { section: ResumeSection }) {
   const controls = useDragControls();
   return (
     <Reorder.Item value={section} dragListener={false} dragControls={controls}
-      className="flex items-center gap-2 px-2 py-1.5 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg">
-      <button onPointerDown={(e) => controls.start(e)} className="cursor-grab text-[var(--color-text-secondary)] touch-none">
+      className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-input-bg)] px-2 py-1.5">
+      <button
+        onPointerDown={(e) => controls.start(e)}
+        aria-label={`Reorder ${section.heading}`}
+        className="cursor-grab touch-none text-[var(--color-text-secondary)] hover:text-signal"
+      >
         <GripVertical size={14} />
       </button>
-      <span className="text-sm text-[var(--color-text-primary)] truncate">{section.heading}</span>
-      {!section.visible && <span className="ml-auto text-[10px] text-[var(--color-text-secondary)] opacity-60">hidden</span>}
+      <span className="truncate text-sm text-[var(--color-text-primary)]">{section.heading}</span>
+      {!section.visible && (
+        <span className="ml-auto font-mono text-[9px] uppercase tracking-wide text-[var(--color-text-secondary)] opacity-60">
+          hidden
+        </span>
+      )}
     </Reorder.Item>
   );
 }

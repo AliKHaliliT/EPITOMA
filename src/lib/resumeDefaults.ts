@@ -392,6 +392,7 @@ export const DEFAULT_STYLE: ResumeStyle = {
 export interface TemplatePreset {
   key: string;
   label: string;
+  description: string;
   style: Partial<ResumeStyle>;
 }
 
@@ -399,34 +400,86 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   {
     key: "classic",
     label: "Classic",
+    description: "Centered header, ruled headings. The safe default for any application.",
     style: {
       columns: "one", headerAlign: "center", headingStyle: 1, headingCase: "uppercase",
-      bodyFont: "Inter", accentColor: "#2563eb", colorScope: "header",
+      bodyFont: "Inter", accentColor: "#2563eb", colorScope: "header", showPhoto: false,
+      headerDetails: "icon", elementSpacing: 8,
     },
   },
   {
     key: "modern",
     label: "Modern",
+    description: "Two columns, plain headings, color on the details. Reads fast.",
     style: {
       columns: "two", headerAlign: "left", headingStyle: 3, headingCase: "capitalize",
-      bodyFont: "Source Sans 3", accentColor: "#7c3aed", colorScope: "border",
+      bodyFont: "Source Sans 3", accentColor: "#7c3aed", colorScope: "border", showPhoto: false,
+      headerDetails: "bullet",
       accentApply: { ...DEFAULT_STYLE.accentApply, headings: true, subtitle: true, dates: true },
     },
   },
   {
     key: "compact",
     label: "Compact",
+    description: "Small type, tight spacing. One page even with a long record.",
     style: {
       columns: "one", baseFontSize: 9, lineHeight: 1.15, elementSpacing: 5, marginX: 10, marginY: 10,
       headingStyle: 5, headingCase: "uppercase", bodyFont: "Roboto", accentColor: "#0f766e",
+      showPhoto: false, headerDetails: "bar",
     },
   },
   {
     key: "twocol",
     label: "Two-Column",
+    description: "Photo beside a left-set header, underlined headings, dense body.",
     style: {
       columns: "two", headerAlign: "left", headingStyle: 2, headingCase: "uppercase",
       bodyFont: "Lato", accentColor: "#be123c", colorScope: "header", showPhoto: true,
+      photoShape: "rounded", photoSize: 84, headerDetails: "icon",
+    },
+  },
+  {
+    key: "portrait",
+    label: "Portrait",
+    description: "Photo-forward with a circle portrait and accent-barred headings.",
+    style: {
+      columns: "one", headerAlign: "left", headingStyle: 6, headingCase: "capitalize",
+      bodyFont: "Source Sans 3", nameFont: "Merriweather", accentColor: "#0e7490",
+      colorScope: "border", showPhoto: true, photoShape: "circle", photoSize: 96,
+      headerDetails: "icon", elementSpacing: 9,
+      accentApply: { ...DEFAULT_STYLE.accentApply, name: true, headings: true, headingsLine: true },
+    },
+  },
+  {
+    key: "executive",
+    label: "Executive",
+    description: "Serif headings between double rules, near-black restraint.",
+    style: {
+      columns: "one", headerAlign: "center", headingStyle: 4, headingCase: "uppercase",
+      bodyFont: "Merriweather", accentColor: "#111827", colorScope: "page", showPhoto: false,
+      headerDetails: "bar", lineHeight: 1.35, elementSpacing: 10, marginX: 22, marginY: 18,
+    },
+  },
+  {
+    key: "banner",
+    label: "Banner",
+    description: "Tinted header block with a square photo. Confident opener.",
+    style: {
+      columns: "one", headerAlign: "center", headingStyle: 1, headingCase: "capitalize",
+      bodyFont: "Titillium Web", accentColor: "#1d4ed8", colorScope: "header", showPhoto: true,
+      photoShape: "square", photoSize: 76, headerDetails: "icon",
+      accentApply: { ...DEFAULT_STYLE.accentApply, name: true, headerIcons: true, headingsLine: true },
+    },
+  },
+  {
+    key: "ledger",
+    label: "Ledger",
+    description: "Georgia, hyphen lists, understated ochre. Quietly archival.",
+    style: {
+      columns: "one", headerAlign: "left", headingStyle: 2, headingCase: "uppercase",
+      bodyFont: "Georgia", accentColor: "#a16207", colorScope: "page", showPhoto: false,
+      headerDetails: "bullet", listStyle: "hyphen", lineHeight: 1.3,
+      accentApply: { ...DEFAULT_STYLE.accentApply, headings: true, dates: true },
     },
   },
 ];

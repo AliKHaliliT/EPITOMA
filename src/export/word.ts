@@ -3,7 +3,7 @@
 // content, links, and most inline styling carry over: layout is best-effort,
 // which is the accepted trade-off for a dependency-free Word export.
 
-import { ResumeDocument } from "@/types/resume";
+import { PAGE_DIMS, ResumeDocument } from "@/types/resume";
 import {
   cssFontStack,
   downloadFile,
@@ -17,7 +17,8 @@ export function documentToWordHtml(doc: ResumeDocument): string {
   const pageEl = getResumePageEl();
   const inner = pageEl ? pageEl.outerHTML : "<p>(open the builder preview to export)</p>";
   const { style } = doc;
-  const pageSize = style.pageFormat === "Letter" ? "8.5in 11.0in" : "595.3pt 841.9pt";
+  const d = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;
+  const pageSize = `${(d.w * 2.8346).toFixed(1)}pt ${(d.h * 2.8346).toFixed(1)}pt`;
 
   return `<!doctype html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"

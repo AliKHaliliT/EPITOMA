@@ -124,7 +124,7 @@ export const ResumeBuilder = () => {
           </div>
 
           {/* Split: editor + persistent preview */}
-          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-4">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4">
             <div className="min-w-0">
               {tab === "overview" && (
                 <OverviewPanel doc={rs.activeDoc} onToggleSection={toggleSection} />

@@ -2,17 +2,17 @@
 // resolves to something here so the preview reflects it live.
 
 import { CSSProperties } from "react";
-import { ResumeStyle } from "@/types/resume";
+import { PAGE_DIMS, ResumeStyle } from "@/types/resume";
 import { FONT_OPTIONS, fontStack } from "@/lib/resumeDefaults";
 
 /** 8%-opacity tint of a #rrggbb accent over white (for page/heading fills). */
 const tint = (hex: string, alpha = "14"): string =>
   /^#[0-9a-fA-F]{6}$/.test(hex) ? `${hex}${alpha}` : "#f3f4f6";
 
-const dims = (style: ResumeStyle) =>
-  style.pageFormat === "Letter"
-    ? { width: "216mm", minHeight: "279mm" }
-    : { width: "210mm", minHeight: "297mm" };
+const dims = (style: ResumeStyle) => {
+  const d = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;
+  return { width: `${d.w}mm`, minHeight: `${d.h}mm` };
+};
 
 /** Root page style incl. CSS custom properties used by descendants. */
 export function pageStyle(style: ResumeStyle): CSSProperties {

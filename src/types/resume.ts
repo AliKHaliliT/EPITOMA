@@ -99,7 +99,20 @@ export type HeaderAlign = "left" | "center";
 export type HeaderDetails = "icon" | "bullet" | "bar";
 export type LinkIconStyle = "chain" | "external";
 export type PhotoShape = "circle" | "square" | "rounded";
-export type PageFormat = "A4" | "Letter";
+export type PageFormat = "A3" | "A4" | "A5" | "Letter" | "Legal";
+
+/** One source of truth for physical page sizes; every renderer and exporter
+ *  reads from here so the preview's page cuts match the printed sheet. */
+export const PAGE_DIMS: Record<
+  PageFormat,
+  { w: number; h: number; css: string; latex: string }
+> = {
+  A3: { w: 297, h: 420, css: "A3", latex: "a3paper" },
+  A4: { w: 210, h: 297, css: "A4", latex: "a4paper" },
+  A5: { w: 148, h: 210, css: "A5", latex: "a5paper" },
+  Letter: { w: 216, h: 279, css: "letter", latex: "letterpaper" },
+  Legal: { w: 216, h: 356, css: "legal", latex: "legalpaper" },
+};
 
 export interface AccentApply {
   name: boolean;

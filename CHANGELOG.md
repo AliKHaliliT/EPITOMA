@@ -21,3 +21,7 @@ Changelog; the Unreleased section is the staging area until the first version is
   owner's palette restyles the builder chrome to match the site, persistently.
 - A Document (.json) download that carries the whole document including its styling, and
   an Import button that recognizes such files and restores them as new documents.
+- A wider workspace, five page sizes (A3 to Legal) honored by every export, dashed cut
+  guides showing exactly where printed pages end, a live page-count readout, eight
+  templates with schematic thumbnails (photo-forward Portrait and Banner included), and a
+  Customize panel rebuilt with grouped navigation and house-standard controls.

@@ -15,7 +15,9 @@ export default function App() {
           <div className="fixed right-4 top-4 z-50">
             <ThemeToggle />
           </div>
-          <main className="mx-auto min-h-screen max-w-[1180px] border-[var(--color-border)] px-5 pb-10 pt-8 md:border-x md:border-dashed">
+          {/* Deliberately wider than the sisters' 1180px rail: the builder
+              renders a physical sheet beside its controls and needs the room. */}
+          <main className="mx-auto min-h-screen max-w-[1760px] border-[var(--color-border)] px-5 pb-10 pt-8 md:border-x md:border-dashed">
             <ResumeBuilder />
           </main>
         </div>

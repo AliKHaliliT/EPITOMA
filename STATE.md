@@ -5,9 +5,9 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Now
 
-- The builder now adopts the owner's look from the imported portfolio, ships the house
-  theme switch, and exports documents as portable .json files that re-import with their
-  styling intact (2026-07-28).
+- The workspace grew up: a wide canvas, five page sizes with printed-page cut guides in
+  the preview, eight described templates with schematic thumbnails, and a Customize panel
+  rebuilt to the house standard (2026-07-29).
 
 ## Next
 

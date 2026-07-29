@@ -2,7 +2,7 @@
 // browser's print dialog (→ "Save as PDF"). This yields vector text and real
 // fonts: far higher quality than rasterising: with zero dependencies.
 
-import { ResumeDocument } from "@/types/resume";
+import { PAGE_DIMS, ResumeDocument } from "@/types/resume";
 import { escapeHtml, getResumePageEl, googleFontHref, RESUME_PROSE_CSS } from "./shared";
 
 export function exportPdf(doc: ResumeDocument) {
@@ -14,7 +14,7 @@ export function exportPdf(doc: ResumeDocument) {
   }
 
   const href = googleFontHref(doc.style);
-  const size = doc.style.pageFormat === "Letter" ? "letter" : "A4";
+  const size = (PAGE_DIMS[doc.style.pageFormat] ?? PAGE_DIMS.A4).css;
 
   const win = window.open("", "_blank", "width=900,height=1160");
   if (!win) {

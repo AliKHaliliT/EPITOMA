@@ -2,7 +2,7 @@
 // document model (not the DOM). Entry descriptions (stored as HTML) are
 // converted to LaTeX. Designed to compile with pdflatex out of the box.
 
-import { ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
+import { PAGE_DIMS, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
 import { fmtResumeDate } from "@/lib/resumeDates";
 import { downloadFile, slugify } from "./shared";
 
@@ -210,7 +210,7 @@ function renderHeader(doc: ResumeDocument): string {
 
 export function documentToLatex(doc: ResumeDocument): string {
   const { style } = doc;
-  const paper = style.pageFormat === "Letter" ? "letterpaper" : "a4paper";
+  const paper = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).latex;
   const ptClass = style.baseFontSize <= 10 ? 10 : style.baseFontSize >= 12 ? 12 : 11;
   const accent = hexNoHash(style.accentColor);
 
