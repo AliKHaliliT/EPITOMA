@@ -37,3 +37,8 @@ Changelog; the Unreleased section is the staging area until the first version is
   Azerbaijani), the sheet carries the matching lang attribute, and the LaTeX export
   follows. Page and heading tints became opaque blends so a tinted sheet stays paper-white
   under the app dark theme, and the header color scope finally renders its tinted band.
+- The controls audit landed: dead settings left (column width, the dots-and-bars accent
+  target, the multi palette, entry layout 4, and an invisible header icon field), the mix
+  column mode became real (two columns with the summary and declaration spanning full
+  width), and preview page numbers are honest, one per printed page instead of a
+  hardcoded 1.

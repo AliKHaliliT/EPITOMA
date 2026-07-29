@@ -88,7 +88,7 @@ export interface PersonalDetails {
 // ── Style ───────────────────────────────────────────────────────────────────
 
 export type ColumnMode = "one" | "two" | "mix";
-export type PaletteMode = "single" | "multi" | "image";
+export type PaletteMode = "single" | "image";
 export type ColorScope = "page" | "header" | "border";
 export type HeadingCase = "capitalize" | "uppercase";
 export type HeadingIcons = "none" | "outline" | "filled";
@@ -120,7 +120,6 @@ export interface AccentApply {
   headings: boolean;
   headingsLine: boolean;
   headerIcons: boolean;
-  dotsBars: boolean;
   dates: boolean;
   subtitle: boolean;
   linkIcons: boolean;
@@ -149,8 +148,7 @@ export interface ResumeStyle {
   marginY: number; // mm
 
   // Entries
-  entryLayout: 1 | 2 | 3 | 4;
-  columnWidth: "auto" | "manual";
+  entryLayout: 1 | 2 | 3;
   subtitleStyle: SubtitleStyle;
   subtitlePlacement: SubtitlePlacement;
   indentBody: boolean;
@@ -175,7 +173,6 @@ export interface ResumeStyle {
   // Header
   headerAlign: HeaderAlign;
   headerDetails: HeaderDetails;
-  headerIconStyle: number;
 
   // Photo
   showPhoto: boolean;

@@ -194,6 +194,9 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
           <>
             <Segmented label="Columns" value={style.columns} onChange={(v) => set({ columns: v as ResumeStyle["columns"] })}
               options={[{ value: "one", label: "One" }, { value: "two", label: "Two" }, { value: "mix", label: "Mix" }]} />
+            <p className="m-0 text-xs text-[var(--color-text-secondary)]">
+              Mix keeps two columns but lets the summary and declaration span the full width.
+            </p>
             <div className="space-y-1.5">
               <Label>Section order</Label>
               <Reorder.Group axis="y" values={sections} onReorder={onSectionsChange} className="space-y-1">
@@ -226,9 +229,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
         {pane === "entries" && (
           <>
             <Segmented label="Entry layout" value={String(style.entryLayout)} onChange={(v) => set({ entryLayout: Number(v) as ResumeStyle["entryLayout"] })}
-              options={[{ value: "1", label: "1" }, { value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }]} />
-            <Segmented label="Column width" value={style.columnWidth} onChange={(v) => set({ columnWidth: v as ResumeStyle["columnWidth"] })}
-              options={[{ value: "auto", label: "Auto" }, { value: "manual", label: "Manual" }]} />
+              options={[{ value: "1", label: "1" }, { value: "2", label: "2" }, { value: "3", label: "3" }]} />
             <Segmented label="Subtitle style" value={style.subtitleStyle} onChange={(v) => set({ subtitleStyle: v as ResumeStyle["subtitleStyle"] })}
               options={[{ value: "normal", label: "Normal" }, { value: "bold", label: "Bold" }, { value: "italic", label: "Italic" }]} />
             <Segmented label="Subtitle placement" value={style.subtitlePlacement} onChange={(v) => set({ subtitlePlacement: v as ResumeStyle["subtitlePlacement"] })}
@@ -265,7 +266,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
             <Segmented label="Color scope" value={style.colorScope} onChange={(v) => set({ colorScope: v as ResumeStyle["colorScope"] })}
               options={[{ value: "page", label: "Full Page" }, { value: "header", label: "Header" }, { value: "border", label: "Border" }]} />
             <Segmented label="Palette" value={style.palette} onChange={(v) => set({ palette: v as ResumeStyle["palette"] })}
-              options={[{ value: "single", label: "Single" }, { value: "multi", label: "Multi" }, { value: "image", label: "Image" }]} />
+              options={[{ value: "single", label: "Single" }, { value: "image", label: "Image" }]} />
             {style.palette === "image" && (
               <div className="space-y-1.5">
                 <Label>Background image URL</Label>
@@ -299,7 +300,7 @@ export const CustomizePanel = ({ style, onStyleChange, sections, onSectionsChang
                 {([
                   ["name", "Name"], ["jobTitle", "Job title"], ["headings", "Headings"],
                   ["headingsLine", "Headings line"], ["headerIcons", "Header icons"],
-                  ["dotsBars", "Dots / bars"], ["dates", "Dates"], ["subtitle", "Subtitle"],
+                  ["dates", "Dates"], ["subtitle", "Subtitle"],
                   ["linkIcons", "Link icons"],
                 ] as const).map(([k, lbl]) => (
                   <Check key={k} label={lbl} checked={style.accentApply[k]} onChange={(v) => setAccent({ [k]: v })} compact />

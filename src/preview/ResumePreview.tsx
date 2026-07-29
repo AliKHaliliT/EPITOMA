@@ -299,7 +299,17 @@ export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?:
           {sections.map((section) => {
             const Icon = iconByName(section.icon);
             return (
-              <section key={section.id} style={sectionStyle(style)}>
+              <section
+                key={section.id}
+                style={{
+                  ...sectionStyle(style),
+                  // Mix layout: prose sections escape the columns.
+                  ...(style.columns === "mix" &&
+                  (section.kind === "summary" || section.kind === "declaration")
+                    ? { columnSpan: "all" as const }
+                    : {}),
+                }}
+              >
                 <h2 style={headingStyle(style)}>
                   {style.headingIcons !== "none" && (
                     <Icon
@@ -322,12 +332,11 @@ export const ResumeSheet = ({ doc, sheetRef }: { doc: ResumeDocument; sheetRef?:
         </div>
 
         {/* Footer */}
-        {(style.footerText || style.showPageNumbers) && (
+        {style.footerText && (
           <footer
-            style={{ marginTop: "var(--r-gap)", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af", display: "flex", justifyContent: "space-between" }}
+            style={{ marginTop: "var(--r-gap)", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af" }}
           >
-            <span>{style.footerText}</span>
-            {style.showPageNumbers && <span>1</span>}
+            {style.footerText}
           </footer>
         )}
     </div>
@@ -381,6 +390,19 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
       </div>
       <div className="overflow-auto p-4 flex justify-center">
         <div className="relative">
+          {/* Real page numbers: one per printed page, sitting inside each
+              page's bottom margin (the PDF export prints the same flow). */}
+          {style.showPageNumbers &&
+            Array.from({ length: pageCount }, (_, i) => (
+              <span
+                key={`pn-${i}`}
+                aria-hidden
+                className="pointer-events-none absolute z-10 font-mono text-[8px] text-gray-400"
+                style={{ top: (i + 1) * pageHeightPx - 18, right: `${style.marginX}mm` }}
+              >
+                {i + 1} / {pageCount}
+              </span>
+            ))}
           {/* Cut guides: one dashed line per printed page boundary. */}
           {Array.from({ length: pageCount - 1 }, (_, i) => (
             <div

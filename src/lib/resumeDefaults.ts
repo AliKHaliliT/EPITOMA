@@ -345,7 +345,6 @@ export const DEFAULT_STYLE: ResumeStyle = {
   marginY: 16,
 
   entryLayout: 1,
-  columnWidth: "auto",
   subtitleStyle: "bold",
   subtitlePlacement: "same",
   indentBody: false,
@@ -367,7 +366,6 @@ export const DEFAULT_STYLE: ResumeStyle = {
     headings: true,
     headingsLine: true,
     headerIcons: true,
-    dotsBars: false,
     dates: false,
     subtitle: false,
     linkIcons: true,
@@ -375,7 +373,6 @@ export const DEFAULT_STYLE: ResumeStyle = {
 
   headerAlign: "center",
   headerDetails: "icon",
-  headerIconStyle: 1,
 
   showPhoto: true,
   photoShape: "circle",
