@@ -180,7 +180,7 @@ export const DocumentBar = ({
       <button
         onClick={() => fileRef.current?.click()}
         className="flex items-center gap-1.5 px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-background)]"
-        title="Import portfolio.json: exported from the site's Admin → Settings → Portfolio export"
+        title="Import a portfolio.json from the admin panel, or bring back an exported document (.json)"
       >
         <Upload size={14} /> Import
       </button>

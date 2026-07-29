@@ -1,7 +1,6 @@
 // The builder's only content source: an imported portfolio.json snapshot,
-// persisted per browser. There is deliberately NO live-site fallback: the
-// builder consumes the same file here as it will once it lives in its own
-// repo. Export the file from the site's Admin → Settings → Portfolio export.
+// persisted per browser. There is deliberately no live fallback; the file is
+// the whole bridge. Export it from the admin panel (Site → Portfolio export).
 
 import { safeSetItem } from "../lib/storage";
 import { applyPalette, clearPalette, isPalette, savePalette } from "../lib/palette";
@@ -30,7 +29,7 @@ export function importSnapshotFile(text: string): PortfolioSnapshot {
   }
   if (!isPortfolioSnapshot(parsed)) {
     throw new Error(
-      'That file isn\'t a portfolio export: download portfolio.json from the site\'s Admin → Settings → "Portfolio export".'
+      "That file isn't a portfolio export. Download portfolio.json from the admin panel (Site → Portfolio export) and try again."
     );
   }
   safeSetItem(STORAGE_KEY, JSON.stringify(parsed));

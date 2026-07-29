@@ -66,7 +66,7 @@ export const ResumeBuilder = () => {
           </h1>
         </div>
         <p className="text-[var(--color-text-secondary)] ml-12">
-          Build resumes and CVs from an imported portfolio: export one from Admin → Settings
+          Build resumes and CVs from a portfolio exported by the TABULARIUM admin panel
         </p>
       </div>
 
@@ -96,9 +96,9 @@ export const ResumeBuilder = () => {
           ) : (
             <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-md mx-auto">
               Start by clicking <strong>Import</strong> above and choosing a{" "}
-              <code className="font-mono text-xs">portfolio.json</code>: download it from
-              the site's <strong>Admin → Settings → Portfolio export</strong>. You can also
-              create a blank document and fill it in by hand.
+              <code className="font-mono text-xs">portfolio.json</code>, downloaded from
+              the admin panel under <strong>Site → Portfolio export</strong>. A blank
+              document works too, filled in by hand.
             </p>
           )}
         </div>

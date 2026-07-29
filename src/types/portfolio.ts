@@ -1,7 +1,7 @@
 // The builder's OWN copy of the portfolio.json contract: the file exported
-// by the VITA site (Admin → Settings → Portfolio export) and imported here as
-// the content source. The site keeps its copy in src/types/portfolio.ts; this
-// app deliberately does not import it (self-contained, future separate repo).
+// by the TABULARIUM admin panel and imported here as the content source. The
+// sister repos keep their own copies of this contract; nothing is imported
+// across the repository boundary.
 // `format` + `version` keep the two sides honest across repos.
 //
 // Item shapes below describe only the fields this builder reads; the site's
