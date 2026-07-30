@@ -51,21 +51,37 @@ export function exportPdf(doc: ResumeDocument) {
     }
     .resume-page { margin: 0 auto; }
     /* On screen (behind the print dialog) the window reads as a document
-       viewer; on paper the sheet is bare. */
+       viewer; on paper the sheet is bare and the how-to banner vanishes. */
     @media screen {
       html, body { background: #3d4043; }
       .resume-page {
-        margin: 24px auto;
+        margin: 58px auto 24px;
         box-shadow: 0 2px 14px rgba(0,0,0,0.55) !important;
       }
+      .print-howto {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+        padding: 9px 16px; text-align: center;
+        background: #1c1e20; color: #d7dadd;
+        font: 500 12.5px/1.45 system-ui, sans-serif;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+      .print-howto b { color: #fff; }
     }
     @media print {
       .resume-page { box-shadow: none !important; }
+      .print-howto { display: none; }
     }
     ${RESUME_PROSE_CSS}
   </style>
 </head>
-<body>${pageEl.outerHTML}</body>
+<body>
+<div class="print-howto">
+  For an exact, borderless PDF: set the destination to <b>Save as PDF</b>
+  (not a printer like Microsoft Print to PDF), margins to <b>None</b> or
+  <b>Default</b>, and scale to <b>100%</b>.
+</div>
+${pageEl.outerHTML}
+</body>
 </html>`);
   win.document.close();
 
