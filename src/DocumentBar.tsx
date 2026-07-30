@@ -126,8 +126,30 @@ export const DocumentBar = ({
       ref={wrapRef}
       className="flex flex-wrap items-center gap-3 p-3 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl"
     >
-      {/* Document selector */}
+      {/* Document selector; renaming happens right here, in place of the
+          name it changes. */}
       <div className="relative">
+        {editingName ? (
+          <span className="flex min-w-[200px] items-center gap-1">
+            <input
+              autoFocus
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitRename();
+                if (e.key === "Escape") setEditingName(false);
+              }}
+              aria-label="Document name"
+              className="w-52 rounded-lg border border-signal bg-[var(--color-input-bg)] px-3 py-2 text-sm font-medium text-[var(--color-text-primary)] outline-none"
+            />
+            <button onClick={commitRename} className="p-2 text-signal hover:bg-field/10 rounded-lg" title="Save name (Enter)">
+              <Check size={15} />
+            </button>
+            <button onClick={() => setEditingName(false)} className="p-2 text-[var(--color-text-secondary)] hover:text-red-500 rounded-lg" title="Cancel (Esc)">
+              <X size={15} />
+            </button>
+          </span>
+        ) : (
         <button
           onClick={() => setDocMenu((v) => !v)}
           className="flex items-center gap-2 px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] min-w-[200px]"
@@ -138,7 +160,8 @@ export const DocumentBar = ({
           </span>
           <ChevronDown size={15} className="text-[var(--color-text-secondary)]" />
         </button>
-        {docMenu && docs.length > 0 && (
+        )}
+        {!editingName && docMenu && docs.length > 0 && (
           <div className="absolute z-20 mt-1 w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
             {docs.map((d) => (
               <button
@@ -250,37 +273,10 @@ export const DocumentBar = ({
 
       {activeDoc && (
         <>
-          {/* Rename replaces the whole action cluster while active: no
-              duplicating or deleting a document mid-rename. */}
-          {editingName ? (
-            <div className="flex items-center gap-1">
-              <input
-                autoFocus
-                value={nameDraft}
-                onChange={(e) => setNameDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") commitRename();
-                  if (e.key === "Escape") setEditingName(false);
-                }}
-                aria-label="Document name"
-                className="px-2 py-1.5 bg-[var(--color-input-bg)] border border-signal rounded-lg text-sm text-[var(--color-text-primary)] w-52"
-              />
-              <button
-                onClick={commitRename}
-                className="p-2 text-signal hover:bg-field/10 rounded-lg"
-                title="Save name (Enter)"
-              >
-                <Check size={15} />
-              </button>
-              <button
-                onClick={() => setEditingName(false)}
-                className="p-2 text-[var(--color-text-secondary)] hover:text-red-500 rounded-lg"
-                title="Cancel (Esc)"
-              >
-                <X size={15} />
-              </button>
-            </div>
-          ) : (
+          {/* While renaming, the input replaces the selector itself; the
+              action cluster hides so nothing can act on a half-renamed
+              document. */}
+          {!editingName && (
             <>
               <button
                 onClick={startRename}

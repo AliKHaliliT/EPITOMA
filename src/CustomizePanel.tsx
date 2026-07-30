@@ -179,7 +179,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                 { value: "Letter", label: "Letter" }, { value: "Legal", label: "Legal" },
               ]} />
             <p className="m-0 text-xs text-[var(--color-text-secondary)]">
-              The preview cuts the sheet with dashed guides wherever a printed page ends.
+              The preview lays the document out as real separated pages, exactly as it prints.
             </p>
           </>
         )}

@@ -45,8 +45,11 @@ export const ResumeBuilder = () => {
   // the CURRENT style, so templates can be judged full-size without the
   // real record in the way. View-only; the document is never touched.
   const [sampleMode, setSampleMode] = useState(false);
+  // The sample adopts the real document's STRUCTURE (order, visibility,
+  // section layouts, sidebar regions) so the Layout and Sections panes act on
+  // what the sheet shows; only the content is fixed.
   const previewDoc = useMemo(
-    () => (sampleMode && rs.activeDoc ? sampleDocument(rs.activeDoc.style) : rs.activeDoc),
+    () => (sampleMode && rs.activeDoc ? sampleDocument(rs.activeDoc.style, rs.activeDoc.sections) : rs.activeDoc),
     [sampleMode, rs.activeDoc]
   );
 

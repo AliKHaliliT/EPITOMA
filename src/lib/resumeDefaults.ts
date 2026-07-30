@@ -573,7 +573,44 @@ export const fontStack = (label: string): string =>
 export const SAMPLE_PHOTO =
   "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMyMjFiMTQiLz4gPGNpcmNsZSBjeD0iMjIiIGN5PSIyNCIgcj0iMS40IiBmaWxsPSIjZjBlN2Q4IiBvcGFjaXR5PSIwLjUiLz4gPGNpcmNsZSBjeD0iMTAyIiBjeT0iNjYiIHI9IjEuMSIgZmlsbD0iI2YwZTdkOCIgb3BhY2l0eT0iMC4zNSIvPiA8Y2lyY2xlIGN4PSIxNCIgY3k9Ijc4IiByPSIxLjIiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuMyIvPiA8Y2lyY2xlIGN4PSI5NSIgY3k9IjE0IiByPSIxLjMiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuNDUiLz4gPHBhdGggZD0iTTE4IDEyMCBDMTggODYgMzggNzAgNjAgNzAgQzgyIDcwIDEwMiA4NiAxMDIgMTIwIFoiIGZpbGw9IiM0YTNiMmEiLz4gPHBhdGggZD0iTTYwIDE0IEM0MCAxNCAzMCAzOCAzMiA2MCBDNDAgNTIgNTAgNDcgNjAgNDcgQzcwIDQ3IDgwIDUyIDg4IDYwIEM5MCAzOCA4MCAxNCA2MCAxNCBaIiBmaWxsPSIjNWM0YTMzIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNTIiIHI9IjE1IiBmaWxsPSIjMTUwZjBhIi8+IDxjaXJjbGUgY3g9IjU0IiBjeT0iNTEiIHI9IjIuNiIgZmlsbD0iI2ZmYjA2NiIvPiA8Y2lyY2xlIGN4PSI2NiIgY3k9IjUxIiByPSIyLjYiIGZpbGw9IiNmZmIwNjYiLz4gPHBhdGggZD0iTTg5IDI0IGwyLjQgNi40IDYuNCAyLjQgLTYuNCAyLjQgLTIuNCA2LjQgLTIuNCAtNi40IC02LjQgLTIuNCA2LjQgLTIuNCBaIiBmaWxsPSIjZmY4YTUwIi8+IDxjaXJjbGUgY3g9IjMxIiBjeT0iNDIiIHI9IjEuNiIgZmlsbD0iI2ZmOGE1MCIgb3BhY2l0eT0iMC43Ii8+IDwvc3ZnPg==";
 
-export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument {
+/**
+ * The fixed sample record. Content covers every renderer (entry sections with
+ * links, locations, open and closed date ranges, grouped skills, languages
+ * with distinct proficiencies, chips, reference cards, prose) so no Customize
+ * setting is ever invisible for lack of data.
+ *
+ * `adopt` takes the real document's sections and copies their STRUCTURE onto
+ * the sample: order, visibility, per-section layout, and sidebar region, so
+ * the Layout and Sections panes act on what the sample shows. Content stays
+ * fixed; sample kinds the document lacks are appended so template browsing
+ * still shows everything.
+ */
+export function sampleDocument(stylePatch: Partial<ResumeStyle>, adopt?: ResumeSection[]): ResumeDocument {
+  let sections = sampleSections();
+  if (adopt?.length) {
+    const byKind = new Map(
+      sections.map((s) => [s.customType === "skill" ? "skills" : s.kind, s] as const)
+    );
+    const used = new Set<string>();
+    const adopted: ResumeSection[] = [];
+    for (const real of adopt) {
+      const kind = real.customType === "skill" ? "skills" : real.kind;
+      const match = byKind.get(kind);
+      if (!match || used.has(kind)) continue;
+      used.add(kind);
+      adopted.push({
+        ...match,
+        visible: real.visible,
+        layout: real.layout ?? match.layout,
+        region: real.region,
+      });
+    }
+    for (const s of sections) {
+      const kind = s.customType === "skill" ? "skills" : s.kind;
+      if (!used.has(kind)) adopted.push(s);
+    }
+    sections = adopted;
+  }
   return {
     id: "sample",
     name: "Sample",
@@ -589,7 +626,13 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
       photo: SAMPLE_PHOTO,
       links: [{ id: "l1", label: "Portfolio", url: "#", icon: "Globe" }],
     },
-    sections: [
+    sections,
+    style: { ...DEFAULT_STYLE, ...stylePatch },
+  };
+}
+
+function sampleSections(): ResumeSection[] {
+  return [
       {
         id: "s1",
         kind: "summary",
@@ -625,9 +668,18 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
             id: "e2",
             title: "Foundry Enchanter",
             subtitle: "Ironspire Foundry",
+            location: "Emberhold",
             startDate: "2022-06",
             endDate: "2024-02",
-            description: "<ul><li>Runesmithing at production scale.</li></ul>",
+            description: "<ul><li>Runesmithing at production scale.</li><li>Cut misfire scrap by a third with a cooler quench cycle.</li></ul>",
+          },
+          {
+            id: "e2b",
+            title: "Apprentice Tinker",
+            subtitle: "Cogwright & Daughters",
+            startDate: "2020-08",
+            endDate: "2022-05",
+            description: "<p>Bench repair of clockwork familiars and household wards.</p>",
           },
         ],
       },
@@ -647,8 +699,61 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
           },
         ],
       },
+      {
+        id: "s8",
+        kind: "projects",
+        heading: "Selected Projects",
+        visible: true,
+        source: "custom",
+        entries: [
+          {
+            id: "e12",
+            title: "The Everbright Lantern",
+            subtitle: "Lead artificer",
+            link: "#",
+            startDate: "2023-04",
+            description: "<p>A stormproof ward-lantern that has not gone out since it was lit.</p>",
+          },
+          {
+            id: "e13",
+            title: "Homunculus Postal Route",
+            subtitle: "Co-designer",
+            startDate: "2021-02",
+            endDate: "2021-11",
+            description: "<p>Four clockwork couriers, one river crossing, zero lost letters.</p>",
+          },
+        ],
+      },
+      {
+        id: "s9",
+        kind: "certificates",
+        heading: "Selected Certificates",
+        visible: true,
+        source: "custom",
+        layout: "rows",
+        entries: [
+          { id: "e14", title: "Master Wardwright", subtitle: "The Artificers' Guild", link: "#", startDate: "2023-09" },
+          { id: "e15", title: "Stormproofing, Level III", subtitle: "Cinderfen Storm Authority", startDate: "2022-01" },
+        ],
+      },
+      {
+        id: "s10",
+        kind: "awards",
+        heading: "Awards",
+        visible: true,
+        source: "custom",
+        entries: [
+          {
+            id: "e16",
+            title: "The Bright Bastion Prize",
+            subtitle: "College of Aetheric Studies",
+            startDate: "2020-05",
+            description: "<p>For the quarter's most dependable ward lattice.</p>",
+          },
+        ],
+      },
       // The rest exist so every Customize control has something to act on:
-      // grouped skill rows, language rows, interest bubbles, a declaration.
+      // grouped skill rows, language rows, interest bubbles, reference cards.
       {
         id: "s4",
         kind: "skills",
@@ -658,6 +763,7 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
         entries: [
           { id: "e4", title: "Wardcraft", meta: { items: ["Sigils", "Glyph tuning", "Stormproofing"] } },
           { id: "e5", title: "Golemry", meta: { items: ["Calibration", "Core etching"] } },
+          { id: "e5b", title: "Bench", meta: { items: ["Fine solder", "Lens grinding"] } },
         ],
       },
       {
@@ -669,6 +775,28 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
         entries: [
           { id: "e6", title: "Common", subtitle: "Native" },
           { id: "e7", title: "Old Runic", subtitle: "Fluent" },
+          { id: "e7b", title: "Deepcant", subtitle: "B2" },
+        ],
+      },
+      {
+        id: "s11",
+        kind: "references",
+        heading: "References",
+        visible: true,
+        source: "custom",
+        entries: [
+          {
+            id: "e17",
+            title: "Magister Bellra Coil",
+            subtitle: "Thesis supervisor",
+            meta: { organization: "The Academy of Aetheric Studies", email: "b.coil@example.com" },
+          },
+          {
+            id: "e18",
+            title: "Foreman Dag Ironspire",
+            subtitle: "Former manager",
+            meta: { organization: "Ironspire Foundry", email: "dag@example.com" },
+          },
         ],
       },
       {
@@ -696,7 +824,5 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>): ResumeDocument
           },
         ],
       },
-    ],
-    style: { ...DEFAULT_STYLE, ...stylePatch },
-  };
+  ];
 }

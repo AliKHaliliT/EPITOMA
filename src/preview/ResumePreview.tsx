@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Mail, Phone, MapPin, Globe, Github, Linkedin, Twitter, GraduationCap,
-  BookOpen, Link2, ExternalLink, type LucideIcon,
+  BookOpen, Link2, ExternalLink, ArrowUp, type LucideIcon,
 } from "lucide-react";
 import { PAGE_DIMS, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "@/types/resume";
 import { fmtResumeDate, languageLocale, presentWord } from "@/lib/resumeDates";
@@ -46,10 +46,13 @@ function LinkIcon({ style }: { style: ResumeStyle }) {
   return <I size={10} className="inline ml-0.5 align-baseline" style={{ color: style.accentApply.linkIcons ? style.accentColor : undefined }} />;
 }
 
-function EntryRow({ entry, style }: { entry: ResumeEntry; style: ResumeStyle }) {
+/** One job/degree/item. The three layouts are visibly distinct whatever the
+ *  other settings: 1 = date pushed to the right edge; 2 = stacked, the date on
+ *  its own line; 3 = everything on one left-running line, the date trailing. */
+function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: ResumeStyle; atomKey?: string }) {
   const dates = range(entry.startDate, entry.endDate, style);
-  const dateRight = style.entryLayout === 1 || style.entryLayout === 3;
-  const subtitleInline = style.subtitlePlacement === "same" || style.entryLayout === 3;
+  const layout = style.entryLayout;
+  const subtitleInline = style.subtitlePlacement === "same" || layout === 3;
 
   const titleEl = entry.title && (
     <span style={entryHeaderStyle(style)}>
@@ -70,17 +73,34 @@ function EntryRow({ entry, style }: { entry: ResumeEntry; style: ResumeStyle }) 
     </span>
   );
 
+  if (layout === 3) {
+    return (
+      <div data-atom={atomKey} style={{ marginBottom: "var(--r-gap)" }}>
+        <div>
+          {titleEl}
+          {subtitleEl}
+          {entry.location && (
+            <span style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}> · {entry.location}</span>
+          )}
+          {dates && <span style={{ ...dateStyle(style), whiteSpace: "nowrap" }}> — {dates}</span>}
+        </div>
+        <Desc html={entry.description} style={style} />
+      </div>
+    );
+  }
+
   return (
-    <div style={{ marginBottom: "var(--r-gap)" }}>
-      <div className={dateRight ? "flex justify-between items-baseline gap-3" : ""}>
+    <div data-atom={atomKey} style={{ marginBottom: "var(--r-gap)" }}>
+      <div className={layout === 1 ? "flex justify-between items-baseline gap-3" : ""}>
         <div className="min-w-0">
           {titleEl}
           {subtitleInline && subtitleEl}
-          {!subtitleInline && <div>{subtitleEl}</div>}
+          {!subtitleInline && subtitleEl && <div>{subtitleEl}</div>}
         </div>
-        {dates && <span style={dateStyle(style)}>{dates}</span>}
+        {layout === 1 && dates && <span style={dateStyle(style)}>{dates}</span>}
       </div>
-      {entry.location && <div style={{ fontSize: "0.85em", color: "#6b7280" }}>{entry.location}</div>}
+      {layout === 2 && dates && <div style={dateStyle(style)}>{dates}</div>}
+      {entry.location && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{entry.location}</div>}
       <Desc html={entry.description} style={style} />
     </div>
   );
@@ -105,15 +125,21 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
   const kind = section.customType === "skill" ? "skills" : section.kind;
   const layout = section.layout || "list";
 
+  const atom = `b:${section.id}`;
+
   switch (kind) {
     case "summary":
     case "declaration":
-      return <Desc html={visible[0]?.description} style={style} />;
+      return (
+        <div data-atom={atom}>
+          <Desc html={visible[0]?.description} style={style} />
+        </div>
+      );
 
     case "skills":
       if (layout === "bubble") {
         return (
-          <div className="flex flex-wrap gap-1.5">
+          <div data-atom={atom} className="flex flex-wrap gap-1.5">
             {visible.flatMap((e) =>
               ((e.meta?.items as string[]) || [e.title || ""]).map((it, i) => (
                 <span key={e.id + i} className="px-2 py-0.5 rounded-full" style={{ background: `${style.accentColor}1f` }}>
@@ -125,7 +151,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
         );
       }
       return (
-        <div className="space-y-0.5">
+        <div data-atom={atom} className="space-y-0.5">
           {visible.map((e) => (
             <div key={e.id} className="flex flex-wrap items-baseline gap-x-2">
               <span style={{ fontWeight: 600 }}>{e.title}:</span>
@@ -138,7 +164,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
     case "languages":
       if (layout === "dots") {
         return (
-          <div className="space-y-1">
+          <div data-atom={atom} className="space-y-1">
             {visible.map((e) => (
               <div key={e.id} className="flex items-baseline justify-between gap-3">
                 <span style={{ fontWeight: 600 }}>{e.title}</span>
@@ -162,7 +188,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
       }
       if (layout === "grid") {
         return (
-          <div className="grid grid-cols-2 gap-x-6 gap-y-0.5">
+          <div data-atom={atom} className="grid grid-cols-2 gap-x-6 gap-y-0.5">
             {visible.map((e) => (
               <span key={e.id}>
                 <span style={{ fontWeight: 600 }}>{e.title}</span>
@@ -173,7 +199,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
         );
       }
       return (
-        <div className="flex flex-wrap gap-x-6 gap-y-0.5">
+        <div data-atom={atom} className="flex flex-wrap gap-x-6 gap-y-0.5">
           {visible.map((e) => (
             <span key={e.id}>
               <span style={{ fontWeight: 600 }}>{e.title}</span>
@@ -185,7 +211,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
 
     case "interests":
       return (
-        <div className="flex flex-wrap gap-1.5">
+        <div data-atom={atom} className="flex flex-wrap gap-1.5">
           {visible.map((e) => (
             <span key={e.id} className="px-2 py-0.5 rounded-full" style={{ border: "1px solid var(--r-chip-border, #d1d5db)", fontSize: "0.85em" }}>
               {e.title}
@@ -199,7 +225,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
       return (
         <ul className="space-y-0.5">
           {visible.map((e) => (
-            <li key={e.id} className="flex justify-between items-baseline gap-3">
+            <li key={e.id} data-atom={`e:${section.id}:${e.id}`} className="flex justify-between items-baseline gap-3">
               <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
                 {e.title}
                 <LinkIcon style={style} />
@@ -212,7 +238,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
 
     case "references":
       return (
-        <div className={layout === "rows" ? "space-y-2" : "grid grid-cols-2 gap-3"}>
+        <div data-atom={atom} className={layout === "rows" ? "space-y-2" : "grid grid-cols-2 gap-3"}>
           {visible.map((e) => (
             <div key={e.id}>
               <div style={entryHeaderStyle(style)}>{e.title}</div>
@@ -225,13 +251,48 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
       );
 
     default: {
-      const wrapCls = layout === "grid" ? "grid grid-cols-2 gap-x-4" : "";
+      if (layout === "grid") {
+        return (
+          <div data-atom={atom} className="grid grid-cols-2 gap-x-4">
+            {visible.map((e) => (
+              <EntryRow key={e.id} entry={e} style={style} />
+            ))}
+          </div>
+        );
+      }
+      if (layout === "rows") {
+        // Compact single-line rows: title, subtitle, date; no body text.
+        return (
+          <div data-atom={atom} className="space-y-0.5">
+            {visible.map((e) => (
+              <div key={e.id} className="flex items-baseline justify-between gap-3">
+                <span className="min-w-0">
+                  <span style={entryHeaderStyle(style)}>
+                    {e.link ? (
+                      <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
+                        {e.title}
+                        <LinkIcon style={style} />
+                      </a>
+                    ) : (
+                      e.title
+                    )}
+                  </span>
+                  {e.subtitle && <span style={subtitleStyle(style)}> · {e.subtitle}</span>}
+                </span>
+                {range(e.startDate, e.endDate, style) && (
+                  <span style={dateStyle(style)}>{range(e.startDate, e.endDate, style)}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      }
       return (
-        <div className={wrapCls}>
+        <>
           {visible.map((e) => (
-            <EntryRow key={e.id} entry={e} style={style} />
+            <EntryRow key={e.id} entry={e} style={style} atomKey={`e:${section.id}:${e.id}`} />
           ))}
-        </div>
+        </>
       );
     }
   }
@@ -250,6 +311,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
 }) => {
   const { personal, style } = doc;
   const sections = doc.sections.filter((s) => s.visible);
+  const rootRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLElement>(null);
   const [pages, setPages] = useState(1);
@@ -259,12 +321,71 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
     loadFonts(style.bodyFont, style.nameFont);
   }, [style.bodyFont, style.nameFont]);
 
-  // The sheet is always a whole number of pages tall: content is measured,
-  // the count is derived, and the footer pins to the final page's bottom.
+  // Pagination: no block may straddle a printed page boundary. Every atom
+  // ([data-atom], inside a [data-flow]) that would cross the bottom margin is
+  // pushed to the next page's top margin via paddingTop; a heading left alone
+  // at a page's foot travels with its first block. The maths works on natural
+  // positions (current pushes subtracted), so re-running converges instead of
+  // oscillating, and the same pushes flow into the print/PDF output.
+  const paginate = () => {
+    const rootEl = rootRef.current;
+    if (!rootEl) return;
+    const pageHpx = pageHmm * MM_TO_PX;
+    const mYpx = style.marginY * MM_TO_PX;
+    const contentAreaH = pageHpx - 2 * mYpx;
+    // The preview scales the sheet with a transform; rects come back scaled.
+    const scale = rootEl.getBoundingClientRect().width / rootEl.offsetWidth || 1;
+
+    rootEl.querySelectorAll<HTMLElement>("[data-flow]").forEach((flow) => {
+      const atoms = Array.from(flow.querySelectorAll<HTMLElement>("[data-atom]"));
+      if (!atoms.length) return;
+      const rootTop = rootEl.getBoundingClientRect().top;
+      let before = 0; // applied pushes above the current atom
+      let offset = 0; // freshly computed pushes above the current atom
+      let prevHead: { el: HTMLElement; top: number } | null = null;
+
+      atoms.forEach((a) => {
+        const applied = parseFloat(a.style.paddingTop) || 0;
+        const r = a.getBoundingClientRect();
+        const natTop = (r.top - rootTop) / scale - before;
+        const natH = r.height / scale - applied;
+        const top = natTop + offset;
+        const page = Math.floor(top / pageHpx);
+        const limit = (page + 1) * pageHpx - mYpx;
+        const isHead = (a.dataset.atom || "").startsWith("h:");
+
+        let push = 0;
+        let pushEl: HTMLElement = a;
+        if (top + natH > limit + 1 && natH <= contentAreaH) {
+          const from = prevHead ? prevHead.top : top;
+          pushEl = prevHead ? prevHead.el : a;
+          push = (page + 1) * pageHpx + mYpx - from;
+        }
+
+        if (pushEl === a) {
+          const want = push > 0.5 ? `${push}px` : "";
+          if ((a.style.paddingTop || "") !== want) a.style.paddingTop = want;
+        } else {
+          // Pushing the orphaned heading instead; this atom itself stays flat.
+          const want = `${push}px`;
+          if ((pushEl.style.paddingTop || "") !== want) pushEl.style.paddingTop = want;
+          if ((a.style.paddingTop || "") !== "") a.style.paddingTop = "";
+        }
+        before += applied;
+        offset += push;
+        prevHead = isHead ? { el: a, top: top + push } : null;
+      });
+    });
+  };
+
+  // The sheet is always a whole number of pages tall: content is paginated,
+  // then measured; the count is derived and the footer pins to the final
+  // page's bottom.
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
     const measure = () => {
+      paginate();
       const footerH = footerRef.current?.offsetHeight ?? 0;
       const padY = style.marginY * 2 * MM_TO_PX;
       const natural = el.offsetHeight + footerH + padY;
@@ -276,7 +397,10 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [pageHmm, style.marginY, style.footerText, onPageCount]);
+    // Re-run on every document change: React may re-render atoms (dropping
+    // their pushed padding), so the deps deliberately include the doc itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doc, pageHmm, style.marginY, style.footerText, onPageCount]);
 
   const headerAlign = style.headerAlign === "center" ? "center" : "left";
   const sep = style.headerDetails === "bar" ? "|" : style.headerDetails === "bullet" ? "•" : "";
@@ -320,17 +444,22 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
             : {}),
         }}
       >
-        <h2 style={headingStyle(style)}>
-          {style.headingIcons !== "none" && (
-            <Icon
-              size={style.headingIconSize || 13}
-              className="mr-1 inline"
-              style={{ verticalAlign: "-0.125em" }}
-              fill={style.headingIcons === "filled" ? "currentColor" : "none"}
-            />
-          )}
-          {section.heading}
-        </h2>
+        <div data-atom={`h:${section.id}`}>
+          <h2 style={headingStyle(style)}>
+            {/* inline-flex centers the icon on the text box whatever the
+                heading's font or the icon's size. */}
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35em", verticalAlign: "top" }}>
+              {style.headingIcons !== "none" && (
+                <Icon
+                  size={style.headingIconSize || 13}
+                  style={{ flexShrink: 0 }}
+                  fill={style.headingIcons === "filled" ? "currentColor" : "none"}
+                />
+              )}
+              <span>{section.heading}</span>
+            </span>
+          </h2>
+        </div>
         <SectionBody section={section} style={style} />
       </section>
     );
@@ -338,6 +467,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
 
   return (
     <div
+      ref={rootRef}
       {...(live ? { "data-live-sheet": "" } : {})}
       lang={languageLocale(style.language)}
       className="resume-page bg-white"
@@ -347,8 +477,6 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        // A tight lift, not a blur that reads as a phantom next page.
-        boxShadow: "0 0 0 1px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.12)",
       }}
     >
       {/* The rail's band: painted on the sheet so it runs the full height of
@@ -435,10 +563,11 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
           // reference-card sections ride the rail (the tinted band behind it
           // is painted at the sheet level so it spans every page).
           <div style={{ display: "flex", gap: "7mm" }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div data-flow="" style={{ flex: 1, minWidth: 0 }}>
               {sections.filter((s) => sectionRegion(s) === "main").map(renderSection)}
             </div>
             <div
+              data-flow=""
               style={{
                 width: `${railWidthMm}mm`,
                 flexShrink: 0,
@@ -452,7 +581,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
             </div>
           </div>
         ) : (
-          <div style={bodyStyle(style)}>
+          <div {...(style.columns === "one" ? { "data-flow": "" } : {})} style={bodyStyle(style)}>
             {sections.map(renderSection)}
           </div>
         )}
@@ -476,6 +605,9 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
   );
 };
 
+/** Gap between page sheets in the preview stack, in unscaled px. */
+const PAGE_GAP = 20;
+
 export const ResumePreview = ({ doc, sample, onExitSample }: {
   doc: ResumeDocument;
   /** True when the sheet shows the fixed sample document, not the record. */
@@ -484,6 +616,7 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
 }) => {
   const { style } = doc;
   const [pageCount, setPageCount] = useState(1);
+  const [scrolled, setScrolled] = useState(false);
   const dims = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;
   const pageHeightPx = dims.h * MM_TO_PX;
   const sheetWidthPx = dims.w * MM_TO_PX;
@@ -491,6 +624,7 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
   // Fit the sheet to the available width: A3 shrinks to fit instead of
   // overflowing, A5 renders at its real size.
   const fitRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   useEffect(() => {
     const el = fitRef.current;
@@ -505,10 +639,9 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
   return (
     <div className="bg-[var(--color-background)] rounded-xl">
       {/* Preview toolbar: the physical reality of the document at a glance. */}
-      <div className="flex items-center justify-between px-4 pt-3 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+      <div className="flex items-center justify-between px-4 pt-3 pb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
         <span>
-          {style.pageFormat} · {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).w} ×{" "}
-          {(PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h} mm
+          {dims.w} × {dims.h} mm · {style.pageFormat}
         </span>
         <span className="flex items-center gap-2">
           {sample && (
@@ -523,39 +656,70 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
           {pageCount} page{pageCount === 1 ? "" : "s"}
         </span>
       </div>
-      <div className="p-4" ref={fitRef}>
-        <div style={{ width: sheetWidthPx * scale, height: pageCount * pageHeightPx * scale, margin: "0 auto" }}>
-        <div className="relative origin-top-left" style={{ width: sheetWidthPx, transform: "scale(" + scale + ")" }}>
-          {/* Real page numbers: one per printed page, centered inside each
-              page's bottom margin. */}
-          {style.showPageNumbers &&
-            Array.from({ length: pageCount }, (_, i) => (
-              <span
-                key={`pn-${i}`}
-                aria-hidden
-                className="pointer-events-none absolute left-0 right-0 z-10 text-center font-mono text-[9px] text-gray-400"
-                style={{ top: (i + 1) * pageHeightPx - (style.marginY * MM_TO_PX) / 2 - 6 }}
-              >
-                {i + 1} / {pageCount}
-              </span>
-            ))}
-          {/* Cut guides: one dashed line per printed page boundary. */}
-          {Array.from({ length: pageCount - 1 }, (_, i) => (
-            <div
-              key={i}
-              aria-hidden
-              className="pointer-events-none absolute left-0 right-0 z-10"
-              style={{ top: (i + 1) * pageHeightPx }}
-            >
-              <div className="border-t-2 border-dashed border-red-400/70" />
-              <span className="absolute right-1 top-0.5 rounded-sm bg-red-400/90 px-1 py-px font-mono text-[8.5px] uppercase tracking-wide text-white">
-                Page {i + 2}
-              </span>
+
+      {/* The pages scroll inside their own container: the wheel moves the
+          document, never the app behind it. */}
+      <div
+        ref={scrollRef}
+        onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 240)}
+        className="relative max-h-[calc(100vh-7.5rem)] overflow-y-auto overscroll-contain p-4"
+      >
+        <div ref={fitRef}>
+          <div
+            style={{
+              width: sheetWidthPx * scale,
+              height: (pageCount * pageHeightPx + (pageCount - 1) * PAGE_GAP) * scale,
+              margin: "0 auto",
+            }}
+          >
+            <div className="origin-top-left" style={{ width: sheetWidthPx, transform: `scale(${scale})` }}>
+              {/* Each printed page is its own sheet: a window over the full
+                  document, translated to its page and clipped. Pagination
+                  keeps blocks off the boundaries, so nothing is cut mid-line
+                  (matching what print produces). */}
+              {Array.from({ length: pageCount }, (_, i) => (
+                <div
+                  key={i}
+                  className="relative overflow-hidden bg-white"
+                  style={{
+                    height: pageHeightPx,
+                    marginBottom: i < pageCount - 1 ? PAGE_GAP : 0,
+                    boxShadow: "0 0 0 1px rgba(0,0,0,0.07), 0 1px 5px rgba(0,0,0,0.14)",
+                  }}
+                >
+                  <div style={{ transform: `translateY(${-i * pageHeightPx}px)` }}>
+                    <ResumeSheet
+                      doc={doc}
+                      live={i === 0}
+                      onPageCount={i === 0 ? setPageCount : undefined}
+                    />
+                  </div>
+                  {style.showPageNumbers && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute left-0 right-0 z-10 text-center font-mono text-[9px] text-gray-400"
+                      style={{ bottom: (style.marginY * MM_TO_PX) / 2 - 6 }}
+                    >
+                      {i + 1} / {pageCount}
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-          <ResumeSheet doc={doc} live onPageCount={setPageCount} />
+          </div>
         </div>
-        </div>
+
+        {/* Back to the first page, for long documents. */}
+        {scrolled && (
+          <button
+            onClick={() => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+            className="sticky bottom-3 left-full z-20 mr-1 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text-secondary)] shadow-md transition-colors hover:border-signal hover:text-signal"
+            title="Scroll to the first page"
+            aria-label="Scroll to the first page"
+          >
+            <ArrowUp size={16} />
+          </button>
+        )}
       </div>
     </div>
   );
