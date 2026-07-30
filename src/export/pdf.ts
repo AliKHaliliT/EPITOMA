@@ -16,6 +16,19 @@ export function exportPdf(doc: ResumeDocument) {
   const href = googleFontHref(doc.style);
   const size = (PAGE_DIMS[doc.style.pageFormat] ?? PAGE_DIMS.A4).css;
 
+  // The sheet's layout classes (flex date rows, chip padding, grids) come from
+  // the app's compiled stylesheet; without it the print window would reflow
+  // everything as plain blocks and land page breaks in the wrong places. Copy
+  // every stylesheet of the app into the print window so what prints is the
+  // exact preview. <link> hrefs resolve absolute via the .href getter.
+  const appCss = Array.from(document.querySelectorAll<HTMLElement>('style, link[rel="stylesheet"]'))
+    .map((el) =>
+      el.tagName === "LINK"
+        ? `<link rel="stylesheet" href="${(el as HTMLLinkElement).href}" />`
+        : `<style>${el.textContent}</style>`
+    )
+    .join("\n");
+
   const win = window.open("", "_blank", "width=900,height=1160");
   if (!win) {
     alert("Please allow pop-ups for this site to export a PDF.");
@@ -29,13 +42,14 @@ export function exportPdf(doc: ResumeDocument) {
   <meta charset="utf-8" />
   <title>${escapeHtml(doc.name)}</title>
   ${href ? `<link rel="stylesheet" href="${href}" />` : ""}
+  ${appCss}
   <style>
     @page { size: ${size}; margin: 0; }
     html, body {
       margin: 0; padding: 0; background: #fff;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
-    .resume-page { box-shadow: none !important; }
+    .resume-page { box-shadow: none !important; margin: 0 auto; }
     ${RESUME_PROSE_CSS}
   </style>
 </head>

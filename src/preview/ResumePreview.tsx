@@ -199,6 +199,20 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
       );
 
     case "interests":
+      if (layout === "rows") {
+        return (
+          <div data-atom={atom} className="space-y-0.5">
+            {visible.map((e) => (
+              <div key={e.id}>
+                <span style={{ fontWeight: 600 }}>{e.title}</span>
+                {(e.meta?.category as string) && (
+                  <span style={{ opacity: 0.75 }}> · {e.meta?.category as string}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      }
       return (
         <div data-atom={atom} className="flex flex-wrap gap-1.5">
           {visible.map((e) => (

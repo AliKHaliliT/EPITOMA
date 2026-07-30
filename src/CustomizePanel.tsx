@@ -5,8 +5,9 @@ import {
   Link2, ExternalLink, MapPin, Image as ImageIcon, Square,
 } from "lucide-react";
 import { DocumentKind, ResumeSection, ResumeStyle } from "@/types/resume";
-import { DEFAULT_STYLE, TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, sectionRegion, type TemplatePreset } from "@/lib/resumeDefaults";
+import { DEFAULT_STYLE, SECTION_CATALOG, TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, sectionRegion, type TemplatePreset } from "@/lib/resumeDefaults";
 import { ResumeSheet } from "@/preview/ResumePreview";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
 interface CustomizePanelProps {
@@ -105,13 +106,28 @@ const SWATCHES = [
 
 export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSectionsChange, sampleMode, onSampleModeChange }: CustomizePanelProps) => {
   const [pane, setPane] = useState<Pane>("templates");
+  const [confirmResetAll, setConfirmResetAll] = useState(false);
   const set = (patch: Partial<ResumeStyle>) => onStyleChange({ ...style, ...patch });
   const setAccent = (patch: Partial<ResumeStyle["accentApply"]>) =>
     set({ accentApply: { ...style.accentApply, ...patch } });
 
   const paneLabel = NAV.flatMap((g) => g.items).find((i) => i.id === pane)?.label ?? "";
 
+  /** Per-section layout + region overrides back to the catalog defaults. */
+  const resetSectionOverrides = () =>
+    onSectionsChange(
+      sections.map((s) => ({
+        ...s,
+        layout: SECTION_CATALOG[s.customType === "skill" ? "skills" : s.kind]?.layout,
+        region: undefined,
+      }))
+    );
+
   const resetPane = () => {
+    if (pane === "sections") {
+      resetSectionOverrides();
+      return;
+    }
     const fields = PANE_FIELDS[pane];
     if (!fields) return;
     const patch: Partial<ResumeStyle> = {};
@@ -121,10 +137,15 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
     set(patch);
   };
 
+  const resetAll = () => {
+    onStyleChange(structuredClone(DEFAULT_STYLE));
+    resetSectionOverrides();
+  };
+
   return (
     <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl flex min-h-[420px]">
       {/* Sub-nav: grouped like the document itself. */}
-      <nav className="w-32 flex-shrink-0 border-r border-dashed border-[var(--color-border)] py-2 overflow-y-auto">
+      <nav className="flex w-32 flex-shrink-0 flex-col border-r border-dashed border-[var(--color-border)] py-2 overflow-y-auto">
         {NAV.map((g) => (
           <div key={g.group} className="mb-1.5">
             <p className="m-0 px-3 pb-1 pt-2 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--color-text-secondary)] opacity-70">
@@ -146,6 +167,14 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
             ))}
           </div>
         ))}
+        {/* The nuclear option: every setting in every pane back to stock. */}
+        <button
+          onClick={() => setConfirmResetAll(true)}
+          className="mx-2 mt-auto flex items-center justify-center gap-1 rounded-md border border-[var(--color-border)] px-2 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--color-text-secondary)] transition-colors hover:border-red-400 hover:text-red-500"
+          title="Reset every Customize setting to its default"
+        >
+          <RotateCcw size={11} /> Reset all
+        </button>
       </nav>
 
       {/* Pane */}
@@ -155,7 +184,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
             <h3 className="m-0 text-sm font-semibold text-[var(--color-text-primary)]">{paneLabel}</h3>
             <p className="m-0 mt-0.5 text-xs text-[var(--color-text-secondary)]">{PANE_HINTS[pane]}</p>
           </div>
-          {PANE_FIELDS[pane] && (
+          {(PANE_FIELDS[pane] || pane === "sections") && (
             <button
               onClick={resetPane}
               className="flex shrink-0 items-center gap-1 rounded-md border border-[var(--color-border)] px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
@@ -516,6 +545,19 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
         )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmResetAll}
+        title="Reset every setting?"
+        message="Every Customize setting — template, fonts, colors, layout, section options — returns to its default. Your content is untouched. This cannot be undone."
+        confirmLabel="Reset all"
+        danger
+        onConfirm={() => {
+          resetAll();
+          setConfirmResetAll(false);
+        }}
+        onCancel={() => setConfirmResetAll(false)}
+      />
     </div>
   );
 };

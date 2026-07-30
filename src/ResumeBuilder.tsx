@@ -116,6 +116,7 @@ export const ResumeBuilder = () => {
         onDisconnectRepo={portfolio.disconnectRepo}
         onImportPortfolio={handleImportFile}
         onClearPortfolio={portfolio.clear}
+        exportDoc={previewDoc}
       />
 
       {!rs.activeDoc ? (

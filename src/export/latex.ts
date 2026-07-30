@@ -210,6 +210,11 @@ function bodyTex(section: ResumeSection, style: ResumeStyle): string {
         .map((e) => `\\fcolorbox{chipline}{white}{\\small ${escapeLatex(e.title || "")}}`)
         .join("\n\\,")}\\par`;
 
+    case "plain-rows":
+      return visible
+        .map((e) => `\\textbf{${escapeLatex(e.title || "")}}${e.meta?.category ? ` \\,·\\, ${escapeLatex(String(e.meta.category))}` : ""}\\\\`)
+        .join("\n");
+
     case "linked-list":
       return `\\begin{itemize}\n${visible
         .map((e) => {

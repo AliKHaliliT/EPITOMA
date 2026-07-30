@@ -171,6 +171,11 @@ function bodyHtml(section: ResumeSection, style: ResumeStyle, colors: ColorPlan,
         .map((e) => chip(e.title || "", "transparent", "#d1d5db"))
         .join(" ")}</p>`;
 
+    case "plain-rows":
+      return visible
+        .map((e) => `<p style="margin:0 0 2pt"><b>${escapeHtml(e.title || "")}</b>${e.meta?.category ? ` · ${escapeHtml(String(e.meta.category))}` : ""}</p>`)
+        .join("");
+
     case "linked-list":
       return visible
         .map((e) => {

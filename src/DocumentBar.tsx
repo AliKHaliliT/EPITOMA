@@ -42,6 +42,10 @@ interface DocumentBarProps {
    *  document .json (comes back as a new document, styling intact). */
   onImportPortfolio: (file: File) => Promise<unknown>;
   onClearPortfolio: () => void;
+  /** What the preview sheet is showing right now (the sample document while
+   *  sample mode is on). Downloads always export exactly this, so the three
+   *  formats and the preview can never disagree about content. */
+  exportDoc?: ResumeDocument | null;
 }
 
 const relativeDate = (iso: string) => {
@@ -65,6 +69,7 @@ export const DocumentBar = ({
   onDisconnectRepo,
   onImportPortfolio,
   onClearPortfolio,
+  exportDoc,
 }: DocumentBarProps) => {
   const [docMenu, setDocMenu] = useState(false);
   const [pending, setPending] = useState<null | "forget" | "delete" | "sync">(null);
@@ -130,7 +135,7 @@ export const DocumentBar = ({
           name it changes. */}
       <div className="relative">
         {editingName ? (
-          <span className="flex min-w-[200px] items-center gap-1">
+          <span className="flex items-center gap-1">
             <input
               autoFocus
               value={nameDraft}
@@ -140,7 +145,7 @@ export const DocumentBar = ({
                 if (e.key === "Escape") setEditingName(false);
               }}
               aria-label="Document name"
-              className="w-52 rounded-lg border border-signal bg-[var(--color-input-bg)] px-3 py-2 text-sm font-medium text-[var(--color-text-primary)] outline-none"
+              className="w-[168px] rounded-lg border border-signal bg-[var(--color-input-bg)] px-3 py-2 text-sm font-medium text-[var(--color-text-primary)] outline-none"
             />
             <button onClick={commitRename} className="p-2 text-signal hover:bg-field/10 rounded-lg" title="Save name (Enter)">
               <Check size={15} />
@@ -150,16 +155,29 @@ export const DocumentBar = ({
             </button>
           </span>
         ) : (
-        <button
-          onClick={() => setDocMenu((v) => !v)}
-          className="flex items-center gap-2 px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] min-w-[200px]"
-        >
-          {activeDoc?.kind === "cv" ? <FileBadge size={15} /> : <FileText size={15} />}
-          <span className="flex-1 text-left truncate">
-            {activeDoc ? activeDoc.name : "No documents"}
-          </span>
-          <ChevronDown size={15} className="text-[var(--color-text-secondary)]" />
-        </button>
+        <span className="flex items-center gap-1">
+          <button
+            onClick={() => setDocMenu((v) => !v)}
+            className="flex items-center gap-2 px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] min-w-[200px]"
+          >
+            {activeDoc?.kind === "cv" ? <FileBadge size={15} /> : <FileText size={15} />}
+            <span className="flex-1 text-left truncate">
+              {activeDoc ? activeDoc.name : "No documents"}
+            </span>
+            <ChevronDown size={15} className="text-[var(--color-text-secondary)]" />
+          </button>
+          {/* Rename lives beside the name it edits; the input swaps in right
+              here, so nothing else in the bar moves. */}
+          {activeDoc && (
+            <button
+              onClick={startRename}
+              className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
+              title="Rename"
+            >
+              <Pencil size={15} />
+            </button>
+          )}
+        </span>
         )}
         {!editingName && docMenu && docs.length > 0 && (
           <div className="absolute z-20 mt-1 w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
@@ -273,34 +291,25 @@ export const DocumentBar = ({
 
       {activeDoc && (
         <>
-          {/* While renaming, the input replaces the selector itself; the
-              action cluster hides so nothing can act on a half-renamed
+          {/* Duplicate/delete stay put (no layout jump) but sleep while a
+              rename is in flight, so neither can act on a half-renamed
               document. */}
-          {!editingName && (
-            <>
-              <button
-                onClick={startRename}
-                className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
-                title="Rename"
-              >
-                <Pencil size={15} />
-              </button>
-              <button
-                onClick={onDuplicate}
-                className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
-                title="Duplicate"
-              >
-                <Copy size={15} />
-              </button>
-              <button
-                onClick={() => setPending("delete")}
-                className="p-2 text-[var(--color-text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                title="Delete"
-              >
-                <Trash2 size={15} />
-              </button>
-            </>
-          )}
+          <button
+            onClick={onDuplicate}
+            disabled={editingName}
+            className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+            title="Duplicate"
+          >
+            <Copy size={15} />
+          </button>
+          <button
+            onClick={() => setPending("delete")}
+            disabled={editingName}
+            className="p-2 text-[var(--color-text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+            title="Delete"
+          >
+            <Trash2 size={15} />
+          </button>
 
           <div className="flex-1" />
 
@@ -322,7 +331,7 @@ export const DocumentBar = ({
             <RefreshCw size={14} className={syncing ? "animate-spin" : undefined} />
             {syncing ? "Syncing…" : "Sync"}
           </button>
-          <DownloadMenu doc={activeDoc} />
+          <DownloadMenu doc={exportDoc ?? activeDoc} />
         </>
       )}
 

@@ -156,6 +156,7 @@ export type SectionShape =
   | "lang-grid"    // two-column grid
   | "lang-dots"    // Language + 1–5 rating dots
   | "chips"        // interests
+  | "plain-rows"   // interests as stacked titles
   | "linked-list"  // blog / garden: linked titles + date
   | "ref-cards"    // references: name/role/org/email cards
   | "entries"      // default: full entry rows
@@ -174,7 +175,7 @@ export function sectionShape(section: ResumeSection): SectionShape {
     case "languages":
       return layout === "dots" ? "lang-dots" : layout === "grid" ? "lang-grid" : "lang-list";
     case "interests":
-      return "chips";
+      return layout === "rows" ? "plain-rows" : "chips";
     case "blog":
     case "garden":
       return "linked-list";
