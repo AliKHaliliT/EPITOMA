@@ -68,11 +68,33 @@ Changelog; the Unreleased section is the staging area until the first version is
   resume), Slate (deep-teal rail in light type), and Scholar (single serif column with
   year-only dates, made for long CVs).
 
+- Real pagination: no block ever straddles a printed page boundary (a heading left
+  alone at a page's foot travels with its first block), the preview shows physically
+  separate pages instead of one long sheet with a dashed line, and the PDF breaks in
+  exactly the same places. The preview scrolls inside its own container with a
+  scroll-to-top button, entry layouts are visibly distinct in every combination,
+  heading icons center at any size, the sample document adopts the real document's
+  structure so the Layout and Sections panes act on what the sheet shows, and renaming
+  happens in place on the document selector.
+- Export parity, engineered instead of hoped for: a single layout contract
+  (`src/export/layout.ts`) resolves geometry, colors, heading decorations, entry
+  composition, section shapes, and column regions once, and the Word and LaTeX
+  renderers are structural translations of it. Word gets real tables instead of
+  ignored flexbox, a shaded sidebar rail, chip and dot renderings, and a true footer
+  with page-number fields; LaTeX gets the six heading decorations, all three entry
+  layouts, `multicols`/`paracol` columns with the rail fill, chips, dots, localized
+  dates, and a ready fontspec block for exact fonts. `docs/EXPORT-PARITY.md` maps
+  every feature to every format and lists the few deliberate divergences;
+  `src/export/parity.test.ts` pins the renderers to the contract.
+
 ### Fixed
 
 - Exports grabbed the first rendered sheet in the page, which, once template thumbnails
   became real miniatures, was a thumbnail: PDF, Word, and LaTeX now target the live
   sheet explicitly.
+- The Word export used to clone the preview DOM, whose flexbox and grid Word silently
+  ignores, garbling the layout; it is now generated structurally from the document
+  model.
 - Fast-clicking a stepper no longer triggers the browser's text-selection popup, and
   renaming a document replaces the duplicate and delete buttons so neither can act on a
   half-renamed document.

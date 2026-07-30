@@ -15,6 +15,7 @@ import {
   sectionStyle, loadFonts, tint, railColors, RAIL_FRAC,
 } from "./previewStyles";
 import { sectionRegion } from "@/lib/resumeDefaults";
+import { proficiencyDots } from "@/export/layout";
 
 const CONTACT_ICONS: Record<string, LucideIcon> = {
   Globe, Github, Linkedin, Twitter, GraduationCap, BookOpen, Link2,
@@ -104,18 +105,6 @@ function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: Resume
       <Desc html={entry.description} style={style} />
     </div>
   );
-}
-
-/** Map a free-text proficiency ("Fluent", "B2", "Native…") to a 1–5 dot
- *  rating for the languages "dots" layout. Unknown words read as solid 3. */
-function proficiencyDots(subtitle?: string): number {
-  const s = (subtitle || "").toLowerCase();
-  if (/native|mother|bilingual|c2/.test(s)) return 5;
-  if (/fluent|advanced|proficien|c1/.test(s)) return 4;
-  if (/intermediate|conversational|b2/.test(s)) return 3;
-  if (/elementary|basic|b1|a2/.test(s)) return 2;
-  if (/beginner|a1/.test(s)) return 1;
-  return 3;
 }
 
 function SectionBody({ section, style }: { section: ResumeSection; style: ResumeStyle }) {
