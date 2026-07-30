@@ -8,11 +8,13 @@ import { downloadFile, slugify } from "./shared";
 
 type Format = "pdf" | "latex" | "word" | "json";
 
+// Each format promises what it actually is: the PDF is the exact document,
+// the others trade some fidelity for editability (docs/EXPORT-PARITY.md).
 const OPTIONS: { key: Format; label: string; hint: string; icon: typeof FileType2 }[] = [
-  { key: "pdf", label: "PDF", hint: "Print → Save as PDF", icon: FileType2 },
-  { key: "latex", label: "LaTeX (.tex)", hint: "Editable source", icon: FileCode2 },
-  { key: "word", label: "Word (.doc)", hint: "Opens in Word", icon: FileText },
-  { key: "json", label: "Document (.json)", hint: "Portable copy, styling included", icon: FileJson2 },
+  { key: "pdf", label: "PDF", hint: "Exact copy: what you send", icon: FileType2 },
+  { key: "word", label: "Word (.doc)", hint: "Editable copy, closest styling", icon: FileText },
+  { key: "latex", label: "LaTeX (.tex)", hint: "Source code, closest styling", icon: FileCode2 },
+  { key: "json", label: "Document (.json)", hint: "Backup: re-import reproduces it exactly", icon: FileJson2 },
 ];
 
 export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
