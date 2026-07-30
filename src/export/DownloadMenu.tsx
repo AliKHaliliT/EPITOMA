@@ -8,10 +8,10 @@ import { downloadFile, slugify } from "./shared";
 
 type Format = "pdf" | "latex" | "word" | "json";
 
-// Each format promises what it actually is: the PDF is the exact document,
+// Each format promises what it actually is: the PDF is the finished document,
 // the others trade some fidelity for editability (docs/EXPORT-PARITY.md).
 const OPTIONS: { key: Format; label: string; hint: string; icon: typeof FileType2 }[] = [
-  { key: "pdf", label: "PDF", hint: "Exact copy: what you send", icon: FileType2 },
+  { key: "pdf", label: "PDF", hint: "The finished document: what you send", icon: FileType2 },
   { key: "word", label: "Word (.doc)", hint: "Editable copy, closest styling", icon: FileText },
   { key: "latex", label: "LaTeX (.tex)", hint: "Source code, closest styling", icon: FileCode2 },
   { key: "json", label: "Document (.json)", hint: "Backup: re-import reproduces it exactly", icon: FileJson2 },
@@ -19,6 +19,7 @@ const OPTIONS: { key: Format; label: string; hint: string; icon: typeof FileType
 
 export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
   const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,7 +32,12 @@ export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
 
   const run = (format: Format) => {
     setOpen(false);
-    if (format === "pdf") exportPdf(doc);
+    if (format === "pdf") {
+      // Generated in the browser and downloaded directly; the renderer and
+      // fonts load on first use, hence the brief busy state.
+      setBusy(true);
+      void exportPdf(doc).finally(() => setBusy(false));
+    }
     else if (format === "latex") exportLatex(doc);
     else if (format === "word") exportWord(doc);
     else
@@ -48,10 +54,11 @@ export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-text-primary)] text-[var(--color-background)] rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+        disabled={busy}
+        className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-text-primary)] text-[var(--color-background)] rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:cursor-wait disabled:opacity-70"
         title="Download this document"
       >
-        <Download size={14} /> Download <ChevronDown size={13} />
+        <Download size={14} /> {busy ? "Preparing…" : "Download"} <ChevronDown size={13} />
       </button>
       {open && (
         <div className="absolute right-0 z-20 mt-1 w-56 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-lg py-1">

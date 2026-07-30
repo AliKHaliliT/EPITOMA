@@ -4,20 +4,7 @@
 // (its computed inline styles travel with it), LaTeX is plain string templating,
 // and Word uses the well-known Word-compatible-HTML (.doc) trick.
 
-import { FONT_OPTIONS, fontStack } from "@/lib/resumeDefaults";
-import { ResumeStyle } from "@/types/resume";
-
-/** Google Fonts stylesheet href for the document's body + name fonts (or null). */
-export function googleFontHref(style: ResumeStyle): string | null {
-  const families = [style.bodyFont, style.nameFont]
-    .filter(Boolean)
-    .map((label) => FONT_OPTIONS.find((f) => f.label === label)?.google)
-    .filter(Boolean) as string[];
-  if (families.length === 0) return null;
-  return `https://fonts.googleapis.com/css2?${families
-    .map((f) => `family=${f}`)
-    .join("&")}&display=swap`;
-}
+import { fontStack } from "@/lib/resumeDefaults";
 
 export const cssFontStack = (label: string): string => fontStack(label);
 
@@ -50,12 +37,6 @@ export function downloadFile(filename: string, mime: string, content: string | B
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-
-/** Grab the LIVE preview's page element. The template thumbnails render
- *  .resume-page too, so the live one carries a data marker; grabbing the
- *  first .resume-page in the DOM used to export a thumbnail. */
-export const getResumePageEl = (): HTMLElement | null =>
-  document.querySelector<HTMLElement>('.resume-page[data-live-sheet]');
 
 /** Self-contained copy of the `.resume-prose` rules from index.css, so exported
  *  documents render entry descriptions (lists, alignment, underline) correctly

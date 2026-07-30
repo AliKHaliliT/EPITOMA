@@ -87,6 +87,17 @@ Changelog; the Unreleased section is the staging area until the first version is
   every feature to every format and lists the few deliberate divergences;
   `src/export/parity.test.ts` pins the renderers to the contract.
 
+- The PDF exports directly: one click produces the file, no print window, no dialog,
+  and no printer driver deciding the margins. The document is rendered in the browser
+  by a dedicated PDF layout engine driven by the same layout contract as every other
+  format, with the catalog fonts embedded as full TrueType faces (Latin-Extended
+  included, so Turkish and Azerbaijani glyphs travel), lucide heading and contact
+  icons drawn as vectors, full-bleed bands and rails on every page, footer on the
+  last page's bottom margin, and per-page numbers. The engine paginates with the
+  preview's rules: entries never split across a page boundary and a heading keeps
+  its first block. The renderer and fonts live in a lazily loaded chunk; nothing
+  downloads until the first export.
+
 ### Fixed
 
 - Exports grabbed the first rendered sheet in the page, which, once template thumbnails

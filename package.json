@@ -11,9 +11,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.5.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.26",
     "front-matter": "^4.0.2",
+    "lucide": "^1.28.0",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
