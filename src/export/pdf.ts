@@ -49,7 +49,19 @@ export function exportPdf(doc: ResumeDocument) {
       margin: 0; padding: 0; background: #fff;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
-    .resume-page { box-shadow: none !important; margin: 0 auto; }
+    .resume-page { margin: 0 auto; }
+    /* On screen (behind the print dialog) the window reads as a document
+       viewer; on paper the sheet is bare. */
+    @media screen {
+      html, body { background: #3d4043; }
+      .resume-page {
+        margin: 24px auto;
+        box-shadow: 0 2px 14px rgba(0,0,0,0.55) !important;
+      }
+    }
+    @media print {
+      .resume-page { box-shadow: none !important; }
+    }
     ${RESUME_PROSE_CSS}
   </style>
 </head>

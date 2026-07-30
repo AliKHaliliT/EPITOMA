@@ -242,7 +242,21 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
             {TEMPLATE_PRESETS.filter((t) => t.kinds.includes(docKind)).map((t) => (
               <button
                 key={t.key}
-                onClick={() => set({ ...t.style, template: t.key })}
+                // A template is a complete look: build it on the DEFAULTS,
+                // never on the current style, so nothing from the previous
+                // template (a dark rail fill, a photo toggle) leaks through.
+                // The Document-pane basics survive unless the preset says
+                // otherwise.
+                onClick={() =>
+                  onStyleChange({
+                    ...structuredClone(DEFAULT_STYLE),
+                    language: style.language,
+                    pageFormat: style.pageFormat,
+                    dateFormat: style.dateFormat,
+                    ...t.style,
+                    template: t.key,
+                  })
+                }
                 className={cn(
                   "rounded-lg border p-2.5 text-left transition-colors",
                   style.template === t.key

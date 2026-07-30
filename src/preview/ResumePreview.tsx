@@ -12,7 +12,7 @@ import type { CSSProperties } from "react";
 import {
   pageStyle, nameStyle, jobTitleStyle, headingStyle, subtitleStyle, dateStyle,
   entryHeaderStyle, linkStyle, descriptionClass, descriptionStyle, bodyStyle,
-  sectionStyle, loadFonts, tint, railColors, RAIL_FRAC,
+  sectionStyle, loadFonts, tint, railColors, RAIL_FRAC, luminance,
 } from "./previewStyles";
 import { sectionRegion } from "@/lib/resumeDefaults";
 import { proficiencyDots } from "@/export/layout";
@@ -408,6 +408,11 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
   const headerAlign = style.headerAlign === "center" ? "center" : "left";
   const sep = style.headerDetails === "bar" ? "|" : style.headerDetails === "bullet" ? "•" : "";
 
+  // The header band's own ink: a dark fill flips the block to light type,
+  // exactly like the sidebar rail (and like both structural exports).
+  const bandBg = style.colorScope === "header" ? style.headerFillColor || tint(style.accentColor) : null;
+  const bandDark = bandBg !== null && luminance(bandBg) < 0.55;
+
   const contactItems: { icon?: LucideIcon; node: React.ReactNode; key: string }[] = [];
   if (personal.location) contactItems.push({ icon: MapPin, node: personal.location, key: "loc" });
   if (personal.email) contactItems.push({ icon: Mail, node: personal.email, key: "email" });
@@ -425,7 +430,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
   );
 
   const showIcons = style.headerDetails === "icon";
-  const iconColor = style.accentApply.headerIcons ? style.accentColor : "#6b7280";
+  const iconColor = style.accentApply.headerIcons ? style.accentColor : "var(--r-muted, #6b7280)";
 
   // Sidebar geometry: the rail is a fraction of the content width, and its
   // band bleeds through the right margin to the sheet edge.
@@ -508,11 +513,17 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
             ...(style.columns === "sidebar" && style.colorScope !== "header"
               ? { paddingRight: `${railWidthMm + 7}mm` }
               : {}),
-            ...(style.colorScope === "header"
+            ...(bandBg
               ? {
-                  background: style.headerFillColor || tint(style.accentColor),
+                  background: bandBg,
                   margin: `-${style.marginY}mm -${style.marginX}mm var(--r-gap)`,
                   padding: `${style.marginY}mm ${style.marginX}mm 12px`,
+                  ...(bandDark
+                    ? ({
+                        color: "#f8fafc",
+                        "--r-muted": "rgba(248,250,252,0.72)",
+                      } as CSSProperties)
+                    : {}),
                 }
               : {}),
           }}
@@ -528,12 +539,20 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
               }}
             />
           )}
-          {personal.name && <h1 style={nameStyle(style)}>{personal.name}</h1>}
-          {personal.title && <p style={{ ...jobTitleStyle(style), fontSize: "0.95em", opacity: 0.9 }}>{personal.title}</p>}
+          {/* On a dark band, legibility beats decoration: the band ink wins
+              over an accent-colored name (same rule in Word and LaTeX). */}
+          {personal.name && (
+            <h1 style={{ ...nameStyle(style), ...(bandDark ? { color: "#f8fafc" } : {}) }}>{personal.name}</h1>
+          )}
+          {personal.title && (
+            <p style={{ ...jobTitleStyle(style), fontSize: "0.95em", opacity: 0.9, ...(bandDark ? { color: "#f8fafc" } : {}) }}>
+              {personal.title}
+            </p>
+          )}
 
           <div
             className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1"
-            style={{ fontSize: "0.8em", color: "#4b5563", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
+            style={{ fontSize: "0.8em", color: "var(--r-muted, #4b5563)", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
           >
             {contactItems.map((c, i) => (
               <span key={c.key} className="inline-flex items-center gap-1">
@@ -547,7 +566,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
           {personal.extra && Object.keys(personal.extra).length > 0 && (
             <div
               className="flex flex-wrap gap-x-3 mt-0.5"
-              style={{ fontSize: "0.75em", color: "#6b7280", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
+              style={{ fontSize: "0.75em", color: "var(--r-muted, #6b7280)", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
             >
               {Object.entries(personal.extra)
                 .filter(([, v]) => v)

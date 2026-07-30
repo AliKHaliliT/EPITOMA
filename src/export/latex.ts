@@ -32,6 +32,15 @@ function escapeLatex(text: string): string {
     .replace(/\^/g, "\\textasciicircum{}");
 }
 
+/** A safe \href: placeholder targets ("#", empty) render as plain text, and
+ *  real URLs get their %, #, and & escaped. A raw # inside \href's argument
+ *  is an "Illegal parameter number" compile error. */
+function texHref(url: string | undefined, text: string): string {
+  const u = (url || "").trim();
+  if (!u || u === "#" || u.startsWith("#")) return text;
+  return `\\href{${u.replace(/([%#&])/g, "\\$1")}}{${text}}`;
+}
+
 /** Convert the HTML produced by ResumeRichText into LaTeX. */
 function htmlToLatex(html?: string): string {
   if (!html) return "";
@@ -60,8 +69,7 @@ function htmlToLatex(html?: string): string {
       case "u":
         return `\\underline{${inner}}`;
       case "a": {
-        const href = el.getAttribute("href");
-        return href ? `\\href{${href}}{${inner}}` : inner;
+        return texHref(el.getAttribute("href") || "", inner);
       }
       case "br":
         return "\\\\\n";
@@ -130,9 +138,7 @@ function entryTex(e: ResumeEntry, style: ResumeStyle): string {
   const spec = resolveEntry(style);
   const dates = dateRange(e.startDate, e.endDate, style.dateFormat);
   const titleCore = e.title ? escapeLatex(e.title) : "";
-  const title = e.title
-    ? `{\\entrysize\\bfseries ${e.link ? `\\href{${e.link}}{${titleCore}}` : titleCore}}`
-    : "";
+  const title = e.title ? `{\\entrysize\\bfseries ${texHref(e.link, titleCore)}}` : "";
   const sub = subtitleTex(e, style);
   const loc = e.location ? `{\\small\\color{muted}${escapeLatex(e.location)}}` : "";
   const body = htmlToLatex(e.description);
@@ -219,7 +225,7 @@ function bodyTex(section: ResumeSection, style: ResumeStyle): string {
       return `\\begin{itemize}\n${visible
         .map((e) => {
           const t = escapeLatex(e.title || "");
-          const l = e.link ? `\\href{${e.link}}{${t}}` : t;
+          const l = texHref(e.link, t);
           const d = e.startDate ? ` \\hfill {\\small\\color{muted}${escapeLatex(fmtDate(e.startDate, style.dateFormat))}}` : "";
           return `  \\item ${l}${d}`;
         })
@@ -250,7 +256,7 @@ function bodyTex(section: ResumeSection, style: ResumeStyle): string {
     case "entry-rows":
       return visible
         .map((e) => {
-          const t = e.title ? `{\\entrysize\\bfseries ${e.link ? `\\href{${e.link}}{${escapeLatex(e.title)}}` : escapeLatex(e.title)}}` : "";
+          const t = e.title ? `{\\entrysize\\bfseries ${texHref(e.link, escapeLatex(e.title))}}` : "";
           const sub = subtitleTex(e, style);
           const d = dateRange(e.startDate, e.endDate, style.dateFormat);
           return `${[t, sub].filter(Boolean).join(" \\,·\\, ")}${d ? `\\hfill ${dateTex(d, style)}` : ""}\\\\`;
@@ -288,21 +294,23 @@ function headerTex(doc: ResumeDocument, colors: ColorPlan, t: TypeScale): string
   const center = style.headerAlign === "center";
   const lines: string[] = [];
 
+  // On a dark band the band ink wins over an accent-colored name (legibility
+  // beats decoration; same rule in the preview and Word).
   if (personal.name) {
-    const color = style.accentApply.name ? "\\color{accent}" : colors.headerInk ? "\\color{headerink}" : "";
+    const color = colors.headerInk ? "\\color{headerink}" : style.accentApply.name ? "\\color{accent}" : "";
     lines.push(`{\\fontsize{${t.namePt}}{${Math.round(t.namePt * 1.15)}}\\selectfont\\bfseries ${color}${escapeLatex(personal.name)}}\\\\[2pt]`);
   }
   if (personal.title) {
-    const color = style.accentApply.jobTitle ? "\\color{accent}" : "";
+    const color = colors.headerInk ? "\\color{headerink}" : style.accentApply.jobTitle ? "\\color{accent}" : "";
     lines.push(`{\\large ${color}${escapeLatex(personal.title)}}\\\\[3pt]`);
   }
 
   const sep = style.headerDetails === "bar" ? " \\,\\textbar\\, " : " \\,·\\, ";
   const contacts: string[] = [];
   if (personal.location) contacts.push(escapeLatex(personal.location));
-  if (personal.email) contacts.push(`\\href{mailto:${personal.email}}{${escapeLatex(personal.email)}}`);
+  if (personal.email) contacts.push(texHref(`mailto:${personal.email}`, escapeLatex(personal.email)));
   if (personal.phone) contacts.push(escapeLatex(personal.phone));
-  personal.links?.forEach((l) => contacts.push(`\\href{${l.url}}{${escapeLatex(l.label)}}`));
+  personal.links?.forEach((l) => contacts.push(texHref(l.url, escapeLatex(l.label))));
   if (contacts.length) lines.push(`{\\small ${contacts.join(sep)}}\\\\`);
 
   const extras = Object.entries(personal.extra || {}).filter(([, v]) => v);

@@ -103,6 +103,14 @@ describe("LaTeX renderer follows the contract", () => {
     const tex = documentToLatex(doc({ headingCase: "uppercase" }));
     expect(tex).toContain("\\ressection{EXPERIENCE}");
   });
+
+  it("never emits an \\href with a placeholder or raw-# target", () => {
+    // The sample's links use "#": a raw # inside \href is a compile error
+    // ("Illegal parameter number"). Placeholders must render as plain text.
+    const tex = documentToLatex(doc({}));
+    expect(tex).not.toContain("\\href{#}");
+    expect(tex).not.toMatch(/\\href\{[^}]*(?<!\\)#/);
+  });
 });
 
 describe("Word renderer follows the contract", () => {

@@ -246,11 +246,13 @@ function headerHtml(doc: ResumeDocument, colors: ColorPlan): string {
       ? `<img src="${personal.photo}" width="${Math.round(style.photoSize * 0.75)}" height="${Math.round(style.photoSize * 0.75)}" style="border-radius:${style.photoShape === "circle" ? "50%" : style.photoShape === "rounded" ? "6pt" : "0"}"/><br/>`
       : "";
 
+  // On a dark band the band ink wins over an accent-colored name (legibility
+  // beats decoration; same rule in the preview and LaTeX).
   const name = personal.name
-    ? `<p style="margin:0;font-family:${cssFontStack(t.nameFont)};font-size:${t.namePt}pt;font-weight:bold;color:${style.accentApply.name ? colors.accent : ink || "inherit"}">${escapeHtml(personal.name)}</p>`
+    ? `<p style="margin:0;font-family:${cssFontStack(t.nameFont)};font-size:${t.namePt}pt;font-weight:bold;color:${ink || (style.accentApply.name ? colors.accent : "inherit")}">${escapeHtml(personal.name)}</p>`
     : "";
   const title = personal.title
-    ? `<p style="margin:0;font-size:0.95em;color:${style.accentApply.jobTitle ? colors.accent : "inherit"}">${escapeHtml(personal.title)}</p>`
+    ? `<p style="margin:0;font-size:0.95em;color:${ink || (style.accentApply.jobTitle ? colors.accent : "inherit")}">${escapeHtml(personal.title)}</p>`
     : "";
 
   const sep = style.headerDetails === "bar" ? " | " : " • ";
