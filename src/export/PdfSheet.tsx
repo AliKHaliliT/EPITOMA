@@ -717,19 +717,20 @@ export function PdfSheet({ doc }: { doc: ResumeDocument }) {
             style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: 3, backgroundColor: colors.edge }}
           />
         )}
-        {/* Footer text on the LAST page's bottom margin (like the preview);
-            page numbers centered in every page's bottom margin. Fixed
-            elements are declared before the flow, like the fills above. */}
+        {/* The footer runs in every page's bottom margin, the page numbers
+            centered just beneath it. Fixed elements are declared before the
+            flow, like the fills above. */}
         {style.footerText ? (
           <Text
             fixed
-            render={({ pageNumber, totalPages }) => (pageNumber === totalPages ? style.footerText : "")}
             style={{
               position: "absolute", left: g.marginX * MM, right: g.marginX * MM,
-              bottom: (g.marginY * MM) / 2 + 8,
-              fontSize: t.basePt * 0.7, color: "#9ca3af",
+              bottom: (g.marginY * MM) / 2 + 8, textAlign: "center",
+              fontSize: t.basePt * 0.75, color: "#9ca3af",
             }}
-          />
+          >
+            {style.footerText}
+          </Text>
         ) : null}
         {style.showPageNumbers ? (
           <Text

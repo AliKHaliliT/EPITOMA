@@ -527,7 +527,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
               <Label>Footer text</Label>
               <input className={INPUT} value={style.footerText} onChange={(e) => set({ footerText: e.target.value })} placeholder="e.g. References available on request" />
               <p className="m-0 text-xs text-[var(--color-text-secondary)]">
-                Pinned to the bottom of the final page, wherever the content ends.
+                Runs in the bottom margin of every page, wherever the content ends.
               </p>
             </div>
             <Check label="Show page numbers" checked={style.showPageNumbers} onChange={(v) => set({ showPageNumbers: v })} />

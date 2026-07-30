@@ -52,7 +52,7 @@ each format can express; none of them re-decides anything.
 | References grid / rows | cards | cards | table cards | minipage cards |
 | Blog / garden lists | linked rows + dates | linked rows + dates | linked table rows | `itemize` + `\hfill` dates |
 | Localized dates & Present | Intl per language | same strings (shared code) | same strings (shared code) | same strings (shared code) |
-| Footer text | pinned to last page bottom | last page bottom (render prop) | real Word footer (every page) | `fancyhdr` footer (every page) |
+| Footer text | every page's bottom margin | every page (fixed text) | real Word footer (every page) | `fancyhdr` footer (every page) |
 | Page numbers | per-page overlay | per-page (render prop) | `PAGE / NUMPAGES` fields | `\thepage / \pageref{LastPage}` |
 | Photo | rendered | embedded (SVG rasterized to PNG) | embedded (data URI; Word ≥2016) | **omitted** (a .tex file cannot carry the image) |
 
@@ -75,11 +75,10 @@ These are the format limits, chosen deliberately and kept small:
    the text block instead of bleeding to the sheet edge. The PDF bleeds.
 5. **Heading icons and the photo in LaTeX** are omitted (no way to carry
    lucide glyphs or image bytes inside a single `.tex`).
-6. **Footer placement.** The preview and the PDF pin the footer to the
-   bottom of the *last* page; Word and LaTeX put it in the running footer
-   of *every* page, which is the native idiom of those formats.
 
-Everything else is expected to match; a mismatch outside this list is a bug.
+The footer is a running line in every page's bottom margin in all four
+outputs. Everything else is expected to match; a mismatch outside this list
+is a bug.
 
 ## A react-pdf gotcha worth remembering
 

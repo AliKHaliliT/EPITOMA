@@ -316,7 +316,6 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
   const sections = doc.sections.filter((s) => s.visible);
   const rootRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLElement>(null);
   const [pages, setPages] = useState(1);
   const pageHmm = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).h;
 
@@ -389,9 +388,8 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
     if (!el) return;
     const measure = () => {
       paginate();
-      const footerH = footerRef.current?.offsetHeight ?? 0;
       const padY = style.marginY * 2 * MM_TO_PX;
-      const natural = el.offsetHeight + footerH + padY;
+      const natural = el.offsetHeight + padY;
       const n = Math.max(1, Math.ceil((natural - 1) / (pageHmm * MM_TO_PX)));
       setPages(n);
       onPageCount?.(n);
@@ -612,17 +610,9 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
             No visible sections. Add content to get started.
           </p>
         )}
-
-        {/* Footer */}
       </div>
-        {style.footerText && (
-          <footer
-            ref={footerRef}
-            style={{ marginTop: "auto", paddingTop: "4px", borderTop: "1px solid #e5e7eb", fontSize: "0.7em", color: "#9ca3af", position: "relative" }}
-          >
-            {style.footerText}
-          </footer>
-        )}
+      {/* The footer is a running line in every page's bottom margin; the
+          preview paints it per page window, like the page numbers. */}
     </div>
   );
 };
@@ -716,6 +706,15 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
                       onPageCount={i === 0 ? setPageCount : undefined}
                     />
                   </div>
+                  {style.footerText && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute left-0 right-0 z-10 text-center text-[10px] text-gray-400"
+                      style={{ bottom: (style.marginY * MM_TO_PX) / 2 + 6 }}
+                    >
+                      {style.footerText}
+                    </span>
+                  )}
                   {style.showPageNumbers && (
                     <span
                       aria-hidden
