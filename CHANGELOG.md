@@ -98,6 +98,16 @@ Changelog; the Unreleased section is the staging area until the first version is
   its first block. The renderer and fonts live in a lazily loaded chunk; nothing
   downloads until the first export.
 
+- The Customize panel redesigned as a specimen drawer: fourteen thin panes collapse
+  into eight dense ones (Page absorbs Document and Layout, Type absorbs Fonts, Sizes,
+  and Spacing, Entries absorbs the per-section bodies, Header absorbs the Photo,
+  Finish absorbs Links and Footer). Inside a pane, mono micro-headers with dashed
+  rules cluster the controls, options render as square tiles whose selected cell
+  carries the family mark's pixel notch, sliders condense into hairline gauge tables,
+  and the accent swatches become squares. Per-pane Reset follows the merged
+  boundaries and now also restores section bodies (Entries) and rail assignments
+  (Page).
+
 ### Fixed
 
 - Exports grabbed the first rendered sheet in the page, which, once template thumbnails
