@@ -10,54 +10,54 @@
 
 </div>
 
-**The resume builder of the [VITA](https://github.com/AliKHaliliT/VITA) ecosystem.** *Epitoma* is Latin for an abridgment of a larger work, which is exactly what a resume is to a *vita*: this app takes your whole record and condenses it into print-ready resumes and CVs.
+EPITOMA is the resume builder of the [VITA](https://github.com/AliKHaliliT/VITA) ecosystem. *Epitoma* is Latin for an abridgment of a larger work, which is exactly what a resume is to a *vita*. This app takes your whole record and condenses it into print-ready resumes and CVs.
 
-Built with React + Vite, one page, no server. Your documents stay in your browser. The repository's documentation and engineering conventions follow [My-Styles](https://github.com/AliKHaliliT/My-Styles).
+The builder runs as a single React and Vite page with no server, and your documents stay in your browser. The repository's documentation and engineering conventions follow [My-Styles](https://github.com/AliKHaliliT/My-Styles).
 
 ---
 
 ## The ecosystem
 
-EPITOMA is one of three sister repositories:
+EPITOMA is one of three sister repositories.
 
 | App | Role | Demo |
 | --- | --- | --- |
-| [**VITA**](https://github.com/AliKHaliliT/VITA) | The site: renders the record | [alikhalilit.github.io/VITA](https://alikhalilit.github.io/VITA/) |
-| [**TABULARIUM**](https://github.com/AliKHaliliT/TABULARIUM) | The admin panel: edits every ledger | [alikhalilit.github.io/TABULARIUM](https://alikhalilit.github.io/TABULARIUM/) |
-| **EPITOMA** (this repo) | The resume builder: condenses the record | [alikhalilit.github.io/EPITOMA](https://alikhalilit.github.io/EPITOMA/) |
+| [**VITA**](https://github.com/AliKHaliliT/VITA) | Renders the record as the public site | [alikhalilit.github.io/VITA](https://alikhalilit.github.io/VITA/) |
+| [**TABULARIUM**](https://github.com/AliKHaliliT/TABULARIUM) | Edits every ledger and publishes the seed files | [alikhalilit.github.io/TABULARIUM](https://alikhalilit.github.io/TABULARIUM/) |
+| **EPITOMA** (this repo) | Condenses the record into resumes and CVs | [alikhalilit.github.io/EPITOMA](https://alikhalilit.github.io/EPITOMA/) |
 
-All three talk through files rather than imports; this repo carries its own copy of the snapshot contract in `src/types/portfolio.ts` (format `vita-portfolio`, versioned).
+The three apps talk through files rather than imports, and this repo carries its own copy of the snapshot contract in `src/types/portfolio.ts`, versioned under the `vita-portfolio` format name.
 
 ---
 
 ## Features
 
-- **Two content sources, both read-only.** Import a `portfolio.json` exported by the admin panel, or point the Repo button at any public VITA repository and Sync pulls the profile, palette, and content straight from its head. No token: this app never writes anywhere.
-- **Sync that respects your edits.** Refreshing content by source id leaves your section order, hidden entries, custom sections, and styling untouched.
-- **A physical preview.** Real separated pages, exactly as they print: no block ever straddles a page boundary, headings keep their first entry, footers run in every page's bottom margin.
-- **Templates per document kind** (resumes and CVs get distinct sets), previewed as real typeset miniatures, with a sample-data mode so any look can be judged full-size without your record in the way.
-- **A Customize panel built like an instrument**: machined gauge sliders, pixel toggles, font pickers that show every face in itself, option tiles that preview what each choice does, per-pane and global resets.
-- **Sidebar layouts** with a full-height tinted rail, per-section main/rail assignment, dark fills that flip their type to light, and dot-rated language proficiency.
-- **Four export formats from one layout contract.** PDF generates directly in the browser (embedded fonts, Latin-Extended included, vector icons, one click, no print dialog); Word and LaTeX are structural translations of the same contract; the document `.json` is a perfect backup. [`docs/EXPORT-PARITY.md`](docs/EXPORT-PARITY.md) maps every feature to every format.
-- **Localized documents.** Dates and the open-ended range word render in English, UK English, French, German, Spanish, Turkish, or Azerbaijani, in every format.
-- **Everything local.** Documents live in your browser's storage; nothing leaves the machine.
+- **Two content sources, both read-only.** You can import a `portfolio.json` exported by the admin panel, or point the Repo button at any public VITA repository and let Sync pull the profile, palette, and content straight from its head. It needs no token because it never writes anywhere.
+- **Sync that respects your edits.** Refreshing matches content by source id, so your section order, hidden entries, custom sections, and styling all survive it.
+- **A physical preview.** The document lays out as real separated pages, exactly as it prints. No block ever straddles a page boundary, headings keep their first entry with them, and the footer runs in every page's bottom margin.
+- **Templates per document kind.** Resumes and CVs get distinct sets, every template card is a real typeset miniature, and a sample-data mode lets you judge any look full-size without your record in the way.
+- **A Customize panel built like an instrument.** It has machined gauge sliders, pixel toggles, font pickers that show every face in itself, option tiles that preview what each choice does, and resets per pane as well as for everything at once.
+- **Sidebar layouts.** A full-height tinted rail carries the reference sections, each section can be assigned to the main column or the rail, dark fills flip their type to light, and languages can render as proficiency dots.
+- **Four export formats from one layout contract.** The PDF generates directly in the browser with embedded fonts, vector icons, and no print dialog. Word and LaTeX are structural translations of the same contract, and the document `.json` is a perfect backup that re-imports exactly. The full mapping lives in [`docs/EXPORT-PARITY.md`](docs/EXPORT-PARITY.md).
+- **Localized documents.** Dates and the open-ended range word render in English, UK English, French, German, Spanish, Turkish, or Azerbaijani, and they do so in every format.
+- **Everything local.** Documents live in your browser's storage, and nothing leaves the machine.
 
 ---
 
 ## Getting started
 
-The [hosted builder](https://alikhalilit.github.io/EPITOMA/) works as-is: click Repo and point it at a public VITA repository (or Import a `portfolio.json` from the [admin panel](https://github.com/AliKHaliliT/TABULARIUM)), then create a Resume or CV. A blank document works too, filled in by hand.
+The [hosted builder](https://alikhalilit.github.io/EPITOMA/) works as it stands. Click Repo and point it at a public VITA repository, or import a `portfolio.json` produced by the [admin panel](https://github.com/AliKHaliliT/TABULARIUM), then create a Resume or CV. A blank document works too and can be filled in by hand.
 
-To run it locally:
+To run it locally instead, install and start it like any Vite app.
 
 ```powershell
 npm install
 npm run dev
 ```
 
-The app opens on port 3200 (VITA runs on 3000 and TABULARIUM on 3100, so all three run side by side).
+The app opens on port 3200. VITA runs on 3000 and TABULARIUM on 3100, so all three run side by side.
 
-For contributors and coding agents, see [`AGENTS.md`](AGENTS.md): the vendor-neutral entry point and the full documentation index.
+Contributors and coding agents should start at [`AGENTS.md`](AGENTS.md), which is the vendor-neutral entry point and the full documentation index.
 
 ---
 
