@@ -1,12 +1,13 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Reorder, useDragControls } from "framer-motion";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { m, AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import {
-  Minus, Plus, GripVertical, Check as CheckIcon, Eye, RotateCcw,
+  Minus, Plus, GripVertical, Check as CheckIcon, ChevronDown, Eye, RotateCcw,
   Link2, ExternalLink, MapPin, Image as ImageIcon, Square,
 } from "lucide-react";
 import { DocumentKind, ResumeSection, ResumeStyle } from "@/types/resume";
-import { DEFAULT_STYLE, SECTION_CATALOG, TEMPLATE_PRESETS, FONT_OPTIONS, sampleDocument, sectionRegion, type TemplatePreset } from "@/lib/resumeDefaults";
+import { DEFAULT_STYLE, SECTION_CATALOG, TEMPLATE_PRESETS, FONT_OPTIONS, fontStack, sampleDocument, sectionRegion, type TemplatePreset } from "@/lib/resumeDefaults";
 import { ResumeSheet } from "@/preview/ResumePreview";
+import { loadFonts } from "@/preview/previewStyles";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,8 @@ const NAV: { group: string; items: { id: Pane; label: string }[] }[] = [
   { group: "Identity", items: [{ id: "colors", label: "Colors" }, { id: "header", label: "Header" }] },
   { group: "Finish", items: [{ id: "finish", label: "Finish" }] },
 ];
+
+const PANE_ORDER: Pane[] = NAV.flatMap((g) => g.items.map((i) => i.id));
 
 const PANE_HINTS: Record<Pane, string> = {
   templates: "Start from a look, then tune anything below.",
@@ -122,20 +125,30 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
             <p className="m-0 px-3 pb-0.5 pt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--color-text-secondary)] opacity-60">
               {g.group}
             </p>
-            {g.items.map((n) => (
-              <button
-                key={n.id}
-                onClick={() => setPane(n.id)}
-                className={cn(
-                  "block w-full border-l-2 px-3 py-1.5 text-left text-[13px] transition-colors",
-                  pane === n.id
-                    ? "border-signal bg-[var(--color-background)] font-medium text-[var(--color-text-primary)]"
-                    : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                )}
-              >
-                {n.label}
-              </button>
-            ))}
+            {g.items.map((n) => {
+              const idx = PANE_ORDER.indexOf(n.id) + 1;
+              const active = pane === n.id;
+              return (
+                <button
+                  key={n.id}
+                  onClick={() => setPane(n.id)}
+                  className={cn(
+                    "group flex w-full items-baseline gap-1.5 border-l-2 px-3 py-1.5 text-left text-[13px] transition-colors",
+                    active
+                      ? "border-signal bg-[var(--color-background)] font-medium text-[var(--color-text-primary)]"
+                      : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                  )}
+                >
+                  <span className={cn(
+                    "font-mono text-[8.5px] tabular-nums transition-colors",
+                    active ? "text-signal" : "opacity-45 group-hover:opacity-70"
+                  )}>
+                    {String(idx).padStart(2, "0")}
+                  </span>
+                  {n.label}
+                </button>
+              );
+            })}
           </div>
         ))}
         {/* The nuclear option: every setting in every pane back to stock. */}
@@ -166,6 +179,14 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
           )}
         </div>
 
+        <AnimatePresence mode="wait" initial={false}>
+        <m.div
+          key={pane}
+          initial={{ opacity: 0, y: 7 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.16, ease: [0.2, 0.7, 0.2, 1] }}
+        >
         {pane === "templates" && (
           <div className="space-y-3">
             <button
@@ -278,11 +299,8 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
           <div className="space-y-4">
             <Cluster title="Family">
               <div className="grid grid-cols-2 gap-x-4">
-                <Select label="Body font" value={style.bodyFont} onChange={(v) => set({ bodyFont: v })}
-                  options={FONT_OPTIONS.map((f) => f.label)} />
-                <Select label="Name font" value={style.nameFont || ""} onChange={(v) => set({ nameFont: v })}
-                  options={["", ...FONT_OPTIONS.map((f) => f.label)]}
-                  optionLabels={{ "": "Same as body" }} />
+                <FontSelect label="Body font" value={style.bodyFont} onChange={(v) => set({ bodyFont: v })} />
+                <FontSelect label="Name font" value={style.nameFont || ""} allowInherit onChange={(v) => set({ nameFont: v })} />
               </div>
             </Cluster>
             <Cluster title="Size">
@@ -538,6 +556,8 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
             </Cluster>
           </div>
         )}
+        </m.div>
+        </AnimatePresence>
       </div>
 
       <ConfirmDialog
@@ -756,6 +776,8 @@ function Gauge({ label, value, min, max, step, suffix, prefix, onChange }: {
 }) {
   const clamp = (v: number) => Math.min(max, Math.max(min, Math.round(v / step) * step));
   const fmt = Number.isInteger(value) ? value : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  const pct = ((value - min) / (max - min)) * 100;
+  const [live, setLive] = useState(false);
   return (
     <div className="flex select-none items-center gap-2 px-2.5 py-[7px]">
       <span className="w-[68px] shrink-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--color-text-secondary)]" title={label}>
@@ -769,17 +791,34 @@ function Gauge({ label, value, min, max, step, suffix, prefix, onChange }: {
       >
         <Minus size={11} />
       </button>
-      {/* A real range input: draggable, keyboard-accessible, smooth. */}
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(clamp(Number(e.target.value)))}
-        aria-label={label}
-        className="h-1 min-w-0 flex-1 cursor-pointer accent-signal"
-      />
+      {/* The machined track: a real range input (keyboard, focus, drag for
+          free) drawn as a filled hairline with a ruler etched beneath it. */}
+      <span className="relative min-w-0 flex-1">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(clamp(Number(e.target.value)))}
+          onPointerDown={() => setLive(true)}
+          onPointerUp={() => setLive(false)}
+          onBlur={() => setLive(false)}
+          aria-label={label}
+          className="gauge-input relative z-10 block"
+          style={{
+            ["--gauge-fill" as string]: `linear-gradient(to right, var(--color-signal) 0%, var(--color-signal) ${pct}%, var(--color-border) ${pct}%)`,
+          }}
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute left-[2px] right-[2px] top-[13px] h-[3px] opacity-60"
+          style={{
+            backgroundImage: "linear-gradient(to right, var(--color-border-strong) 1px, transparent 1px)",
+            backgroundSize: "calc(100% / 12) 100%",
+          }}
+        />
+      </span>
       <button
         onClick={() => onChange(clamp(value + step))}
         onMouseDown={(e) => e.preventDefault()}
@@ -788,7 +827,12 @@ function Gauge({ label, value, min, max, step, suffix, prefix, onChange }: {
       >
         <Plus size={11} />
       </button>
-      <span className="w-12 shrink-0 text-right font-mono text-[11px] text-[var(--color-text-primary)]">
+      <span
+        className={cn(
+          "w-12 shrink-0 rounded-[3px] px-1 py-px text-right font-mono text-[11px] tabular-nums transition-colors",
+          live ? "bg-signal/15 text-signal" : "text-[var(--color-text-primary)]"
+        )}
+      >
         {prefix}{fmt}{suffix}
       </span>
     </div>
@@ -819,19 +863,25 @@ function Tiles({ label, value, options, onChange, hint, dense }: {
               key={o.value}
               onClick={() => onChange(o.value)}
               className={cn(
-                "relative rounded-[4px] border transition-colors",
+                "relative rounded-[4px] border transition-all duration-150 active:scale-95",
                 hasGlyphs
                   ? "flex h-[3.4rem] min-w-[3.6rem] flex-col items-center justify-center gap-1.5 px-2"
                   : dense
                   ? "px-2 py-[3px]"
                   : "px-2.5 py-1.5",
                 selected
-                  ? "border-signal bg-signal/10 text-[var(--color-text-primary)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)]"
+                  ? "border-signal bg-signal/10 text-[var(--color-text-primary)] shadow-[inset_0_0_0_1px_var(--color-signal)]"
+                  : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:-translate-y-px hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)] hover:shadow-sm"
               )}
             >
               {selected && (
-                <span aria-hidden className="absolute right-1 top-1 h-1.5 w-1.5 rounded-[1px] bg-signal" />
+                <m.span
+                  aria-hidden
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 700, damping: 26 }}
+                  className="absolute right-1 top-1 h-1.5 w-1.5 rounded-[1px] bg-signal"
+                />
               )}
               {o.glyph}
               <span className={cn(
@@ -855,33 +905,133 @@ function Select({ label, value, options, optionLabels, onChange }: {
   return (
     <div className="space-y-1.5">
       <Label>{label}</Label>
-      <select className={INPUT} value={value} onChange={(e) => onChange(e.target.value)}>
-        {options.map((o) => (
-          <option key={o} value={o}>{optionLabels?.[o] ?? o}</option>
-        ))}
-      </select>
+      <span className="relative block">
+        <select
+          className={cn(INPUT, "appearance-none pr-8 cursor-pointer")}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {options.map((o) => (
+            <option key={o} value={o}>{optionLabels?.[o] ?? o}</option>
+          ))}
+        </select>
+        <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
+      </span>
     </div>
   );
 }
 
+/** The font picker: a listbox where every family is set in itself, so
+ *  choosing a face means seeing the face. */
+function FontSelect({ label, value, allowInherit, onChange }: {
+  label: string; value: string; allowInherit?: boolean; onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // The catalog is small: load every family once so the list previews live.
+  useEffect(() => {
+    if (!open) return;
+    FONT_OPTIONS.forEach((f) => loadFonts(f.label, ""));
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const current = value || (allowInherit ? "" : FONT_OPTIONS[0].label);
+  const options = allowInherit ? ["", ...FONT_OPTIONS.map((f) => f.label)] : FONT_OPTIONS.map((f) => f.label);
+
+  return (
+    <div className="space-y-1.5" ref={ref}>
+      <Label>{label}</Label>
+      <div className="relative">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          className={cn(INPUT, "flex cursor-pointer items-center justify-between gap-2 text-left")}
+          style={current ? { fontFamily: fontStack(current) } : undefined}
+        >
+          <span className="truncate">{current || "Same as body"}</span>
+          <ChevronDown size={13} className={cn("shrink-0 text-[var(--color-text-secondary)] transition-transform", open && "rotate-180")} />
+        </button>
+        {open && (
+          <div
+            role="listbox"
+            className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] py-1 shadow-lg"
+          >
+            {options.map((o) => {
+              const selected = o === current;
+              return (
+                <button
+                  key={o || "__inherit"}
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => {
+                    onChange(o);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "relative flex w-full items-center px-3 py-1.5 text-left text-[13px] transition-colors hover:bg-[var(--color-background)]",
+                    selected ? "text-signal" : "text-[var(--color-text-primary)]"
+                  )}
+                  style={o ? { fontFamily: fontStack(o) } : undefined}
+                >
+                  {selected && <span aria-hidden className="absolute left-1 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-[1px] bg-signal" />}
+                  <span className="pl-1.5">{o || "Same as body"}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** The pixel toggle: a two-cell track with a square knob sliding between the
+ *  cells, after the family mark's mosaic. Data is square; no pills here. */
 function Check({ label, checked, onChange, compact }: {
   label: string; checked: boolean; onChange: (v: boolean) => void; compact?: boolean;
 }) {
   return (
     <button
       onClick={() => onChange(!checked)}
+      role="switch"
+      aria-checked={checked}
       className={cn("group flex items-center gap-2 text-left", compact ? "text-xs" : "text-sm")}
     >
-      {/* Data is square: a 3px-radius check, not a pill. */}
       <span
         className={cn(
-          "flex h-4 w-4 items-center justify-center rounded-[3px] border transition-colors",
+          "relative h-[16px] w-[30px] shrink-0 rounded-[4px] border transition-colors",
           checked
-            ? "border-signal bg-signal text-white"
-            : "border-[var(--color-border-strong)] group-hover:border-signal"
+            ? "border-signal bg-signal/15"
+            : "border-[var(--color-border-strong)] bg-[var(--color-input-bg)] group-hover:border-signal"
         )}
       >
-        {checked && <CheckIcon size={11} />}
+        <span
+          className={cn(
+            "absolute top-[2px] h-[10px] w-[10px] rounded-[2px] transition-all duration-150 ease-out",
+            checked
+              ? "left-[16px] bg-signal shadow-sm"
+              : "left-[2px] bg-[var(--color-border-strong)] group-hover:bg-signal/60"
+          )}
+        >
+          {checked && <CheckIcon size={8} className="absolute inset-0 m-auto text-white" strokeWidth={3.5} />}
+        </span>
       </span>
       <span className="text-[var(--color-text-primary)]">{label}</span>
     </button>

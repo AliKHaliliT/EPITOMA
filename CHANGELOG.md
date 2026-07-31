@@ -106,7 +106,14 @@ Changelog; the Unreleased section is the staging area until the first version is
   carries the family mark's pixel notch, sliders condense into hairline gauge tables,
   and the accent swatches become squares. Per-pane Reset follows the merged
   boundaries and now also restores section bodies (Entries) and rail assignments
-  (Page).
+  (Page). The controls themselves are bespoke instruments: sliders draw as machined
+  gauges (a signal-filled hairline track, a ruler etched beneath, a square thumb
+  that presses in signal while dragged, the value chip lighting up live),
+  checkboxes become pixel toggles (a two-cell track with a square knob, after the
+  family mosaic), the font pickers are listboxes where every family is set in its
+  own face, selects carry their own chevron, tiles lift on hover and their pixel
+  notch springs in, panes crossfade, and the rail numbers its panes 01 through 08
+  in mono.
 
 ### Fixed
 
