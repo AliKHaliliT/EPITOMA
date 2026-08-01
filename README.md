@@ -30,6 +30,16 @@ The three apps talk through files rather than imports, and this repo carries its
 
 ---
 
+## How the builder fits
+
+EPITOMA sits at the read-only end of the ecosystem. It never writes to the record, which is why connecting it to a repository asks for no token. Given a public VITA repository, it fetches the branch head over GitHub's public API, parses the same seed files the site builds from, and assembles them into the identical snapshot the admin panel would export. The offline path is that snapshot itself, a `portfolio.json` you import as a file.
+
+Everything after that happens in your browser. Documents are composed and stored locally, and syncing against a fresh copy of the record updates the synced content while leaving your ordering, custom sections, and styling alone. When the record changes upstream, whether through the admin panel or a hand commit, one Sync brings the documents up to the repository's head.
+
+Every styling decision resolves through a single layout contract shared by the preview and all of the exporters, so a setting means the same thing on the screen, in the PDF, in the Word file, and in the LaTeX source. The PDF is generated inside the browser with the catalog fonts embedded, which means the hosted demo is the complete app, with no server behind any part of it.
+
+---
+
 ## Features
 
 - **Two content sources, both read-only.** You can import a `portfolio.json` exported by the admin panel, or point the Repo button at any public VITA repository and let Sync pull the profile, palette, and content straight from its head. It needs no token because it never writes anywhere.
