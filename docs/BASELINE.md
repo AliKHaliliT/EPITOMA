@@ -25,9 +25,8 @@ governed by [CONVENTIONS.md](CONVENTIONS.md), not by this file.
 The README is this project's own overview and evolves with it, under three fixed contracts
 inherited from the house style:
 
-1. **Badges** are written in plain Markdown image syntax on a single line, each stating
-   something true about this repository. They landed with the publish dress ahead of the
-   visibility flip, so they render the moment the repository goes public.
+1. **Badges** are required while the repository is public, written in plain Markdown image
+   syntax on a single line, each stating something true about this repository.
 2. **The expansion under the pitch carries the attribution**: one sentence linking the
    house style ([My-Styles](https://github.com/AliKHaliliT/My-Styles)).
 3. **The License section body is exactly one line** naming the license and its URL.
@@ -42,7 +41,7 @@ its trigger disappears. A conditional file whose trigger is gone is clutter, not
 
 | File | Trigger |
 | --- | --- |
-| `LICENSE` | The repository is public or dressed to go public. The MIT text landed with the publish dress; it is owner-only and agents never touch it. |
+| `LICENSE` | The repository is public. The MIT text is owner-only and effectively immutable; agents never touch it. |
 | `CHANGELOG.md` | People use released versions of the tool. |
 | `util_resources/` | The repository carries tracked assets. `readme/` holds every image the repository embeds (today the README's logo plaque). |
 | `.github/workflows/deploy.yml` | The demo deploys through GitHub Actions to Pages. |
