@@ -65,7 +65,7 @@ npm install
 npm run dev
 ```
 
-The app opens on port 3200. VITA runs on 3000 and TABULARIUM on 3100, so all three run side by side.
+The app opens on port 3200. VITA runs on 3000 and TABULARIUM on 3100, so all three run side by side. The hosted builder always runs the latest release; a local clone catches up with an ordinary `git pull`.
 
 Contributors and coding agents should start at [`AGENTS.md`](AGENTS.md), which is the vendor-neutral entry point and the full documentation index.
 
