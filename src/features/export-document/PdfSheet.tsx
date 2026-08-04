@@ -213,7 +213,7 @@ function EntryBlock({ e, ctx }: { e: ResumeEntry; ctx: Ctx }) {
           {titleNodes(e, ctx)}
           {subtitleNodes(e, ctx, true)}
           {e.location ? <Text style={{ fontSize: locSize, color: ctx.muted }}> · {e.location}</Text> : null}
-          {dates ? <Text style={dateStyle(ctx)}> — {dates}</Text> : null}
+          {dates ? <Text style={dateStyle(ctx)}> · {dates}</Text> : null}
         </Text>
         {htmlToNodes(e.description, ctx)}
       </View>

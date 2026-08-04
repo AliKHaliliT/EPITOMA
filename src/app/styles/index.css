@@ -2,7 +2,7 @@
 @import "./tokens.css";
 @plugin "@tailwindcss/typography";
 
-@variant dark (&:where(.dark, .dark *));
+@variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* --- SELF-HOSTED FONTS (latin subsets) --- */
 /* Fraunces: the human voice: display, titles, essays, italic asides */
@@ -73,8 +73,8 @@
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
+  background-color: var(--surface);
+  color: var(--ink);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -82,12 +82,12 @@ body {
    take programmatic focus (dialog panels, tabindex="-1") stay quiet, and
    [data-quiet-focus] opts out where a parent renders its own focus cue. */
 :focus-visible:not([tabindex="-1"]):not([data-quiet-focus]) {
-  outline: 2px solid var(--color-signal);
+  outline: 2px solid var(--signal);
   outline-offset: 2px;
 }
 
 ::selection {
-  background-color: color-mix(in srgb, var(--color-signal) 25%, transparent);
+  background-color: color-mix(in srgb, var(--signal) 25%, transparent);
 }
 
 /* Theme flips run as a soft full-page crossfade via the View Transition API
@@ -123,10 +123,10 @@ body {
 @keyframes os-breathe {
   0%,
   100% {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-field) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--field) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-field) 10%, transparent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--field) 10%, transparent);
   }
 }
 
@@ -159,7 +159,7 @@ body {
 /* Thin, token-colored scrollbar for modal bodies; previously undefined. */
 @utility custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+  scrollbar-color: var(--line) transparent;
 }
 
 /* --- ESSAY PROSE --- */
@@ -171,20 +171,20 @@ body {
   font-size: 1.0625rem;
   line-height: 1.75;
   max-width: 68ch;
-  --tw-prose-body: var(--color-text-primary);
-  --tw-prose-headings: var(--color-text-primary);
-  --tw-prose-lead: var(--color-text-secondary);
-  --tw-prose-links: var(--color-signal);
-  --tw-prose-bold: var(--color-text-primary);
-  --tw-prose-counters: var(--color-text-secondary);
-  --tw-prose-bullets: var(--color-text-secondary);
-  --tw-prose-hr: var(--color-border);
-  --tw-prose-quotes: var(--color-text-primary);
-  --tw-prose-quote-borders: var(--color-signal);
-  --tw-prose-captions: var(--color-text-secondary);
-  --tw-prose-code: var(--color-text-primary);
-  --tw-prose-th-borders: var(--color-border);
-  --tw-prose-td-borders: var(--color-border);
+  --tw-prose-body: var(--ink);
+  --tw-prose-headings: var(--ink);
+  --tw-prose-lead: var(--muted);
+  --tw-prose-links: var(--signal);
+  --tw-prose-bold: var(--ink);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--line);
+  --tw-prose-quotes: var(--ink);
+  --tw-prose-quote-borders: var(--signal);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-code: var(--ink);
+  --tw-prose-th-borders: var(--line);
+  --tw-prose-td-borders: var(--line);
 }
 .prose-essay :where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-serif);
@@ -209,9 +209,9 @@ body {
 
 /* --- FIX 1: ROBUST DATE PICKER STYLES --- */
 input[type="date"] {
-  background-color: var(--color-input-bg);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
+  background-color: var(--well);
+  color: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
   display: block;
@@ -247,7 +247,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* Dark Mode Icon: Bright White */
-:root.dark input[type="date"]::-webkit-calendar-picker-indicator {
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23e9eef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
 }
 
@@ -259,7 +259,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--line);
   border-radius: 4px;
 }
 
@@ -271,48 +271,48 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 100%;
   border-radius: 0.5rem;
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--line);
 }
 
 .ql-toolbar.ql-snow {
   border: none !important;
-  border-bottom: 1px solid var(--color-border) !important;
-  background-color: var(--color-input-bg) !important;
+  border-bottom: 1px solid var(--line) !important;
+  background-color: var(--well) !important;
 }
 
 .ql-container.ql-snow {
   border: none !important;
-  background-color: var(--color-input-bg) !important;
+  background-color: var(--well) !important;
   font-family: var(--font-sans) !important;
   font-size: 0.95rem !important;
-  color: var(--color-text-primary) !important;
+  color: var(--ink) !important;
   flex: 1;
   overflow-y: auto;
 }
 
 .ql-editor.ql-blank::before {
-  color: var(--color-text-secondary) !important;
+  color: var(--muted) !important;
   font-style: normal !important;
 }
 
-:root.dark .ql-snow .ql-stroke {
+[data-theme="dark"] .ql-snow .ql-stroke {
   stroke: #9ca3af !important;
 }
-:root.dark .ql-snow .ql-fill {
+[data-theme="dark"] .ql-snow .ql-fill {
   fill: #9ca3af !important;
 }
-:root.dark .ql-snow .ql-picker {
+[data-theme="dark"] .ql-snow .ql-picker {
   color: #9ca3af !important;
 }
-:root.dark .ql-snow button:hover .ql-stroke,
-:root.dark .ql-snow .ql-active .ql-stroke {
+[data-theme="dark"] .ql-snow button:hover .ql-stroke,
+[data-theme="dark"] .ql-snow .ql-active .ql-stroke {
   stroke: #ffffff !important;
 }
-:root.dark .ql-snow button:hover .ql-fill,
-:root.dark .ql-snow .ql-active .ql-fill {
+[data-theme="dark"] .ql-snow button:hover .ql-fill,
+[data-theme="dark"] .ql-snow .ql-active .ql-fill {
   fill: #ffffff !important;
 }
-:root.dark .ql-picker-options {
+[data-theme="dark"] .ql-picker-options {
   background-color: #1f2937 !important;
   border-color: #374151 !important;
   color: #f9fafb !important;
@@ -423,7 +423,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .gauge-input::-webkit-slider-runnable-track {
   height: 2px;
   border-radius: 1px;
-  background: var(--gauge-fill, var(--color-border-strong));
+  background: var(--gauge-fill, var(--line-strong));
 }
 .gauge-input::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -431,32 +431,32 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 11px;
   margin-top: -4.5px;
   border-radius: 2px;
-  background: var(--color-card);
-  border: 2px solid var(--color-signal);
+  background: var(--card);
+  border: 2px solid var(--signal);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
   transition: transform 0.12s ease, background 0.12s ease;
 }
 .gauge-input:active::-webkit-slider-thumb,
 .gauge-input:focus-visible::-webkit-slider-thumb {
   transform: scale(1.3);
-  background: var(--color-signal);
+  background: var(--signal);
 }
 .gauge-input::-moz-range-track {
   height: 2px;
   border-radius: 1px;
-  background: var(--gauge-fill, var(--color-border-strong));
+  background: var(--gauge-fill, var(--line-strong));
 }
 .gauge-input::-moz-range-thumb {
   width: 8px;
   height: 8px;
   border-radius: 2px;
-  background: var(--color-card);
-  border: 2px solid var(--color-signal);
+  background: var(--card);
+  border: 2px solid var(--signal);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
   transition: transform 0.12s ease, background 0.12s ease;
 }
 .gauge-input:active::-moz-range-thumb,
 .gauge-input:focus-visible::-moz-range-thumb {
   transform: scale(1.3);
-  background: var(--color-signal);
+  background: var(--signal);
 }

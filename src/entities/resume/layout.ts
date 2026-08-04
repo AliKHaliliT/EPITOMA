@@ -130,7 +130,7 @@ export function resolveHeading(style: ResumeStyle): HeadingSpec {
 //                    subtitle on its own line when placement is "next";
 //                    location on its own line; description under.
 //   2 "stacked":     title / subtitle (same rules) / date line / location.
-//   3 "one line":    title · subtitle · location — date, all inline.
+//   3 "one line":    title · subtitle · location · date, all inline.
 
 export interface EntrySpec {
   layout: 1 | 2 | 3;

@@ -82,7 +82,7 @@ function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: Resume
           {entry.location && (
             <span style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}> · {entry.location}</span>
           )}
-          {dates && <span style={{ ...dateStyle(style), whiteSpace: "nowrap" }}> — {dates}</span>}
+          {dates && <span style={{ ...dateStyle(style), whiteSpace: "nowrap" }}> · {dates}</span>}
         </div>
         <Desc html={entry.description} style={style} />
       </div>
@@ -648,9 +648,9 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
   }, [sheetWidthPx]);
 
   return (
-    <div className="bg-[var(--color-background)] rounded-xl">
+    <div className="bg-surface rounded-xl">
       {/* Preview toolbar: the physical reality of the document at a glance. */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--color-text-secondary)]">
+      <div className="flex items-center justify-between px-4 pt-3 pb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
         <span>
           {dims.w} × {dims.h} mm · {style.pageFormat}
         </span>
@@ -733,7 +733,7 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
         {scrolled && (
           <button
             onClick={() => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-            className="sticky bottom-3 left-full z-20 mr-1 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text-secondary)] shadow-md transition-colors hover:border-signal hover:text-signal"
+            className="sticky bottom-3 left-full z-20 mr-1 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-card text-muted shadow-md transition-colors hover:border-signal hover:text-signal"
             title="Scroll to the first page"
             aria-label="Scroll to the first page"
           >

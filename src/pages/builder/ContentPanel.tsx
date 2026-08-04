@@ -39,19 +39,19 @@ export const ContentPanel = ({ doc, update }: ContentPanelProps) => {
   return (
     <div className="space-y-3">
       {/* Personal details */}
-      <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl">
+      <div className="bg-card border border-line rounded-xl">
         <button
           onClick={() => setOpen((id) => (id === "__personal__" ? null : "__personal__"))}
           className="flex items-center gap-3 w-full px-4 py-3"
         >
-          <UserCircle size={17} className="text-[var(--color-text-secondary)]" />
-          <span className="flex-1 text-left text-sm font-semibold text-[var(--color-text-primary)]">
+          <UserCircle size={17} className="text-muted" />
+          <span className="flex-1 text-left text-sm font-semibold text-ink">
             Personal Details
           </span>
           {open === "__personal__" ? (
-            <ChevronDown size={16} className="text-[var(--color-text-secondary)]" />
+            <ChevronDown size={16} className="text-muted" />
           ) : (
-            <ChevronRight size={16} className="text-[var(--color-text-secondary)]" />
+            <ChevronRight size={16} className="text-muted" />
           )}
         </button>
         {open === "__personal__" && (
@@ -85,7 +85,7 @@ export const ContentPanel = ({ doc, update }: ContentPanelProps) => {
       {/* Add content */}
       <button
         onClick={() => setAddOpen(true)}
-        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full text-sm font-semibold text-[var(--color-background)] bg-[var(--color-text-primary)] hover:opacity-90 shadow-sm"
+        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full text-sm font-semibold text-surface bg-ink hover:opacity-90 shadow-sm"
       >
         <Plus size={16} /> Add Content
       </button>
@@ -125,30 +125,30 @@ function SectionRow({
       value={section}
       dragListener={false}
       dragControls={controls}
-      className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl"
+      className="bg-card border border-line rounded-xl"
     >
       <div className={cn("flex items-center gap-2 px-3 py-3", !section.visible && "opacity-50")}>
         <button
           onPointerDown={(e) => controls.start(e)}
-          className="cursor-grab text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] touch-none"
+          className="cursor-grab text-muted hover:text-ink touch-none"
           title="Drag to reorder"
         >
           <GripVertical size={16} />
         </button>
-        <NamedIcon name={section.icon} size={16} className="text-[var(--color-text-secondary)] flex-shrink-0" />
+        <NamedIcon name={section.icon} size={16} className="text-muted flex-shrink-0" />
         <button onClick={onToggleExpand} className="flex-1 flex items-center gap-2 text-left min-w-0">
-          <span className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+          <span className="text-sm font-semibold text-ink truncate">
             {section.heading}
           </span>
-          <span className="text-xs text-[var(--color-text-secondary)]">{count}</span>
+          <span className="text-xs text-muted">{count}</span>
         </button>
-        <button onClick={onToggleVisible} className="p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] rounded-md" title={section.visible ? "Hide section" : "Show section"}>
+        <button onClick={onToggleVisible} className="p-1.5 text-muted hover:text-ink rounded-md" title={section.visible ? "Hide section" : "Show section"}>
           {section.visible ? <Eye size={15} /> : <EyeOff size={15} />}
         </button>
-        <button onClick={onDelete} className="p-1.5 text-[var(--color-text-secondary)] hover:text-red-600 rounded-md" title="Remove section">
+        <button onClick={onDelete} className="p-1.5 text-muted hover:text-red-600 rounded-md" title="Remove section">
           <Trash2 size={15} />
         </button>
-        <button onClick={onToggleExpand} className="p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] rounded-md">
+        <button onClick={onToggleExpand} className="p-1.5 text-muted hover:text-ink rounded-md">
           {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
       </div>

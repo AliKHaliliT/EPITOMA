@@ -8,8 +8,8 @@ interface PersonalDetailsEditorProps {
 }
 
 const inputCls =
-  "w-full px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)]";
-const labelCls = "text-xs font-medium text-[var(--color-text-secondary)]";
+  "w-full px-3 py-2 bg-well border border-line rounded-lg text-sm text-ink";
+const labelCls = "text-xs font-medium text-muted";
 
 // Detail chips. Site-derived ones prefill on sync; the rest are document-local.
 const BASIC_CHIPS = ["Nationality", "Date of Birth", "Availability", "Work Mode"];
@@ -40,7 +40,7 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
   );
 
   return (
-    <div className="space-y-5 border-t border-[var(--color-border)] pt-4 mt-2">
+    <div className="space-y-5 border-t border-line pt-4 mt-2">
       {/* Basic fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Full name">
@@ -80,14 +80,14 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
               onChange={(e) => setLink(i, { url: e.target.value })}
               placeholder="https://…"
             />
-            <button onClick={() => removeLink(i)} className="p-2 text-[var(--color-text-secondary)] hover:text-red-600 rounded-lg" title="Remove">
+            <button onClick={() => removeLink(i)} className="p-2 text-muted hover:text-red-600 rounded-lg" title="Remove">
               <X size={15} />
             </button>
           </div>
         ))}
         <button
           onClick={addLink}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] border border-dashed border-[var(--color-border)] rounded-lg"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-muted hover:text-ink border border-dashed border-line rounded-lg"
         >
           <Plus size={14} /> Add link
         </button>
@@ -101,8 +101,8 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
             {Object.entries(extra).map(([key, value]) => (
               <div key={key} className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[var(--color-text-secondary)]">{key}</span>
-                  <button onClick={() => removeChip(key)} className="text-[var(--color-text-secondary)] hover:text-red-600" title="Remove">
+                  <span className="text-xs text-muted">{key}</span>
+                  <button onClick={() => removeChip(key)} className="text-muted hover:text-red-600" title="Remove">
                     <X size={13} />
                   </button>
                 </div>
@@ -121,14 +121,14 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
             <button
               key={c}
               onClick={() => addChip(c)}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-signal hover:text-signal"
+              className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border border-line text-muted hover:border-signal hover:text-signal"
             >
               <Plus size={12} /> {c}
             </button>
           ))}
           <button
             onClick={() => setShowMore((v) => !v)}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full text-muted hover:text-ink"
           >
             {showMore ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             {showMore ? "Show less" : "Show more"}

@@ -35,30 +35,28 @@ export interface Palette {
 }
 
 const VAR_MAP: [keyof PaletteMode, string][] = [
-  ["background", "--color-background"],
-  ["card", "--color-card"],
-  ["textPrimary", "--color-text-primary"],
-  ["textSecondary", "--color-text-secondary"],
-  ["border", "--color-border"],
-  ["borderStrong", "--color-border-strong"],
-  ["inputBg", "--color-input-bg"],
-  ["signal", "--color-signal"],
-  ["field", "--color-field"],
-  ["pulse", "--color-pulse"],
-  ["footer", "--color-footer"],
-  ["footerInk", "--color-footer-ink"],
+  ["background", "--surface"],
+  ["card", "--card"],
+  ["textPrimary", "--ink"],
+  ["textSecondary", "--muted"],
+  ["border", "--line"],
+  ["borderStrong", "--line-strong"],
+  ["inputBg", "--well"],
+  ["signal", "--signal"],
+  ["field", "--field"],
+  ["pulse", "--pulse"],
+  ["footer", "--footer"],
+  ["footerInk", "--footer-ink"],
 ];
 
 const modeVars = (m: PaletteMode) =>
-  VAR_MAP.map(([k, v]) => `${v}: ${m[k]};`).join(" ") +
-  // canopy is a legacy alias of the working accent
-  ` --color-canopy: ${m.signal};`;
+  VAR_MAP.map(([k, v]) => `${v}: ${m[k]};`).join(" ");
 
 /**
  * Doubled :root beats the stylesheet's values regardless of tag order.
- * Cascade: @theme literals < index.css :root.dark < build-injected seed
+ * Cascade: @theme literals < index.css [data-theme="dark"] < build-injected seed
  * (this CSS in index.html) < runtime localStorage override (same CSS,
  * appended later at runtime).
  */
 export const generatePaletteCss = (p: Palette): string =>
-  `:root:root { ${modeVars(p.light)} }\n:root:root.dark { ${modeVars(p.dark)} }`;
+  `:root:root { ${modeVars(p.light)} }\n:root:root[data-theme="dark"] { ${modeVars(p.dark)} }`;

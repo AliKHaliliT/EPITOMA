@@ -16,7 +16,7 @@ const uid = () =>
     : `e-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 const inputCls =
-  "w-full px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)]";
+  "w-full px-3 py-2 bg-well border border-line rounded-lg text-sm text-ink";
 
 export const SectionEditor = ({ section, onChange }: SectionEditorProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -32,11 +32,11 @@ export const SectionEditor = ({ section, onChange }: SectionEditorProps) => {
   };
 
   return (
-    <div className="space-y-4 border-t border-[var(--color-border)] pt-4 mt-2">
+    <div className="space-y-4 border-t border-line pt-4 mt-2">
       {/* Heading + icon */}
       <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-3">
         <div className="space-y-1">
-          <label className="text-xs font-medium text-[var(--color-text-secondary)]">Icon</label>
+          <label className="text-xs font-medium text-muted">Icon</label>
           <select
             value={section.icon || ""}
             onChange={(e) => onChange({ ...section, icon: e.target.value })}
@@ -50,7 +50,7 @@ export const SectionEditor = ({ section, onChange }: SectionEditorProps) => {
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-medium text-[var(--color-text-secondary)]">Heading</label>
+          <label className="text-xs font-medium text-muted">Heading</label>
           <input
             className={inputCls}
             value={section.heading}
@@ -62,8 +62,8 @@ export const SectionEditor = ({ section, onChange }: SectionEditorProps) => {
       {/* Custom section type toggle */}
       {section.source === "custom" && (
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-[var(--color-text-secondary)]">Type</span>
-          <div className="inline-flex rounded-lg border border-[var(--color-border)] overflow-hidden">
+          <span className="text-xs font-medium text-muted">Type</span>
+          <div className="inline-flex rounded-lg border border-line overflow-hidden">
             {(["normal", "skill"] as const).map((t) => (
               <button
                 key={t}
@@ -71,8 +71,8 @@ export const SectionEditor = ({ section, onChange }: SectionEditorProps) => {
                 className={cn(
                   "px-3 py-1 text-xs font-medium capitalize",
                   (section.customType || "normal") === t
-                    ? "bg-[var(--color-text-primary)] text-[var(--color-background)]"
-                    : "text-[var(--color-text-secondary)]"
+                    ? "bg-ink text-surface"
+                    : "text-muted"
                 )}
               >
                 {t}
@@ -104,7 +104,7 @@ export const SectionEditor = ({ section, onChange }: SectionEditorProps) => {
 
       <button
         onClick={addEntry}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] border border-dashed border-[var(--color-border)] rounded-lg w-full justify-center"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-muted hover:text-ink border border-dashed border-line rounded-lg w-full justify-center"
       >
         <Plus size={14} /> Add entry
       </button>
@@ -141,24 +141,24 @@ function EntryRow({
       value={entry}
       dragListener={false}
       dragControls={controls}
-      className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg"
+      className="bg-card border border-line rounded-lg"
     >
       <div className={cn("flex items-center gap-2 px-3 py-2", entry.hidden && "opacity-50")}>
         <button
           onPointerDown={(e) => controls.start(e)}
-          className="cursor-grab text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] touch-none"
+          className="cursor-grab text-muted hover:text-ink touch-none"
           title="Drag to reorder"
         >
           <GripVertical size={15} />
         </button>
-        <span className="flex-1 text-sm text-[var(--color-text-primary)] truncate">{label}</span>
-        <button onClick={onToggleHidden} className="p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] rounded-md" title={entry.hidden ? "Show" : "Hide"}>
+        <span className="flex-1 text-sm text-ink truncate">{label}</span>
+        <button onClick={onToggleHidden} className="p-1.5 text-muted hover:text-ink rounded-md" title={entry.hidden ? "Show" : "Hide"}>
           {entry.hidden ? <EyeOff size={14} /> : <Eye size={14} />}
         </button>
-        <button onClick={onToggleEdit} className="p-1.5 text-[var(--color-text-secondary)] hover:text-signal rounded-md" title="Edit">
+        <button onClick={onToggleEdit} className="p-1.5 text-muted hover:text-signal rounded-md" title="Edit">
           <Pencil size={14} />
         </button>
-        <button onClick={onDelete} className="p-1.5 text-[var(--color-text-secondary)] hover:text-red-600 rounded-md" title="Delete">
+        <button onClick={onDelete} className="p-1.5 text-muted hover:text-red-600 rounded-md" title="Delete">
           <Trash2 size={14} />
         </button>
       </div>

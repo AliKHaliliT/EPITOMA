@@ -129,7 +129,7 @@ export const DocumentBar = ({
   return (
     <div
       ref={wrapRef}
-      className="flex flex-wrap items-center gap-3 p-3 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl"
+      className="flex flex-wrap items-center gap-3 p-3 bg-card border border-line rounded-xl"
     >
       {/* Document selector; renaming happens right here, in place of the
           name it changes. */}
@@ -145,12 +145,12 @@ export const DocumentBar = ({
                 if (e.key === "Escape") setEditingName(false);
               }}
               aria-label="Document name"
-              className="w-[168px] rounded-lg border border-signal bg-[var(--color-input-bg)] px-3 py-2 text-sm font-medium text-[var(--color-text-primary)] outline-none"
+              className="w-[168px] rounded-lg border border-signal bg-well px-3 py-2 text-sm font-medium text-ink outline-none"
             />
             <button onClick={commitRename} className="p-2 text-signal hover:bg-field/10 rounded-lg" title="Save name (Enter)">
               <Check size={15} />
             </button>
-            <button onClick={() => setEditingName(false)} className="p-2 text-[var(--color-text-secondary)] hover:text-red-500 rounded-lg" title="Cancel (Esc)">
+            <button onClick={() => setEditingName(false)} className="p-2 text-muted hover:text-red-500 rounded-lg" title="Cancel (Esc)">
               <X size={15} />
             </button>
           </span>
@@ -158,20 +158,20 @@ export const DocumentBar = ({
         <span className="flex items-center gap-1">
           <button
             onClick={() => setDocMenu((v) => !v)}
-            className="flex items-center gap-2 px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] min-w-[200px]"
+            className="flex items-center gap-2 px-3 py-2 bg-well border border-line rounded-lg text-sm font-medium text-ink min-w-[200px]"
           >
             {activeDoc?.kind === "cv" ? <FileBadge size={15} /> : <FileText size={15} />}
             <span className="flex-1 text-left truncate">
               {activeDoc ? activeDoc.name : "No documents"}
             </span>
-            <ChevronDown size={15} className="text-[var(--color-text-secondary)]" />
+            <ChevronDown size={15} className="text-muted" />
           </button>
           {/* Rename lives beside the name it edits; the input swaps in right
               here, so nothing else in the bar moves. */}
           {activeDoc && (
             <button
               onClick={startRename}
-              className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg"
+              className="p-2 text-muted hover:text-ink hover:bg-surface rounded-lg"
               title="Rename"
             >
               <Pencil size={15} />
@@ -180,7 +180,7 @@ export const DocumentBar = ({
         </span>
         )}
         {!editingName && docMenu && docs.length > 0 && (
-          <div className="absolute z-20 mt-1 w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
+          <div className="absolute z-20 mt-1 w-full bg-card border border-line rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
             {docs.map((d) => (
               <button
                 key={d.id}
@@ -189,10 +189,10 @@ export const DocumentBar = ({
                   setDocMenu(false);
                 }}
                 className={cn(
-                  "flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:bg-[var(--color-background)]",
+                  "flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:bg-surface",
                   d.id === activeDoc?.id
-                    ? "text-[var(--color-text-primary)] font-medium"
-                    : "text-[var(--color-text-secondary)]"
+                    ? "text-ink font-medium"
+                    : "text-muted"
                 )}
               >
                 {d.kind === "cv" ? <FileBadge size={14} /> : <FileText size={14} />}
@@ -208,18 +208,18 @@ export const DocumentBar = ({
       <div className="relative">
         <button
           onClick={() => setNewMenu((v) => !v)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-[var(--color-text-primary)] text-[var(--color-background)] rounded-lg text-sm font-medium hover:opacity-90"
+          className="flex items-center gap-1.5 px-3 py-2 bg-ink text-surface rounded-lg text-sm font-medium hover:opacity-90"
         >
           <Plus size={15} /> New <ChevronDown size={13} />
         </button>
         {newMenu && (
-          <div className="absolute z-20 mt-1 w-44 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-lg py-1">
+          <div className="absolute z-20 mt-1 w-44 bg-card border border-line rounded-lg shadow-lg py-1">
             <button
               onClick={() => {
                 onCreate("resume");
                 setNewMenu(false);
               }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-background)]"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left text-ink hover:bg-surface"
             >
               <FileText size={14} /> New Resume
             </button>
@@ -228,7 +228,7 @@ export const DocumentBar = ({
                 onCreate("cv");
                 setNewMenu(false);
               }}
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left text-[var(--color-text-primary)] hover:bg-[var(--color-background)]"
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-left text-ink hover:bg-surface"
             >
               <FileBadge size={14} /> New CV
             </button>
@@ -246,7 +246,7 @@ export const DocumentBar = ({
       />
       <button
         onClick={() => fileRef.current?.click()}
-        className="flex items-center gap-1.5 px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-background)]"
+        className="flex items-center gap-1.5 px-3 py-2 border border-line rounded-lg text-sm font-medium text-ink hover:bg-surface"
         title="Import a portfolio.json from the admin panel, or bring back an exported document (.json)"
       >
         <Upload size={14} /> Import
@@ -254,10 +254,10 @@ export const DocumentBar = ({
       <button
         onClick={() => setRepoDialog(true)}
         className={cn(
-          "flex items-center gap-1.5 px-3 py-2 border rounded-lg text-sm font-medium hover:bg-[var(--color-background)]",
+          "flex items-center gap-1.5 px-3 py-2 border rounded-lg text-sm font-medium hover:bg-surface",
           repoRef
-            ? "border-signal/50 text-[var(--color-text-primary)]"
-            : "border-[var(--color-border)] text-[var(--color-text-primary)]"
+            ? "border-signal/50 text-ink"
+            : "border-line text-ink"
         )}
         title={
           repoRef
@@ -267,7 +267,7 @@ export const DocumentBar = ({
       >
         <BookMarked size={14} className={repoRef ? "text-signal" : undefined} /> Repo
       </button>
-      <span className="hidden items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--color-text-secondary)] md:flex">
+      <span className="hidden items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted md:flex">
         {repoRef ? (
           <span className="max-w-44 truncate" title={`${repoRef.owner}/${repoRef.repo}@${repoRef.branch}`}>
             {repoRef.owner}/{repoRef.repo}
@@ -297,7 +297,7 @@ export const DocumentBar = ({
           <button
             onClick={onDuplicate}
             disabled={editingName}
-            className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background)] rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+            className="p-2 text-muted hover:text-ink hover:bg-surface rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
             title="Duplicate"
           >
             <Copy size={15} />
@@ -305,7 +305,7 @@ export const DocumentBar = ({
           <button
             onClick={() => setPending("delete")}
             disabled={editingName}
-            className="p-2 text-[var(--color-text-secondary)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+            className="p-2 text-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
             title="Delete"
           >
             <Trash2 size={15} />
@@ -313,13 +313,13 @@ export const DocumentBar = ({
 
           <div className="flex-1" />
 
-          <span className="text-xs text-[var(--color-text-secondary)] hidden sm:block">
+          <span className="text-xs text-muted hidden sm:block">
             Last synced {relativeDate(activeDoc.lastSyncedAt)}
           </span>
           <button
             onClick={() => setPending("sync")}
             disabled={(!snapshot && !repoRef) || syncing}
-            className="flex items-center gap-1.5 px-3 py-2 border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] hover:bg-[var(--color-background)] disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex items-center gap-1.5 px-3 py-2 border border-line rounded-lg text-sm font-medium text-ink hover:bg-surface disabled:cursor-not-allowed disabled:opacity-45"
             title={
               repoRef
                 ? `Fetch the latest from ${repoRef.owner}/${repoRef.repo}, then sync this document`

@@ -84,7 +84,7 @@ function entryHtml(e: ResumeEntry, style: ResumeStyle, colors: ColorPlan, entryP
   if (spec.layout === 3) {
     const loc = e.location ? `<span style="font-size:0.85em;color:#6b7280"> · ${escapeHtml(e.location)}</span>` : "";
     return `<div style="margin-bottom:${style.elementSpacing}px">` +
-      `<p style="margin:0">${title}${subtitleHtml(e, style, true)}${loc}${dates ? ` — ${dateSpan}` : ""}</p>${desc}</div>`;
+      `<p style="margin:0">${title}${subtitleHtml(e, style, true)}${loc}${dates ? ` · ${dateSpan}` : ""}</p>${desc}</div>`;
   }
 
   const firstLine = spec.subtitleInline ? `${title}${subtitleHtml(e, style, true)}` : title;

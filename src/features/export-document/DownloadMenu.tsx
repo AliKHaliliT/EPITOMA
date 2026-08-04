@@ -55,25 +55,25 @@ export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
       <button
         onClick={() => setOpen((v) => !v)}
         disabled={busy}
-        className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-text-primary)] text-[var(--color-background)] rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:cursor-wait disabled:opacity-70"
+        className="flex items-center gap-1.5 px-4 py-2 bg-ink text-surface rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:cursor-wait disabled:opacity-70"
         title="Download this document"
       >
         <Download size={14} /> {busy ? "Preparing…" : "Download"} <ChevronDown size={13} />
       </button>
       {open && (
-        <div className="absolute right-0 z-20 mt-1 w-56 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-lg py-1">
+        <div className="absolute right-0 z-20 mt-1 w-56 bg-card border border-line rounded-lg shadow-lg py-1">
           {OPTIONS.map((o) => (
             <button
               key={o.key}
               onClick={() => run(o.key)}
-              className="flex items-start gap-2.5 w-full px-3 py-2 text-left hover:bg-[var(--color-background)]"
+              className="flex items-start gap-2.5 w-full px-3 py-2 text-left hover:bg-surface"
             >
-              <o.icon size={16} className="mt-0.5 shrink-0 text-[var(--color-text-secondary)]" />
+              <o.icon size={16} className="mt-0.5 shrink-0 text-muted" />
               <span className="min-w-0">
-                <span className="block text-sm font-medium text-[var(--color-text-primary)]">
+                <span className="block text-sm font-medium text-ink">
                   {o.label}
                 </span>
-                <span className="block text-xs text-[var(--color-text-secondary)]">{o.hint}</span>
+                <span className="block text-xs text-muted">{o.hint}</span>
               </span>
             </button>
           ))}

@@ -14,7 +14,7 @@ type WorkspaceTab = "overview" | "content" | "customize";
 /** EPITOMA's pixel mark: VITA's 3×2 mosaic read as a sheet of paper, its
  *  top-right cell dog-eared like a folded page corner (matches favicon.svg). */
 const BrandMark = () => (
-  <svg viewBox="0 0 32 32" className="h-9 w-9 text-[var(--color-text-primary)]" aria-hidden="true">
+  <svg viewBox="0 0 32 32" className="h-9 w-9 text-ink" aria-hidden="true">
     <rect x="2.5" y="7.5" width="7.5" height="7.5" fill="currentColor" />
     <rect x="12.25" y="7.5" width="7.5" height="7.5" fill="#ff6b2e" />
     <path d="M22 7.5 L29.5 15 L22 15 Z" fill="currentColor" />
@@ -89,11 +89,11 @@ export const ResumeBuilder = () => {
       <div>
         <div className="flex items-center gap-3 mb-2">
           <BrandMark />
-          <h1 className="text-3xl font-bold tracking-[0.06em] text-[var(--color-text-primary)]">
+          <h1 className="text-3xl font-bold tracking-[0.06em] text-ink">
             EPITOMA
           </h1>
         </div>
-        <p className="text-[var(--color-text-secondary)] ml-12">
+        <p className="text-muted ml-12">
           The resume builder: resumes and CVs typeset from a VITA portfolio
         </p>
       </div>
@@ -118,15 +118,15 @@ export const ResumeBuilder = () => {
       />
 
       {!rs.activeDoc ? (
-        <div className="text-center py-20 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl">
+        <div className="text-center py-20 bg-card border border-line rounded-xl">
           <p className="text-4xl mb-3">📄</p>
-          <p className="font-medium text-[var(--color-text-primary)]">No documents yet.</p>
+          <p className="font-medium text-ink">No documents yet.</p>
           {portfolio.snapshot ? (
-            <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+            <p className="text-sm text-muted mt-1">
               Click <strong>New</strong> to build a Resume or CV from your imported portfolio.
             </p>
           ) : (
-            <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-md mx-auto">
+            <p className="text-sm text-muted mt-1 max-w-md mx-auto">
               Start by clicking <strong>Import</strong> above and choosing a{" "}
               <code className="font-mono text-xs">portfolio.json</code> from the admin
               panel, or <strong>Repo</strong> to pull straight from a public VITA
@@ -145,8 +145,8 @@ export const ResumeBuilder = () => {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
                   tab === t.id
-                    ? "bg-[var(--color-text-primary)] text-[var(--color-background)]"
-                    : "bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                    ? "bg-ink text-surface"
+                    : "bg-card border border-line text-muted hover:text-ink"
                 )}
               >
                 <t.icon size={15} />

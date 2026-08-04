@@ -8,7 +8,7 @@ export const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[var(--color-border-strong)] text-[var(--color-text-secondary)] transition-[color,border-color,transform] duration-150 hover:border-signal hover:text-signal active:scale-90"
+      className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-line-strong text-muted transition-[color,border-color,transform] duration-150 hover:border-signal hover:text-signal active:scale-90"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       <AnimatePresence mode="wait" initial={false}>

@@ -11,8 +11,8 @@ interface EntryEditorProps {
 }
 
 const inputCls =
-  "w-full px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)]";
-const labelCls = "text-xs font-medium text-[var(--color-text-secondary)]";
+  "w-full px-3 py-2 bg-well border border-line rounded-lg text-sm text-ink";
+const labelCls = "text-xs font-medium text-muted";
 
 export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps) => {
   const [showLink, setShowLink] = useState(!!entry.link);
@@ -23,7 +23,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
   // Summary / declaration: just a body.
   if (kind === "summary" || kind === "declaration") {
     return (
-      <div className="space-y-3 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)]/40">
+      <div className="space-y-3 p-4 border border-line rounded-lg bg-well/40">
         <Field label="Text">
           <ResumeRichText value={entry.description || ""} onChange={(v) => set({ description: v })} />
         </Field>
@@ -36,7 +36,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
   if (kind === "skills") {
     const items = (entry.meta?.items as string[] | undefined) || [];
     return (
-      <div className="space-y-3 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)]/40">
+      <div className="space-y-3 p-4 border border-line rounded-lg bg-well/40">
         <Field label="Category">
           <input className={inputCls} value={entry.title || ""} onChange={(e) => set({ title: e.target.value })} placeholder="Languages & Frameworks" />
         </Field>
@@ -56,7 +56,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
   // Languages: language + proficiency.
   if (kind === "languages") {
     return (
-      <div className="space-y-3 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)]/40">
+      <div className="space-y-3 p-4 border border-line rounded-lg bg-well/40">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Language">
             <input className={inputCls} value={entry.title || ""} onChange={(e) => set({ title: e.target.value })} placeholder="English" />
@@ -73,7 +73,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
   // Interests: title only.
   if (kind === "interests") {
     return (
-      <div className="space-y-3 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)]/40">
+      <div className="space-y-3 p-4 border border-line rounded-lg bg-well/40">
         <Field label="Interest">
           <input className={inputCls} value={entry.title || ""} onChange={(e) => set({ title: e.target.value })} placeholder="Photography" />
         </Field>
@@ -86,7 +86,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
   if (kind === "references") {
     const m = entry.meta || {};
     return (
-      <div className="space-y-3 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)]/40">
+      <div className="space-y-3 p-4 border border-line rounded-lg bg-well/40">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Name">
             <input className={inputCls} value={entry.title || ""} onChange={(e) => set({ title: e.target.value })} />
@@ -115,7 +115,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
   // Blog / garden: title + link + date.
   if (kind === "blog" || kind === "garden") {
     return (
-      <div className="space-y-3 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)]/40">
+      <div className="space-y-3 p-4 border border-line rounded-lg bg-well/40">
         <Field label="Title">
           <input className={inputCls} value={entry.title || ""} onChange={(e) => set({ title: e.target.value })} />
         </Field>
@@ -134,7 +134,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
 
   // Default entry: title (+ link), subtitle, dates, location, description.
   return (
-    <div className="space-y-3 p-4 border border-[var(--color-border)] rounded-lg bg-[var(--color-input-bg)]/40">
+    <div className="space-y-3 p-4 border border-line rounded-lg bg-well/40">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Title">
           <div className="flex gap-1">
@@ -145,7 +145,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
               className={`px-2.5 rounded-lg border text-sm ${
                 showLink || entry.link
                   ? "border-signal text-signal"
-                  : "border-[var(--color-border)] text-[var(--color-text-secondary)]"
+                  : "border-line text-muted"
               }`}
             >
               <Link2 size={15} />
@@ -195,7 +195,7 @@ const DoneBar = ({ onClose }: { onClose: () => void }) => (
   <div className="flex justify-end">
     <button
       onClick={onClose}
-      className="flex items-center gap-1.5 px-4 py-1.5 bg-[var(--color-text-primary)] text-[var(--color-background)] rounded-lg text-sm font-medium hover:opacity-90"
+      className="flex items-center gap-1.5 px-4 py-1.5 bg-ink text-surface rounded-lg text-sm font-medium hover:opacity-90"
     >
       <X size={14} /> Done
     </button>

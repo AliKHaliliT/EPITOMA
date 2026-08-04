@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
-const applyClass = (dark: boolean) =>
-  document.documentElement.classList.toggle("dark", dark);
+const applyTheme = (dark: boolean) =>
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
 
 export function useTheme() {
   const [isDark, setIsDark] = useState(() => {
@@ -14,7 +14,7 @@ export function useTheme() {
   });
 
   useEffect(() => {
-    applyClass(isDark);
+    applyTheme(isDark);
     localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark]);
 
@@ -28,7 +28,7 @@ export function useTheme() {
     const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
     if (doc.startViewTransition && !reduced) {
       doc.startViewTransition(() => {
-        applyClass(next);
+        applyTheme(next);
         setIsDark(next);
       });
     } else {

@@ -114,12 +114,12 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
   );
 
   return (
-    <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl flex min-h-[420px]">
+    <div className="bg-card border border-line rounded-xl flex min-h-[420px]">
       {/* Sub-nav: grouped like the document itself. */}
-      <nav className="flex w-28 flex-shrink-0 flex-col border-r border-dashed border-[var(--color-border)] py-2 overflow-y-auto">
+      <nav className="flex w-28 flex-shrink-0 flex-col border-r border-dashed border-line py-2 overflow-y-auto">
         {NAV.map((g) => (
           <div key={g.group} className="mb-1">
-            <p className="m-0 px-3 pb-0.5 pt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--color-text-secondary)] opacity-60">
+            <p className="m-0 px-3 pb-0.5 pt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-muted opacity-60">
               {g.group}
             </p>
             {g.items.map((n) => {
@@ -132,8 +132,8 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                   className={cn(
                     "group flex w-full items-baseline gap-1.5 border-l-2 px-3 py-1.5 text-left text-[13px] transition-colors",
                     active
-                      ? "border-signal bg-[var(--color-background)] font-medium text-[var(--color-text-primary)]"
-                      : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                      ? "border-signal bg-surface font-medium text-ink"
+                      : "border-transparent text-muted hover:text-ink"
                   )}
                 >
                   <span className={cn(
@@ -151,7 +151,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
         {/* The nuclear option: every setting in every pane back to stock. */}
         <button
           onClick={() => setConfirmResetAll(true)}
-          className="mx-2 mt-auto flex items-center justify-center gap-1 rounded-md border border-[var(--color-border)] px-2 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--color-text-secondary)] transition-colors hover:border-red-400 hover:text-red-500"
+          className="mx-2 mt-auto flex items-center justify-center gap-1 rounded-md border border-line px-2 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-muted transition-colors hover:border-red-400 hover:text-red-500"
           title="Reset every Customize setting to its default"
         >
           <RotateCcw size={11} /> Reset all
@@ -160,15 +160,15 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
 
       {/* Pane */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="mb-3 flex items-start justify-between gap-3 border-b border-dashed border-[var(--color-border)] pb-2">
+        <div className="mb-3 flex items-start justify-between gap-3 border-b border-dashed border-line pb-2">
           <div>
-            <h3 className="m-0 text-[13px] font-semibold text-[var(--color-text-primary)]">{paneLabel}</h3>
-            <p className="m-0 mt-0.5 text-[11px] text-[var(--color-text-secondary)]">{PANE_HINTS[pane]}</p>
+            <h3 className="m-0 text-[13px] font-semibold text-ink">{paneLabel}</h3>
+            <p className="m-0 mt-0.5 text-[11px] text-muted">{PANE_HINTS[pane]}</p>
           </div>
           {pane !== "templates" && (
             <button
               onClick={resetPane}
-              className="flex shrink-0 items-center gap-1 rounded-md border border-[var(--color-border)] px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
+              className="flex shrink-0 items-center gap-1 rounded-md border border-line px-2 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em] text-muted transition-colors hover:border-signal hover:text-signal"
               title={`Reset the ${paneLabel} settings to their defaults`}
             >
               <RotateCcw size={11} /> Reset
@@ -191,8 +191,8 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
               className={cn(
                 "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
                 sampleMode
-                  ? "border-signal bg-[var(--color-background)] text-[var(--color-text-primary)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)]"
+                  ? "border-signal bg-surface text-ink"
+                  : "border-line text-muted hover:border-line-strong hover:text-ink"
               )}
             >
               <Eye size={15} className={sampleMode ? "text-signal" : undefined} />
@@ -232,12 +232,12 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                     "rounded-lg border p-2 text-left transition-colors",
                     style.template === t.key
                       ? "border-signal ring-1 ring-signal/40"
-                      : "border-[var(--color-border)] hover:border-[var(--color-border-strong)]"
+                      : "border-line hover:border-line-strong"
                   )}
                 >
                   <TemplateThumb preset={t} />
-                  <span className="mt-1.5 block text-sm font-medium text-[var(--color-text-primary)]">{t.label}</span>
-                  <span className="mt-0.5 block text-[11px] leading-snug text-[var(--color-text-secondary)]">
+                  <span className="mt-1.5 block text-sm font-medium text-ink">{t.label}</span>
+                  <span className="mt-0.5 block text-[11px] leading-snug text-muted">
                     {t.description}
                   </span>
                 </button>
@@ -350,16 +350,16 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
             </div>
             <Cluster title="Section bodies">
               {sectionsWithLayouts.length === 0 ? (
-                <p className="m-0 text-[11px] text-[var(--color-text-secondary)]">
+                <p className="m-0 text-[11px] text-muted">
                   No sections with body options. Skills, languages, certificates, interests, and references carry them.
                 </p>
               ) : (
-                <div className="divide-y divide-dashed divide-[var(--color-border)] rounded-lg border border-[var(--color-border)]">
+                <div className="divide-y divide-dashed divide-line rounded-lg border border-line">
                   {sectionsWithLayouts.map((s) => {
                     const opts = SECTION_LAYOUTS[s.customType === "skill" ? "skills" : s.kind]!;
                     return (
                       <div key={s.id} className="flex items-center justify-between gap-3 px-2.5 py-1.5">
-                        <span className="truncate text-xs text-[var(--color-text-primary)]">{s.heading}</span>
+                        <span className="truncate text-xs text-ink">{s.heading}</span>
                         <Tiles
                           value={s.layout || opts[0]}
                           onChange={(v) => onSectionsChange(sections.map((x) => (x.id === s.id ? { ...x, layout: v as ResumeSection["layout"] } : x)))}
@@ -427,7 +427,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                   value={style.headerFillColor || "#eef2fb"}
                   onChange={(e) => set({ headerFillColor: e.target.value })}
                   aria-label="Header band color"
-                  className="h-6 w-8 cursor-pointer rounded-[3px] border border-[var(--color-border-strong)] bg-transparent p-0.5"
+                  className="h-6 w-8 cursor-pointer rounded-[3px] border border-line-strong bg-transparent p-0.5"
                 />
                 <button
                   onClick={() => set({ headerFillColor: "" })}
@@ -435,7 +435,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                     "rounded-md border px-2 py-0.5 text-[11px] font-medium transition-colors",
                     !style.headerFillColor
                       ? "border-signal text-signal"
-                      : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                      : "border-line text-muted hover:text-ink"
                   )}
                 >
                   Auto (from accent)
@@ -457,12 +457,12 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                     aria-label={`Accent ${c}`}
                     className={cn(
                       "relative h-7 w-7 rounded-[3px] border transition-transform hover:scale-105",
-                      style.accentColor === c ? "border-transparent" : "border-[var(--color-border-strong)]"
+                      style.accentColor === c ? "border-transparent" : "border-line-strong"
                     )}
                     style={{ background: c }}
                   >
                     {style.accentColor === c && (
-                      <span className="absolute inset-0 rounded-[3px] ring-2 ring-signal ring-offset-2 ring-offset-[var(--color-card)]" />
+                      <span className="absolute inset-0 rounded-[3px] ring-2 ring-signal ring-offset-2 ring-offset-card" />
                     )}
                   </button>
                 ))}
@@ -516,7 +516,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                 <GaugeGroup>
                   <Gauge label="Size" value={style.photoSize} min={48} max={160} step={4} suffix="px" onChange={(v) => set({ photoSize: v })} />
                 </GaugeGroup>
-                <p className="m-0 text-[11px] text-[var(--color-text-secondary)]">
+                <p className="m-0 text-[11px] text-muted">
                   The image itself lives in the header's personal details, synced from the portfolio's avatar or set per document.
                 </p>
               </div>
@@ -545,7 +545,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                 <input className={INPUT} value={style.footerText} onChange={(e) => set({ footerText: e.target.value })} placeholder="e.g. References available on request" />
                 <div className="flex items-center justify-between gap-3">
                   <Check label="Show page numbers" checked={style.showPageNumbers} onChange={(v) => set({ showPageNumbers: v })} />
-                  <p className="m-0 text-[11px] text-[var(--color-text-secondary)]">
+                  <p className="m-0 text-[11px] text-muted">
                     Runs in the bottom margin of every page.
                   </p>
                 </div>
@@ -684,7 +684,7 @@ function HeadingGlyph({ variant, accent }: { variant: 1 | 2 | 3 | 4 | 5 | 6; acc
 function ScopeGlyph({ mode, accent }: { mode: "page" | "header" | "border"; accent: string }) {
   return (
     <span
-      className="block h-4 w-6 overflow-hidden rounded-[2px] border border-[var(--color-border-strong)]"
+      className="block h-4 w-6 overflow-hidden rounded-[2px] border border-line-strong"
       style={{
         background: mode === "page" ? `${accent}2e` : "#fff",
         borderLeft: mode === "border" ? `3px solid ${accent}` : undefined,
@@ -721,7 +721,7 @@ function TemplateThumb({ preset }: { preset: TemplatePreset }) {
   return (
     <div
       ref={ref}
-      className="relative h-52 w-full overflow-hidden rounded-[3px] border border-[var(--color-border)] bg-white"
+      className="relative h-52 w-full overflow-hidden rounded-[3px] border border-line bg-white"
       aria-hidden
     >
       <div className="pointer-events-none origin-top-left" style={{ transform: `scale(${scale})`, width: 794 }}>
@@ -734,10 +734,10 @@ function TemplateThumb({ preset }: { preset: TemplatePreset }) {
 // ── reusable controls ───────────────────────────────────────────────────────
 
 const INPUT =
-  "w-full px-3 py-1.5 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)] outline-none focus:border-signal";
+  "w-full px-3 py-1.5 bg-well border border-line rounded-lg text-sm text-ink outline-none focus:border-signal";
 
 const Label = ({ children }: { children: React.ReactNode }) => (
-  <label className="block font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-[var(--color-text-secondary)]">
+  <label className="block font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-muted">
     {children}
   </label>
 );
@@ -748,10 +748,10 @@ function Cluster({ title, children }: { title: string; children: React.ReactNode
   return (
     <section>
       <div className="mb-2 flex items-center gap-2">
-        <span className="font-mono text-[9.5px] font-medium uppercase tracking-[0.14em] text-[var(--color-text-secondary)]">
+        <span className="font-mono text-[9.5px] font-medium uppercase tracking-[0.14em] text-muted">
           {title}
         </span>
-        <span className="h-px flex-1 border-t border-dashed border-[var(--color-border)]" />
+        <span className="h-px flex-1 border-t border-dashed border-line" />
       </div>
       {children}
     </section>
@@ -761,7 +761,7 @@ function Cluster({ title, children }: { title: string; children: React.ReactNode
 /** The gauge table: one bordered card, one hairline row per measure. */
 function GaugeGroup({ children }: { children: React.ReactNode }) {
   return (
-    <div className="divide-y divide-dashed divide-[var(--color-border)] rounded-lg border border-[var(--color-border)] bg-[var(--color-input-bg)]/50">
+    <div className="divide-y divide-dashed divide-line rounded-lg border border-line bg-well/50">
       {children}
     </div>
   );
@@ -777,14 +777,14 @@ function Gauge({ label, value, min, max, step, suffix, prefix, onChange }: {
   const [live, setLive] = useState(false);
   return (
     <div className="flex select-none items-center gap-2 px-2.5 py-[7px]">
-      <span className="w-[68px] shrink-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-[var(--color-text-secondary)]" title={label}>
+      <span className="w-[68px] shrink-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-muted" title={label}>
         {label}
       </span>
       <button
         onClick={() => onChange(clamp(value - step))}
         onMouseDown={(e) => e.preventDefault()}
         aria-label={`Decrease ${label}`}
-        className="rounded-[4px] border border-[var(--color-border)] p-0.5 text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
+        className="rounded-[4px] border border-line p-0.5 text-muted transition-colors hover:border-signal hover:text-signal"
       >
         <Minus size={11} />
       </button>
@@ -804,14 +804,14 @@ function Gauge({ label, value, min, max, step, suffix, prefix, onChange }: {
           aria-label={label}
           className="gauge-input relative z-10 block"
           style={{
-            ["--gauge-fill" as string]: `linear-gradient(to right, var(--color-signal) 0%, var(--color-signal) ${pct}%, var(--color-border) ${pct}%)`,
+            ["--gauge-fill" as string]: `linear-gradient(to right, var(--signal) 0%, var(--signal) ${pct}%, var(--line) ${pct}%)`,
           }}
         />
         <span
           aria-hidden
           className="pointer-events-none absolute left-[2px] right-[2px] top-[13px] h-[3px] opacity-60"
           style={{
-            backgroundImage: "linear-gradient(to right, var(--color-border-strong) 1px, transparent 1px)",
+            backgroundImage: "linear-gradient(to right, var(--line-strong) 1px, transparent 1px)",
             backgroundSize: "calc(100% / 12) 100%",
           }}
         />
@@ -820,14 +820,14 @@ function Gauge({ label, value, min, max, step, suffix, prefix, onChange }: {
         onClick={() => onChange(clamp(value + step))}
         onMouseDown={(e) => e.preventDefault()}
         aria-label={`Increase ${label}`}
-        className="rounded-[4px] border border-[var(--color-border)] p-0.5 text-[var(--color-text-secondary)] transition-colors hover:border-signal hover:text-signal"
+        className="rounded-[4px] border border-line p-0.5 text-muted transition-colors hover:border-signal hover:text-signal"
       >
         <Plus size={11} />
       </button>
       <span
         className={cn(
           "w-12 shrink-0 rounded-[3px] px-1 py-px text-right font-mono text-[11px] tabular-nums transition-colors",
-          live ? "bg-signal/15 text-signal" : "text-[var(--color-text-primary)]"
+          live ? "bg-signal/15 text-signal" : "text-ink"
         )}
       >
         {prefix}{fmt}{suffix}
@@ -867,8 +867,8 @@ function Tiles({ label, value, options, onChange, hint, dense }: {
                   ? "px-2 py-[3px]"
                   : "px-2.5 py-1.5",
                 selected
-                  ? "border-signal bg-signal/10 text-[var(--color-text-primary)] shadow-[inset_0_0_0_1px_var(--color-signal)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:-translate-y-px hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)] hover:shadow-sm"
+                  ? "border-signal bg-signal/10 text-ink shadow-[inset_0_0_0_1px_var(--signal)]"
+                  : "border-line text-muted hover:-translate-y-px hover:border-line-strong hover:text-ink hover:shadow-sm"
               )}
             >
               {selected && (
@@ -891,7 +891,7 @@ function Tiles({ label, value, options, onChange, hint, dense }: {
           );
         })}
       </div>
-      {hint && <p className="m-0 text-[11px] leading-snug text-[var(--color-text-secondary)]">{hint}</p>}
+      {hint && <p className="m-0 text-[11px] leading-snug text-muted">{hint}</p>}
     </div>
   );
 }
@@ -912,7 +912,7 @@ function Select({ label, value, options, optionLabels, onChange }: {
             <option key={o} value={o}>{optionLabels?.[o] ?? o}</option>
           ))}
         </select>
-        <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" />
+        <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted" />
       </span>
     </div>
   );
@@ -963,12 +963,12 @@ function FontSelect({ label, value, allowInherit, onChange }: {
           style={current ? { fontFamily: fontStack(current) } : undefined}
         >
           <span className="truncate">{current || "Same as body"}</span>
-          <ChevronDown size={13} className={cn("shrink-0 text-[var(--color-text-secondary)] transition-transform", open && "rotate-180")} />
+          <ChevronDown size={13} className={cn("shrink-0 text-muted transition-transform", open && "rotate-180")} />
         </button>
         {open && (
           <div
             role="listbox"
-            className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] py-1 shadow-lg"
+            className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-line bg-card py-1 shadow-lg"
           >
             {options.map((o) => {
               const selected = o === current;
@@ -982,8 +982,8 @@ function FontSelect({ label, value, allowInherit, onChange }: {
                     setOpen(false);
                   }}
                   className={cn(
-                    "relative flex w-full items-center px-3 py-1.5 text-left text-[13px] transition-colors hover:bg-[var(--color-background)]",
-                    selected ? "text-signal" : "text-[var(--color-text-primary)]"
+                    "relative flex w-full items-center px-3 py-1.5 text-left text-[13px] transition-colors hover:bg-surface",
+                    selected ? "text-signal" : "text-ink"
                   )}
                   style={o ? { fontFamily: fontStack(o) } : undefined}
                 >
@@ -1016,7 +1016,7 @@ function Check({ label, checked, onChange, compact }: {
           "relative h-[16px] w-[30px] shrink-0 rounded-[4px] border transition-colors",
           checked
             ? "border-signal bg-signal/15"
-            : "border-[var(--color-border-strong)] bg-[var(--color-input-bg)] group-hover:border-signal"
+            : "border-line-strong bg-well group-hover:border-signal"
         )}
       >
         <span
@@ -1024,13 +1024,13 @@ function Check({ label, checked, onChange, compact }: {
             "absolute top-[2px] h-[10px] w-[10px] rounded-[2px] transition-all duration-150 ease-out",
             checked
               ? "left-[16px] bg-signal shadow-sm"
-              : "left-[2px] bg-[var(--color-border-strong)] group-hover:bg-signal/60"
+              : "left-[2px] bg-line-strong group-hover:bg-signal/60"
           )}
         >
           {checked && <CheckIcon size={8} className="absolute inset-0 m-auto text-white" strokeWidth={3.5} />}
         </span>
       </span>
-      <span className="text-[var(--color-text-primary)]">{label}</span>
+      <span className="text-ink">{label}</span>
     </button>
   );
 }
@@ -1044,17 +1044,17 @@ function OrderRow({ section, region, onRegionToggle }: {
   const controls = useDragControls();
   return (
     <Reorder.Item value={section} dragListener={false} dragControls={controls}
-      className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-input-bg)] px-2 py-1">
+      className="flex items-center gap-2 rounded-md border border-line bg-well px-2 py-1">
       <button
         onPointerDown={(e) => controls.start(e)}
         aria-label={`Reorder ${section.heading}`}
-        className="cursor-grab touch-none text-[var(--color-text-secondary)] hover:text-signal"
+        className="cursor-grab touch-none text-muted hover:text-signal"
       >
         <GripVertical size={13} />
       </button>
-      <span className="truncate text-[13px] text-[var(--color-text-primary)]">{section.heading}</span>
+      <span className="truncate text-[13px] text-ink">{section.heading}</span>
       {!section.visible && (
-        <span className="font-mono text-[9px] uppercase tracking-wide text-[var(--color-text-secondary)] opacity-60">
+        <span className="font-mono text-[9px] uppercase tracking-wide text-muted opacity-60">
           hidden
         </span>
       )}
@@ -1065,7 +1065,7 @@ function OrderRow({ section, region, onRegionToggle }: {
             "ml-auto rounded-[3px] border px-1.5 py-px font-mono text-[9px] uppercase tracking-[0.08em] transition-colors",
             region === "side"
               ? "border-signal text-signal"
-              : "border-[var(--color-border-strong)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+              : "border-line-strong text-muted hover:text-ink"
           )}
           title="Toggle between the main column and the sidebar rail"
         >

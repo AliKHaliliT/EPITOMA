@@ -8,7 +8,7 @@ import { BookMarked, Loader2, Unlink } from "lucide-react";
 import type { RepoRef } from "@/entities/portfolio";
 
 const INPUT =
-  "w-full px-3 py-2 bg-[var(--color-input-bg)] border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-text-primary)] outline-none focus:border-signal";
+  "w-full px-3 py-2 bg-well border border-line rounded-lg text-sm text-ink outline-none focus:border-signal";
 
 interface RepoDialogProps {
   open: boolean;
@@ -58,16 +58,16 @@ const RepoForm = ({ repoRef, onConnect, onDisconnect, onClose }: Omit<RepoDialog
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96, y: 8 }}
       transition={{ duration: 0.16, ease: [0.2, 0.7, 0.2, 1] }}
-      className="w-full max-w-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-xl"
+      className="w-full max-w-sm rounded-xl border border-line bg-card p-6 shadow-xl"
       onClick={(e) => e.stopPropagation()}
     >
-            <p className="m-0 mb-2 flex items-center gap-1.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-[var(--color-text-secondary)]">
+            <p className="m-0 mb-2 flex items-center gap-1.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-muted">
               <BookMarked size={12} /> Portfolio repository
             </p>
-            <h2 className="m-0 mb-2 font-serif text-lg font-semibold leading-snug text-[var(--color-text-primary)]">
+            <h2 className="m-0 mb-2 font-serif text-lg font-semibold leading-snug text-ink">
               {repoRef ? "Connected repository" : "Connect a repository"}
             </h2>
-            <p className="m-0 mb-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            <p className="m-0 mb-4 text-sm leading-relaxed text-muted">
               Point at a public VITA site repository and Sync pulls the profile and
               content straight from it. Read-only, so no token is needed.
             </p>
@@ -75,16 +75,16 @@ const RepoForm = ({ repoRef, onConnect, onDisconnect, onClose }: Omit<RepoDialog
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-text-secondary)]" htmlFor="repo-owner">Owner</label>
+                  <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-muted" htmlFor="repo-owner">Owner</label>
                   <input id="repo-owner" className={INPUT} value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="username" />
                 </div>
                 <div className="space-y-1">
-                  <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-text-secondary)]" htmlFor="repo-name">Repository</label>
+                  <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-muted" htmlFor="repo-name">Repository</label>
                   <input id="repo-name" className={INPUT} value={repo} onChange={(e) => setRepo(e.target.value)} placeholder="my-site" />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--color-text-secondary)]" htmlFor="repo-branch">Branch</label>
+                <label className="block font-mono text-[10px] uppercase tracking-[0.12em] text-muted" htmlFor="repo-branch">Branch</label>
                 <input id="repo-branch" className={INPUT} value={branch} onChange={(e) => setBranch(e.target.value)} placeholder="main" />
               </div>
             </div>
@@ -102,21 +102,21 @@ const RepoForm = ({ repoRef, onConnect, onDisconnect, onClose }: Omit<RepoDialog
                     onDisconnect();
                     onClose();
                   }}
-                  className="mr-auto flex items-center gap-1.5 rounded-full border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:border-red-400 hover:text-red-600"
+                  className="mr-auto flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-red-400 hover:text-red-600"
                 >
                   <Unlink size={13} /> Disconnect
                 </button>
               )}
               <button
                 onClick={onClose}
-                className="rounded-full border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
+                className="rounded-full border border-line px-4 py-2 text-sm font-medium text-muted transition-colors hover:text-ink"
               >
                 Cancel
               </button>
               <button
                 onClick={connect}
                 disabled={busy || !owner.trim() || !repo.trim() || !branch.trim()}
-                className="flex items-center gap-1.5 rounded-full bg-[var(--color-text-primary)] px-4 py-2 text-sm font-medium text-[var(--color-background)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
+                className="flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-surface transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {busy && <Loader2 size={13} className="animate-spin" />}
                 {busy ? "Fetching…" : repoRef ? "Reconnect" : "Connect & fetch"}

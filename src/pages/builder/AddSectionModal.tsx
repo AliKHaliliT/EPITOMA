@@ -34,12 +34,12 @@ export const AddSectionModal = ({ isOpen, onClose, onAdd, existingKinds }: AddSe
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-[var(--color-card)] w-full max-w-3xl rounded-2xl shadow-2xl border border-[var(--color-border)] flex flex-col max-h-[85vh]"
+          className="bg-card w-full max-w-3xl rounded-2xl shadow-2xl border border-line flex flex-col max-h-[85vh]"
         >
-          <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)]">
-            <h2 className="text-lg font-bold text-[var(--color-text-primary)]">Add content</h2>
-            <button onClick={onClose} className="p-2 hover:bg-[var(--color-background)] rounded-full">
-              <X size={18} className="text-[var(--color-text-secondary)]" />
+          <div className="flex items-center justify-between p-5 border-b border-line">
+            <h2 className="text-lg font-bold text-ink">Add content</h2>
+            <button onClick={onClose} className="p-2 hover:bg-surface rounded-full">
+              <X size={18} className="text-muted" />
             </button>
           </div>
 
@@ -55,18 +55,18 @@ export const AddSectionModal = ({ isOpen, onClose, onAdd, existingKinds }: AddSe
                     onAdd(kind);
                     onClose();
                   }}
-                  className="text-left p-3 rounded-xl border border-[var(--color-border)] hover:border-signal hover:bg-field/10 transition-colors"
+                  className="text-left p-3 rounded-xl border border-line hover:border-signal hover:bg-field/10 transition-colors"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon size={16} className="text-[var(--color-text-secondary)]" />
-                    <span className="text-sm font-semibold text-[var(--color-text-primary)]">{meta.label}</span>
+                    <Icon size={16} className="text-muted" />
+                    <span className="text-sm font-semibold text-ink">{meta.label}</span>
                     {used && (
-                      <span className="ml-auto text-[9px] uppercase tracking-wide text-[var(--color-text-secondary)] opacity-60">
+                      <span className="ml-auto text-[9px] uppercase tracking-wide text-muted opacity-60">
                         added
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[var(--color-text-secondary)] leading-snug">{meta.subtitle}</p>
+                  <p className="text-xs text-muted leading-snug">{meta.subtitle}</p>
                 </button>
               );
             })}
@@ -77,13 +77,13 @@ export const AddSectionModal = ({ isOpen, onClose, onAdd, existingKinds }: AddSe
                 onAdd("custom");
                 onClose();
               }}
-              className="text-left p-3 rounded-xl border border-dashed border-[var(--color-border-strong)] hover:border-signal transition-colors"
+              className="text-left p-3 rounded-xl border border-dashed border-line-strong hover:border-signal transition-colors"
             >
               <div className="flex items-center gap-2 mb-1">
-                <Plus size={16} className="text-[var(--color-text-secondary)]" />
-                <span className="text-sm font-semibold text-[var(--color-text-primary)]">Custom</span>
+                <Plus size={16} className="text-muted" />
+                <span className="text-sm font-semibold text-ink">Custom</span>
               </div>
-              <p className="text-xs text-[var(--color-text-secondary)] leading-snug">
+              <p className="text-xs text-muted leading-snug">
                 {SECTION_CATALOG.custom.subtitle}
               </p>
             </button>

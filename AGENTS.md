@@ -52,9 +52,11 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   an item rebuilt from a fetched seed file passes `validatePortfolioItem`. Never widen a
   type with a cast to make remote content fit. See
   [decision 0005](docs/decisions/0005-check-fetched-seed-files-against-the-contract.md).
-- **Colors come from the tokens** in `src/app/styles/tokens.css`, reached either as a token
-  utility or as the variable; never hardcode a color and never reach for a raw palette
-  class. The sheet itself is the deliberate exception, noted below.
+- **Colors come only from the token utilities** defined in `src/app/styles/tokens.css`
+  (`bg-surface`, `text-ink`, `border-line`, `text-signal`, and so on). Never hardcode a
+  color, never reach for a raw palette class, and never spell a token the long way as
+  `bg-[var(--surface)]`; a composite value such as a `color-mix()` is the only place the
+  variable itself appears. The sheet itself is the deliberate exception, noted below.
 - **The environment is read only through `shared/config`.** No other module touches
   `import.meta.env`.
 - **Motion runs behind `LazyMotion` strict** with the `domMax` feature set (the `Reorder`
