@@ -71,6 +71,7 @@ export function pageStyle(style: ResumeStyle): CSSProperties {
 const a = (style: ResumeStyle, on: boolean): string | undefined =>
   on ? style.accentColor : undefined;
 
+/** The owner's name: the sheet's largest type, optionally in the accent. */
 export const nameStyle = (style: ResumeStyle): CSSProperties => ({
   fontSize: "var(--r-name-size)",
   fontWeight: 700,
@@ -79,6 +80,7 @@ export const nameStyle = (style: ResumeStyle): CSSProperties => ({
   lineHeight: 1.1,
 });
 
+/** The line under the name, colored only when the accent is allowed there. */
 export const jobTitleStyle = (style: ResumeStyle): CSSProperties => ({
   color: a(style, style.accentApply.jobTitle),
 });
@@ -113,12 +115,14 @@ export function headingStyle(style: ResumeStyle): CSSProperties {
   }
 }
 
+/** An entry's subtitle, weighted or italicized per the style. */
 export const subtitleStyle = (style: ResumeStyle): CSSProperties => ({
   fontWeight: style.subtitleStyle === "bold" ? 600 : 400,
   fontStyle: style.subtitleStyle === "italic" ? "italic" : "normal",
   color: a(style, style.accentApply.subtitle),
 });
 
+/** An entry's dates, kept on one line and never wrapped. */
 export const dateStyle = (style: ResumeStyle): CSSProperties => ({
   // The fallback rides a CSS variable so a dark sidebar rail can lift it.
   color: a(style, style.accentApply.dates) || "var(--r-muted, #4b5563)",
@@ -126,19 +130,23 @@ export const dateStyle = (style: ResumeStyle): CSSProperties => ({
   whiteSpace: "nowrap",
 });
 
+/** An entry's title line. */
 export const entryHeaderStyle = (_style: ResumeStyle): CSSProperties => ({
   fontSize: "var(--r-entry-size)",
   fontWeight: 600,
 });
 
+/** A link, colored and underlined only where the style says so. */
 export const linkStyle = (style: ResumeStyle): CSSProperties => ({
   color: style.linkColored ? style.accentColor : "inherit",
   textDecoration: style.linkUnderline ? "underline" : "none",
 });
 
+/** The prose classes an entry description needs, including its bullet form. */
 export const descriptionClass = (style: ResumeStyle): string =>
   `resume-prose${style.listStyle === "hyphen" ? " list-hyphen" : ""}`;
 
+/** An entry description's indentation. */
 export const descriptionStyle = (style: ResumeStyle): CSSProperties => ({
   marginLeft: style.indentBody ? "0.9em" : undefined,
 });
@@ -152,6 +160,7 @@ export function bodyStyle(style: ResumeStyle): CSSProperties {
   };
 }
 
+/** A section block, kept from splitting across a page break. */
 export const sectionStyle = (_style: ResumeStyle): CSSProperties => ({
   marginBottom: "var(--r-gap)",
   breakInside: "avoid",

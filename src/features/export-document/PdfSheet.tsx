@@ -628,6 +628,12 @@ function Header({ doc, ctx, g }: { doc: ResumeDocument; ctx: Ctx; g: ReturnType<
 
 // ── the document ────────────────────────────────────────────────────────────
 
+/**
+ * The document rendered for PDF, in react-pdf primitives rather than DOM.
+ *
+ * This is a second renderer of the same sheet, so it reads the layout contract
+ * rather than re-deriving any measurement; the parity suite pins the agreement.
+ */
 export function PdfSheet({ doc }: { doc: ResumeDocument }) {
   const { style } = doc;
   const g = resolveGeometry(style);

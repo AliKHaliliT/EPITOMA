@@ -14,6 +14,7 @@ const fmt = (iso: string) => {
     : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 };
 
+/** The Overview tab: what the document contains, and quick section visibility. */
 export const OverviewPanel = ({ doc, onToggleSection }: OverviewPanelProps) => {
   const visibleCount = doc.sections.filter((s) => s.visible).length;
   const entryCount = doc.sections.reduce(

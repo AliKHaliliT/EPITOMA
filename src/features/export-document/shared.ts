@@ -6,6 +6,7 @@
 
 import { fontStack } from "@/entities/resume";
 
+/** The CSS font stack for a catalog label, named for the exporters that read it. */
 export const cssFontStack = (label: string): string => fontStack(label);
 
 /** Filesystem-safe slug for the download filename. */

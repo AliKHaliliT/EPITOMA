@@ -34,6 +34,17 @@ async function rasterizePhoto(doc: ResumeDocument): Promise<ResumeDocument> {
   }
 }
 
+/**
+ * Renders a document to PDF and hands it to the browser as a download.
+ *
+ * The renderer, the sheet, and the document fonts are imported on demand, so a
+ * visitor who never exports never downloads any of it. A header portrait is
+ * rasterized first, because the PDF renderer cannot take an arbitrary image URL.
+ *
+ * @param doc - The document to export; its name becomes the filename.
+ *
+ * @returns A promise that settles once the download has been handed over.
+ */
 export async function exportPdf(doc: ResumeDocument): Promise<void> {
   // The renderer, the layout engine, and the fonts arrive on demand.
   const [{ pdf }, { PdfSheet }, { disablePdfHyphenation }, react] = await Promise.all([

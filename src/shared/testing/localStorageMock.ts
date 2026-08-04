@@ -1,6 +1,17 @@
 // Minimal in-memory localStorage for node-environment tests.
 // Install with `installLocalStorageMock()` in a beforeEach; state resets per call.
 
+/**
+ * Replaces `globalThis.localStorage` with an in-memory stand-in.
+ *
+ * @returns The backing map, so a suite can seed or inspect storage directly.
+ *
+ * @example
+ * ```ts
+ * let store: Map<string, string>
+ * beforeEach(() => { store = installLocalStorageMock() })
+ * ```
+ */
 export function installLocalStorageMock(): Map<string, string> {
   const store = new Map<string, string>();
   const mock = {

@@ -68,6 +68,14 @@ export function ensurePdfFont(label: string): string {
 
 // Resumes read better without hyphenation; the preview never hyphenates.
 let hyphenationSet = false;
+/**
+ * Stops react-pdf from hyphenating, which it does by default.
+ *
+ * A resume breaks words across lines badly, so the callback returns each word
+ * whole. Registering once is enough, and repeat calls do nothing.
+ *
+ * @returns Nothing.
+ */
 export function disablePdfHyphenation() {
   if (hyphenationSet) return;
   Font.registerHyphenationCallback((word) => [word]);

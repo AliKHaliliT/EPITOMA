@@ -7,9 +7,13 @@
 // Item shapes below describe only the fields this builder reads; the site's
 // export carries more, which structural typing happily ignores.
 
+/** The format name a real export carries, and the first thing checked on import. */
 export const PORTFOLIO_FORMAT = "vita-portfolio";
+
+/** The contract revision this builder was written against. */
 export const PORTFOLIO_VERSION = 1;
 
+/** The owner's profile: everything a document header can draw from. */
 export interface PortfolioSettings {
   name?: string;
   role?: string;
@@ -36,6 +40,13 @@ export interface PortfolioSettings {
   declaration?: string;
 }
 
+/**
+ * The fields every collection's items share.
+ *
+ * `id` is the only one this builder requires, because a document entry links
+ * back to its source by id; everything else is optional, since the site exports
+ * more than any one section reads.
+ */
 export interface PortfolioItem {
   id: string | number;
   title?: string;
@@ -47,47 +58,57 @@ export interface PortfolioItem {
   endDate?: string;
 }
 
+/** A role held somewhere, the backbone of a work history section. */
 export interface PortfolioExperience extends PortfolioItem {
   company?: string;
 }
+/** A degree or programme, with the fields a CV education line needs. */
 export interface PortfolioEducation extends PortfolioItem {
   institution?: string;
   degree?: string;
   field?: string;
   gpa?: string;
 }
+/** A course taken, distinguished from education by having a provider. */
 export interface PortfolioCourse extends PortfolioItem {
   provider?: string;
 }
+/** An award, scholarship, grant, or competition placing. */
 export interface PortfolioAward extends PortfolioItem {
   issuer?: string;
   amount?: string;
   awardType?: string;
 }
+/** A published work, carrying the venue and identifiers a citation needs. */
 export interface PortfolioPublication extends PortfolioItem {
   venue?: string;
   year?: string;
   doi?: string;
   authors?: string;
 }
+/** A talk, panel, or appearance, with links to its artifacts. */
 export interface PortfolioSpeaking extends PortfolioItem {
   event?: string;
   video?: string;
   slides?: string;
 }
+/** Unpaid work done for an organization. */
 export interface PortfolioVolunteering extends PortfolioItem {
   organization?: string;
 }
+/** A certification, with the credential id that makes it checkable. */
 export interface PortfolioCertificate extends PortfolioItem {
   issuer?: string;
   credentialId?: string;
   certType?: string;
 }
+/** A membership, professional body, or affiliation. */
 export interface PortfolioOrganization extends PortfolioItem {
   role?: string;
   website?: string;
   memberType?: string;
 }
+/** A person willing to vouch, and how to reach them. */
 export interface PortfolioReference extends PortfolioItem {
   name?: string;
   role?: string;
@@ -96,20 +117,24 @@ export interface PortfolioReference extends PortfolioItem {
   email?: string;
   phone?: string;
 }
+/** A project, with the role played and a short result line. */
 export interface PortfolioProject extends PortfolioItem {
   role?: string;
   year?: string;
   desc?: string;
   stats?: string;
 }
+/** Something the owner does outside work. */
 export interface PortfolioInterest extends PortfolioItem {
   category?: string;
 }
+/** A published article, which may live canonically elsewhere. */
 export interface PortfolioBlogPost extends PortfolioItem {
   slug?: string;
   excerpt?: string;
   externalUrl?: string; // canonical home elsewhere; preferred link when set
 }
+/** A note from the digital garden, shorter and less finished than an article. */
 export interface PortfolioGardenPost extends PortfolioItem {
   slug?: string;
   desc?: string;
@@ -122,6 +147,7 @@ export interface PortfolioPalette {
   dark: Record<string, string>;
 }
 
+/** A whole exported record: the envelope, the profile, and every collection. */
 export interface PortfolioSnapshot {
   format: typeof PORTFOLIO_FORMAT;
   version: number;
@@ -136,6 +162,17 @@ export interface PortfolioSnapshot {
   content: Partial<Record<string, (PortfolioItem & Record<string, unknown>)[]>>;
 }
 
+/**
+ * Decides whether a parsed value is a portfolio export at all.
+ *
+ * This is the envelope check, run before a snapshot is stored and again on
+ * every read. It deliberately stops at the envelope, since demanding particular
+ * collections would reject a legitimate export from an emptier record.
+ *
+ * @param value - The candidate, straight from `JSON.parse`.
+ *
+ * @returns True when the value can be treated as a snapshot.
+ */
 export function isPortfolioSnapshot(value: unknown): value is PortfolioSnapshot {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;

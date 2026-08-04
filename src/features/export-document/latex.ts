@@ -351,6 +351,14 @@ function fontSetup(t: TypeScale): string {
 % \\setmainfont{${t.bodyFont}}`;
 }
 
+/**
+ * Renders a document as a compilable LaTeX source file.
+ *
+ * @param doc - The document to render.
+ *
+ * @returns A complete `.tex` document, compilable with pdflatex and needing
+ *   no external class file.
+ */
 export function documentToLatex(doc: ResumeDocument): string {
   const { style } = doc;
   currentLanguage = style.language;
@@ -441,6 +449,13 @@ ${bodyTexStr}
 `;
 }
 
+/**
+ * Renders a document to LaTeX and hands it to the browser as a download.
+ *
+ * @param doc - The document to export; its name becomes the filename.
+ *
+ * @returns Nothing.
+ */
 export function exportLatex(doc: ResumeDocument) {
   downloadFile(`${slugify(doc.name)}.tex`, "application/x-tex", documentToLatex(doc));
 }

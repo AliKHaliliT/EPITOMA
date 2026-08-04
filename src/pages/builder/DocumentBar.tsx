@@ -54,6 +54,7 @@ const relativeDate = (iso: string) => {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
+/** The bar above the sheet: the document list and every action taken on one. */
 export const DocumentBar = ({
   docs,
   activeDoc,

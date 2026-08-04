@@ -22,6 +22,7 @@ interface ContentPanelProps {
   update: (mutator: (doc: ResumeDocument) => ResumeDocument) => void;
 }
 
+/** The Content tab: the header details and every section, each expandable. */
 export const ContentPanel = ({ doc, update }: ContentPanelProps) => {
   const [open, setOpen] = useState<string | null>("__personal__");
   const [addOpen, setAddOpen] = useState(false);

@@ -15,6 +15,7 @@ const LOCALES: Record<string, string> = {
   "Azerbaijani": "az",
 };
 
+/** The BCP 47 locale a document language maps to, defaulting to English. */
 export const languageLocale = (language?: string): string =>
   LOCALES[language ?? ""] ?? "en";
 
@@ -29,6 +30,7 @@ const PRESENT: Record<string, string> = {
   az: "Hazırda",
 };
 
+/** The word this document's language uses for an open-ended range. */
 export const presentWord = (language?: string): string =>
   PRESENT[languageLocale(language)] ?? "Present";
 

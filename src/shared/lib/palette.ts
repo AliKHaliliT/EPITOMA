@@ -13,6 +13,17 @@ const STYLE_TAG_ID = "os-palette-override";
 
 export type { Palette };
 
+/**
+ * Decides whether a value carries both theme modes of a palette.
+ *
+ * The check is shallow on purpose. A palette arrives inside an imported
+ * portfolio written by a separate application, and demanding every token would
+ * reject an older export that predates one.
+ *
+ * @param value - The candidate, straight from parsed JSON.
+ *
+ * @returns True when the value can be applied as a palette.
+ */
 export function isPalette(value: unknown): value is Palette {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
@@ -24,10 +35,22 @@ export function isPalette(value: unknown): value is Palette {
   );
 }
 
+/**
+ * Remembers an adopted palette for this browser.
+ *
+ * @param p - The palette to persist.
+ *
+ * @returns Nothing.
+ */
 export function savePalette(p: Palette): void {
   safeSetItem(STORAGE_KEY, JSON.stringify(p));
 }
 
+/**
+ * Forgets the adopted palette and removes its override tag.
+ *
+ * @returns Nothing.
+ */
 export function clearPalette(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -38,8 +61,17 @@ export function clearPalette(): void {
   document.getElementById(STYLE_TAG_ID)?.remove();
 }
 
-/** Inject (or refresh) the override style tag; appended to <head>, so it
- *  lands after index.css and wins at equal specificity. */
+/**
+ * Injects or refreshes the override style tag carrying a palette.
+ *
+ * The tag is appended to `<head>`, so it lands after the stylesheet and wins at
+ * equal specificity.
+ *
+ * @param p - The palette to write into the override tag.
+ *
+ * @returns Nothing. Does nothing at all outside a browser, since node suites
+ *   have no document to write to.
+ */
 export function applyPalette(p: Palette): void {
   if (typeof document === "undefined") return; // node tests have no DOM
   let tag = document.getElementById(STYLE_TAG_ID) as HTMLStyleElement | null;
@@ -51,7 +83,12 @@ export function applyPalette(p: Palette): void {
   tag.textContent = generatePaletteCss(p);
 }
 
-/** Re-apply the adopted palette, if any, before first paint. */
+/**
+ * Re-applies the adopted palette, if any, before first paint.
+ *
+ * @returns Nothing. An unreadable stored palette is swallowed, because the
+ *   right fallback is the default look rather than a failed boot.
+ */
 export function bootPalette(): void {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

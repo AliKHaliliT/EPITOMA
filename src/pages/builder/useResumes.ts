@@ -9,6 +9,14 @@ import { safeSetItem } from "@/shared/lib";
 
 const ACTIVE_KEY = "os_resumes_active";
 
+/**
+ * Builder state: the document list, the active document, and every edit to it.
+ *
+ * Lives with the page because it reaches both the resume entity and the
+ * portfolio entity, and the page is the only layer allowed to touch both.
+ *
+ * @returns The documents, the active one, and the writers the panels call.
+ */
 export function useResumes() {
   const [docs, setDocs] = useState<ResumeDocument[]>(() => ResumeService.list());
   const [activeId, setActiveId] = useState<string | null>(

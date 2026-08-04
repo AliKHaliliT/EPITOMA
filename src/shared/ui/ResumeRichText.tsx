@@ -6,8 +6,11 @@ import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 
 interface ResumeRichTextProps {
-  value: string; // HTML
+  /** The current body, as HTML rather than Markdown. */
+  value: string;
+  /** Called with the new HTML, already normalized when the editor is empty. */
   onChange: (html: string) => void;
+  /** Shown while the editor holds nothing. */
   placeholder?: string;
 }
 
@@ -21,6 +24,7 @@ const modules = {
   ],
 };
 
+/** A small rich-text field for an entry description, storing HTML. */
 export const ResumeRichText = ({ value, onChange, placeholder }: ResumeRichTextProps) => {
   // Quill emits empty editors as "<p><br></p>"; normalize that to "".
   const handleChange = (html: string) => {

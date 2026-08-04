@@ -126,6 +126,7 @@ const RepoForm = ({ repoRef, onConnect, onDisconnect, onClose }: Omit<RepoDialog
   );
 };
 
+/** The dialog for pointing the builder at a site repository to read seeds from. */
 export const RepoConnectDialog = ({ open, repoRef, onConnect, onDisconnect, onClose }: RepoDialogProps) => (
   <AnimatePresence>
     {open && (

@@ -7,6 +7,15 @@ import { isPortfolioSnapshot, type PortfolioSnapshot } from "@/shared/contract";
 
 const STORAGE_KEY = "os_resume_portfolio";
 
+/**
+ * Reads the imported snapshot back out of this browser.
+ *
+ * The contract is re-checked on every read rather than trusted from the write,
+ * because the value can be edited or left behind by an older version.
+ *
+ * @returns The stored snapshot, or null when nothing is imported or the stored
+ *   value no longer satisfies the contract.
+ */
 export function currentSnapshot(): PortfolioSnapshot | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -42,6 +51,11 @@ export function importSnapshotFile(text: string): PortfolioSnapshot {
   return parsed;
 }
 
+/**
+ * Forgets the imported snapshot and the palette that came with it.
+ *
+ * @returns Nothing.
+ */
 export function clearImportedSnapshot() {
   localStorage.removeItem(STORAGE_KEY);
   clearPalette();

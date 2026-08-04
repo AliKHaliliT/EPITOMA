@@ -4,6 +4,7 @@
 import { useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
 
+/** A modal that makes a destructive or irreversible action explicit. */
 export const ConfirmDialog = ({
   open,
   title = "Are you sure?",
@@ -14,13 +15,21 @@ export const ConfirmDialog = ({
   onConfirm,
   onCancel,
 }: {
+  /** Whether the dialog is mounted and visible. */
   open: boolean;
+  /** The question, kept short enough to read as a heading. */
   title?: string;
+  /** What the action will actually do, including what cannot be undone. */
   message: string;
+  /** Label on the accepting button. */
   confirmLabel?: string;
+  /** Label on the dismissing button. */
   cancelLabel?: string;
+  /** Draws the confirm button in the alert tone when the action destroys data. */
   danger?: boolean;
+  /** Called when the visitor accepts. */
   onConfirm: () => void;
+  /** Called on dismissal, whether by the button, the backdrop, or Escape. */
   onCancel: () => void;
 }) => {
   useEffect(() => {

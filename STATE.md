@@ -10,7 +10,8 @@ Current project status. Read this before starting work. Format and rules: see
   took the style's shape and finally lists EXPORT-PARITY.md, and improvements now travel
   upstream through the report path in AGENTS.md (2026-08-04). Decision 0008 carries the
   reasoning.
-
+- Every export carries the TSDoc convention now, at 162 of 162, with the weight per export
+  following what the convention prescribes rather than applied uniformly (2026-08-04).
 - The source tree moved to one-way sliced layers after the client template in the style
   family, and the repository content path is now checked against the contract
   (2026-08-04). The reasoning is in decisions 0004 and 0005.
@@ -38,8 +39,6 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Deferred
 
-- Bring every export up to the doc-comment convention. The files touched by the layer move
-  carry it; the rest still carry their original informal comments (2026-08-04).
 - A house favicon of its own; the app currently reuses the shared pixel-mark (2026-07-28).
 
 ## Blocked

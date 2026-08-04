@@ -17,6 +17,7 @@ const OPTIONS: { key: Format; label: string; hint: string; icon: typeof FileType
   { key: "json", label: "Document (.json)", hint: "Backup: re-import reproduces it exactly", icon: FileJson2 },
 ];
 
+/** The download control: one document, three formats, one at a time. */
 export const DownloadMenu = ({ doc }: { doc: ResumeDocument }) => {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);

@@ -14,6 +14,7 @@ const inputCls =
   "w-full px-3 py-2 bg-well border border-line rounded-lg text-sm text-ink";
 const labelCls = "text-xs font-medium text-muted";
 
+/** The editor for one entry, showing the fields its section kind actually uses. */
 export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps) => {
   const [showLink, setShowLink] = useState(!!entry.link);
   const set = (patch: Partial<ResumeEntry>) => onChange({ ...entry, ...patch });

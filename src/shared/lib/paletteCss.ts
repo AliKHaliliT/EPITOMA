@@ -2,6 +2,13 @@
 // the app (src/lib/palette.ts) AND by vite.config.ts, which injects the seed
 // palette into index.html at build time so the first paint already matches.
 
+/**
+ * One theme's worth of palette values.
+ *
+ * These keys are the shape of `palette.json` and of the palette carried inside
+ * the portfolio contract, so they are a published format and keep their names
+ * even though the CSS variables they map to are named differently.
+ */
 export interface PaletteMode {
   /** Page ground */
   background: string;
@@ -29,6 +36,7 @@ export interface PaletteMode {
   footerInk: string;
 }
 
+/** Both themes together, which is what a palette actually is. */
 export interface Palette {
   light: PaletteMode;
   dark: PaletteMode;

@@ -10,6 +10,7 @@ import { RAIL_FRAC, luminance, railColors, tint } from "./previewStyles";
 
 // ── geometry ────────────────────────────────────────────────────────────────
 
+/** The sheet's measurements in millimetres, margins and columns included. */
 export interface Geometry {
   pageWmm: number;
   pageHmm: number;
@@ -23,6 +24,13 @@ export interface Geometry {
   mainWmm: number;
 }
 
+/**
+ * Works out the sheet geometry for a style.
+ *
+ * @param style - The document style, which names the page format and margins.
+ *
+ * @returns Every measurement in millimetres, with an unknown page format falling back to A4.
+ */
 export function resolveGeometry(style: ResumeStyle): Geometry {
   const d = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;
   const contentWmm = d.w - style.marginX * 2;
@@ -42,6 +50,7 @@ export function resolveGeometry(style: ResumeStyle): Geometry {
 
 // ── type scale ──────────────────────────────────────────────────────────────
 
+/** Every type size a renderer needs, resolved from the style's base size and offsets. */
 export interface TypeScale {
   basePt: number;
   namePt: number;
@@ -52,6 +61,13 @@ export interface TypeScale {
   nameFont: string; // resolved: falls back to bodyFont
 }
 
+/**
+ * Works out every type size from the style's base size and its offsets.
+ *
+ * @param style - The document style carrying the base size and per-element offsets.
+ *
+ * @returns The resolved scale, with the name font falling back to the body font.
+ */
 export function resolveType(style: ResumeStyle): TypeScale {
   return {
     basePt: style.baseFontSize,
@@ -66,6 +82,7 @@ export function resolveType(style: ResumeStyle): TypeScale {
 
 // ── color decisions ─────────────────────────────────────────────────────────
 
+/** Which color each element actually gets, after the accent switches are applied. */
 export interface ColorPlan {
   accent: string;
   /** Solid page tint when colorScope === "page", else null. */
@@ -83,6 +100,13 @@ export interface ColorPlan {
   accentTint: string;
 }
 
+/**
+ * Decides the color of each element from the accent and its switches.
+ *
+ * @param style - The document style carrying the accent and where it may apply.
+ *
+ * @returns One color per element, so no renderer re-derives them.
+ */
 export function resolveColors(style: ResumeStyle): ColorPlan {
   const rail = railColors(style);
   const headerBg = style.colorScope === "header" ? style.headerFillColor || tint(style.accentColor) : null;
@@ -100,8 +124,10 @@ export function resolveColors(style: ResumeStyle): ColorPlan {
 
 // ── headings ────────────────────────────────────────────────────────────────
 
+/** The rule or fill a section heading is drawn with. */
 export type HeadingDeco = "rule" | "tab" | "plain" | "frame" | "fill" | "edge";
 
+/** A section heading's full presentation: casing, glyph, decoration, spacing. */
 export interface HeadingSpec {
   deco: HeadingDeco;
   uppercase: boolean;
@@ -115,6 +141,13 @@ const DECOS: Record<number, HeadingDeco> = {
   1: "rule", 2: "tab", 3: "plain", 4: "frame", 5: "fill", 6: "edge",
 };
 
+/**
+ * Works out how section headings are drawn.
+ *
+ * @param style - The document style carrying heading casing, glyphs, and decoration.
+ *
+ * @returns The heading presentation every format must reproduce.
+ */
 export function resolveHeading(style: ResumeStyle): HeadingSpec {
   return {
     deco: DECOS[style.headingStyle] ?? "rule",
@@ -132,12 +165,20 @@ export function resolveHeading(style: ResumeStyle): HeadingSpec {
 //   2 "stacked":     title / subtitle (same rules) / date line / location.
 //   3 "one line":    title · subtitle · location · date, all inline.
 
+/** How one entry stacks its title, subtitle, dates, and description. */
 export interface EntrySpec {
   layout: 1 | 2 | 3;
   subtitleInline: boolean;
   subtitleStyle: "normal" | "bold" | "italic";
 }
 
+/**
+ * Works out how one entry stacks its parts.
+ *
+ * @param style - The document style carrying subtitle placement and list form.
+ *
+ * @returns The entry presentation every format must reproduce.
+ */
 export function resolveEntry(style: ResumeStyle): EntrySpec {
   return {
     layout: style.entryLayout,
@@ -148,6 +189,7 @@ export function resolveEntry(style: ResumeStyle): EntrySpec {
 
 // ── section shapes ──────────────────────────────────────────────────────────
 
+/** A section's arrangement, including how a chip group wraps. */
 export type SectionShape =
   | "prose"        // summary, declaration
   | "skill-groups" // Category: a, b, c rows
@@ -163,6 +205,14 @@ export type SectionShape =
   | "entry-rows"   // compact one-line rows (no body)
   | "entry-grid";  // entry rows in a two-column grid
 
+/**
+ * Works out one section's arrangement.
+ *
+ * @param section - The section being drawn, whose layout may override the default.
+ * @param style - The document style, which supplies the fallback layout.
+ *
+ * @returns The arrangement the renderers follow for this section.
+ */
 export function sectionShape(section: ResumeSection): SectionShape {
   const kind = section.customType === "skill" ? "skills" : section.kind;
   const layout = section.layout || "list";
@@ -188,12 +238,21 @@ export function sectionShape(section: ResumeSection): SectionShape {
 
 // ── column regions ──────────────────────────────────────────────────────────
 
+/** Sections divided into the main column and the side rail. */
 export interface RegionSplit {
   mode: ResumeStyle["columns"];
   main: ResumeSection[];
   side: ResumeSection[];
 }
 
+/**
+ * Divides visible sections between the main column and the side rail.
+ *
+ * @param sections - Every section of the document, in document order.
+ * @param style - The document style, which decides whether a rail exists at all.
+ *
+ * @returns The two ordered lists; in single-column mode the rail comes back empty.
+ */
 export function splitRegions(style: ResumeStyle, sections: ResumeSection[]): RegionSplit {
   const visible = sections.filter((s) => s.visible);
   if (style.columns !== "sidebar") return { mode: style.columns, main: visible, side: [] };

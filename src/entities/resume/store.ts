@@ -82,7 +82,22 @@ function mergeEntries(existing: ResumeEntry[], fresh: ResumeEntry[]): ResumeEntr
   return merged;
 }
 
+/**
+ * The document store: every document lives in this browser and nowhere else.
+ *
+ * @example
+ * ```ts
+ * const doc = ResumeService.createDocument("cv", new Date().toISOString(), snapshot)
+ * ResumeService.save(doc)
+ * ```
+ */
 export const ResumeService = {
+  /**
+   * Reads every saved document.
+   *
+   * @returns The stored documents, or an empty list when storage is empty or
+   *   unreadable; a broken store reads as no documents rather than a crash.
+   */
   list(): ResumeDocument[] {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -93,14 +108,35 @@ export const ResumeService = {
     return [];
   },
 
+  /**
+   * Replaces the whole stored collection.
+   *
+   * @param docs - Every document, in the order they should be listed.
+   *
+   * @returns Nothing.
+   */
   saveAll(docs: ResumeDocument[]) {
     safeSetItem(STORAGE_KEY, JSON.stringify(docs));
   },
 
+  /**
+   * Finds one stored document.
+   *
+   * @param id - The document id.
+   *
+   * @returns The document, or undefined when no document carries that id.
+   */
   get(id: string): ResumeDocument | undefined {
     return ResumeService.list().find((d) => d.id === id);
   },
 
+  /**
+   * Writes one document, inserting it at the front when it is new.
+   *
+   * @param doc - The document to persist; its `updatedAt` is stamped here.
+   *
+   * @returns Nothing.
+   */
   save(doc: ResumeDocument) {
     const docs = ResumeService.list();
     const idx = docs.findIndex((d) => d.id === doc.id);
@@ -110,6 +146,13 @@ export const ResumeService = {
     ResumeService.saveAll(docs);
   },
 
+  /**
+   * Deletes one document.
+   *
+   * @param id - The document id; an id that matches nothing is a no-op.
+   *
+   * @returns Nothing.
+   */
   remove(id: string) {
     ResumeService.saveAll(ResumeService.list().filter((d) => d.id !== id));
   },
@@ -141,7 +184,14 @@ export const ResumeService = {
     return doc;
   },
 
-  /** Pure deep copy under a new id/name: no storage access. */
+  /**
+   * Deep-copies a document under a new id and name, touching no storage.
+   *
+   * @param src - The document to copy.
+   * @param nowIso - The moment the copy is made.
+   *
+   * @returns The copy, unsaved.
+   */
   cloneDocument(src: ResumeDocument, nowIso: string): ResumeDocument {
     const now = new Date(nowIso).getTime() || 0;
     return {
@@ -153,7 +203,14 @@ export const ResumeService = {
     };
   },
 
-  /** Duplicate a stored document under a new id/name and persist it. */
+  /**
+   * Copies a stored document and persists the copy.
+   *
+   * @param id - The document to duplicate.
+   * @param nowIso - The moment the copy is made.
+   *
+   * @returns The saved copy, or undefined when the source does not exist.
+   */
   duplicate(id: string, nowIso: string): ResumeDocument | undefined {
     const src = ResumeService.get(id);
     if (!src) return undefined;

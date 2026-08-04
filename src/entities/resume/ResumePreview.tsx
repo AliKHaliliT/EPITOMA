@@ -619,6 +619,12 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
 /** Gap between page sheets in the preview stack, in unscaled px. */
 const PAGE_GAP = 20;
 
+/**
+ * The on-screen sheet: the document as it will print, at a fitted scale.
+ *
+ * This is the reference renderer. The PDF, LaTeX, and Word exporters must
+ * reproduce what it shows, which is what the layout contract exists to enforce.
+ */
 export const ResumePreview = ({ doc, sample, onExitSample }: {
   doc: ResumeDocument;
   /** True when the sheet shows the fixed sample document, not the record. */

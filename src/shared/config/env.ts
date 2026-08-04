@@ -12,6 +12,7 @@ export interface Env {
   readonly baseUrl: string;
 }
 
+/** The frozen configuration every other module reads instead of the import. */
 export const env: Env = Object.freeze({
   baseUrl: import.meta.env.BASE_URL,
 });

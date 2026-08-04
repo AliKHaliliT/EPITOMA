@@ -270,6 +270,13 @@ function headerHtml(doc: ResumeDocument, colors: ColorPlan): string {
 
 // ── document assembly ───────────────────────────────────────────────────────
 
+/**
+ * Renders a document as the Word-compatible HTML a `.doc` file contains.
+ *
+ * @param doc - The document to render.
+ *
+ * @returns One HTML document carrying the Word page setup in its head.
+ */
 export function documentToWordHtml(doc: ResumeDocument): string {
   const { style } = doc;
   const g = resolveGeometry(style);
@@ -362,6 +369,13 @@ ${footerDiv}
 </html>`;
 }
 
+/**
+ * Renders a document to Word HTML and hands it to the browser as a download.
+ *
+ * @param doc - The document to export; its name becomes the filename.
+ *
+ * @returns Nothing.
+ */
 export function exportWord(doc: ResumeDocument) {
   downloadFile(`${slugify(doc.name)}.doc`, "application/msword", documentToWordHtml(doc));
 }

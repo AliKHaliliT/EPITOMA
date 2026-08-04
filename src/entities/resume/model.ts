@@ -4,8 +4,10 @@
 // content via ContentService, then edited locally. "Sync from website" refreshes
 // only the synced content; structure and style persist. See resumeService.ts.
 
+/** Which of the two document shapes a file is; they differ only in default sections. */
 export type DocumentKind = "resume" | "cv";
 
+/** The section vocabulary. Every kind but `custom` maps to one portfolio collection. */
 export type SectionKind =
   | "summary"
   | "experience"
@@ -45,8 +47,10 @@ export interface ResumeEntry {
   meta?: Record<string, unknown>;
 }
 
+/** How a section arranges its entries on the page. */
 export type SectionLayout = "list" | "grid" | "rows" | "compact" | "bubble" | "dots";
 
+/** One section of a document: its heading, its arrangement, and its entries. */
 export interface ResumeSection {
   id: string;
   kind: SectionKind;
@@ -66,6 +70,7 @@ export interface ResumeSection {
   entries: ResumeEntry[];
 }
 
+/** One labelled link in the document header. */
 export interface PersonalLink {
   /** Stable list key; optional because links saved before it existed lack one. */
   id?: string;
@@ -89,18 +94,31 @@ export interface PersonalDetails {
 
 // ── Style ───────────────────────────────────────────────────────────────────
 
+/** Whether the sheet is a single column or splits into main and side regions. */
 export type ColumnMode = "one" | "two" | "mix" | "sidebar";
+/** How much color the document uses, independent of the app's own theme. */
 export type PaletteMode = "single" | "image";
+/** Which parts of the sheet the accent color is allowed to reach. */
 export type ColorScope = "page" | "header" | "border";
+/** Letter casing applied to section headings. */
 export type HeadingCase = "capitalize" | "uppercase";
+/** Whether section headings carry their glyph. */
 export type HeadingIcons = "none" | "outline" | "filled";
+/** How an entry's subtitle is distinguished from its title. */
 export type SubtitleStyle = "normal" | "bold" | "italic";
+/** Whether the subtitle shares the title's line or sits below it. */
 export type SubtitlePlacement = "same" | "next";
+/** The bullet form used inside entry descriptions. */
 export type ListStyle = "bullet" | "hyphen";
+/** Where the document header sits across the page width. */
 export type HeaderAlign = "left" | "center";
+/** How the header's contact details are laid out. */
 export type HeaderDetails = "icon" | "bullet" | "bar";
+/** How a header link is presented, as a glyph, a label, or both. */
 export type LinkIconStyle = "chain" | "external";
+/** The frame a header portrait is cropped to. */
 export type PhotoShape = "circle" | "square" | "rounded";
+/** The printed sheet size, which drives the preview's cut guides too. */
 export type PageFormat = "A3" | "A4" | "A5" | "Letter" | "Legal";
 
 /** One source of truth for physical page sizes; every renderer and exporter
@@ -116,6 +134,7 @@ export const PAGE_DIMS: Record<
   Legal: { w: 216, h: 356, css: "legal", latex: "legalpaper" },
 };
 
+/** The switches that decide where the accent color actually lands. */
 export interface AccentApply {
   name: boolean;
   jobTitle: boolean;
@@ -127,6 +146,7 @@ export interface AccentApply {
   linkIcons: boolean;
 }
 
+/** Every per-document visual choice the Customize panel writes. */
 export interface ResumeStyle {
   // Document
   language: string;
@@ -195,6 +215,7 @@ export interface ResumeStyle {
   showPageNumbers: boolean;
 }
 
+/** A whole document: its metadata, its header, its sections, and its style. */
 export interface ResumeDocument {
   id: string;
   name: string;

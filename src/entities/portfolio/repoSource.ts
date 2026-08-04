@@ -51,6 +51,12 @@ const TYPE_DIRS: Record<string, string> = {
 
 // --- config -------------------------------------------------------------------
 
+/**
+ * Reads the saved repository connection.
+ *
+ * @returns The stored reference, or null when none is saved or the stored value
+ *   is incomplete; a half-written connection is treated as no connection.
+ */
 export function loadRepoRef(): RepoRef | null {
   try {
     const raw = localStorage.getItem(CONFIG_KEY);
@@ -62,10 +68,22 @@ export function loadRepoRef(): RepoRef | null {
   }
 }
 
+/**
+ * Remembers a repository connection for this browser.
+ *
+ * @param ref - The owner, repository, and branch to fetch seeds from.
+ *
+ * @returns Nothing.
+ */
 export function saveRepoRef(ref: RepoRef): void {
   safeSetItem(CONFIG_KEY, JSON.stringify(ref));
 }
 
+/**
+ * Forgets the saved repository connection.
+ *
+ * @returns Nothing.
+ */
 export function clearRepoRef(): void {
   localStorage.removeItem(CONFIG_KEY);
 }

@@ -17,6 +17,7 @@ const GRID_ORDER: SectionKind[] = [
   "speaking", "volunteering", "blog", "garden", "references", "declaration",
 ];
 
+/** The picker for adding a section, offering only kinds not already present. */
 export const AddSectionModal = ({ isOpen, onClose, onAdd, existingKinds }: AddSectionModalProps) => {
   if (!isOpen) return null;
 

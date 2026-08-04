@@ -73,6 +73,7 @@ const absUrl = (path: string, website?: string): string => {
 
 // ── Section catalog ───────────────────────────────────────────────────────
 
+/** What a section kind is called, which glyph it wears, and where it belongs. */
 export interface CatalogMeta {
   label: string;
   icon: string; // lucide icon name
@@ -84,6 +85,7 @@ export interface CatalogMeta {
   subtitle: string; // short description for the Add Content modal
 }
 
+/** The catalog of every section kind, and the single source of their labels. */
 export const SECTION_CATALOG: Record<SectionKind, CatalogMeta> = {
   summary: { label: "Summary", icon: "AlignLeft", defaultHeading: "Summary", source: "settings", subtitle: "A short professional summary or objective." },
   experience: { label: "Experience", icon: "Briefcase", defaultHeading: "Experience", source: "experience", subtitle: "Roles, companies, and what you did." },
@@ -271,6 +273,7 @@ const RESUME_SECTIONS: DefaultSpec[] = [
   { kind: "languages" },
 ];
 
+/** Which sections a new document starts with; the only difference between a resume and a CV. */
 export const DEFAULT_SECTION_SPECS: Record<DocumentKind, DefaultSpec[]> = {
   cv: CV_SECTIONS,
   resume: RESUME_SECTIONS,
@@ -326,6 +329,7 @@ export function buildSection(
 
 // ── Default style + presets ──────────────────────────────────────────────
 
+/** The style a new document starts with, before any Customize edit. */
 export const DEFAULT_STYLE: ResumeStyle = {
   language: "English",
   dateFormat: "MMM YYYY",
@@ -394,9 +398,11 @@ export const DEFAULT_STYLE: ResumeStyle = {
 const SIDE_KINDS = new Set([
   "skills", "languages", "interests", "certificates", "awards", "references", "organizations",
 ]);
+/** Which column a section belongs to, honoring its override before the default. */
 export const sectionRegion = (s: ResumeSection): "main" | "side" =>
   s.region ?? (s.customType === "skill" || SIDE_KINDS.has(s.kind) ? "side" : "main");
 
+/** A named starting point: a style, a description, and a schematic thumbnail. */
 export interface TemplatePreset {
   key: string;
   label: string;
@@ -406,6 +412,7 @@ export interface TemplatePreset {
   style: Partial<ResumeStyle>;
 }
 
+/** The template gallery, each entry a complete style a document can adopt. */
 export const TEMPLATE_PRESETS: TemplatePreset[] = [
   {
     key: "classic",
@@ -539,6 +546,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   },
 ];
 
+/** One selectable document font and the stack it resolves to. */
 export interface FontOption {
   label: string;
   /** CSS font-family stack. */
@@ -550,6 +558,7 @@ export interface FontOption {
 // Every family here is libre (SIL OFL or Apache 2.0) and loads from Google
 // Fonts at runtime; nothing proprietary is named, so documents render the
 // same everywhere and the template stays permissively licensed end to end.
+/** The document font catalog, all of it permissively licensed so documents render everywhere. */
 export const FONT_OPTIONS: FontOption[] = [
   { label: "Inter", stack: "'Inter', system-ui, sans-serif", google: "Inter:wght@400;500;600;700" },
   { label: "Source Sans 3", stack: "'Source Sans 3', system-ui, sans-serif", google: "Source+Sans+3:wght@400;600;700" },
@@ -561,6 +570,7 @@ export const FONT_OPTIONS: FontOption[] = [
   { label: "Source Serif 4", stack: "'Source Serif 4', Georgia, serif", google: "Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" },
 ];
 
+/** The CSS font stack for a catalog font label, falling back to a generic family. */
 export const fontStack = (label: string): string =>
   FONT_OPTIONS.find((f) => f.label === label)?.stack || FONT_OPTIONS[0].stack;
 
@@ -570,6 +580,7 @@ export const fontStack = (label: string): string =>
 // portrait is the ecosystem's own hand-drawn SVG (original artwork; nothing
 // here carries a restrictive license).
 
+/** The hand-drawn portrait used by template thumbnails, so no real photo ships. */
 export const SAMPLE_PHOTO =
   "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMyMjFiMTQiLz4gPGNpcmNsZSBjeD0iMjIiIGN5PSIyNCIgcj0iMS40IiBmaWxsPSIjZjBlN2Q4IiBvcGFjaXR5PSIwLjUiLz4gPGNpcmNsZSBjeD0iMTAyIiBjeT0iNjYiIHI9IjEuMSIgZmlsbD0iI2YwZTdkOCIgb3BhY2l0eT0iMC4zNSIvPiA8Y2lyY2xlIGN4PSIxNCIgY3k9Ijc4IiByPSIxLjIiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuMyIvPiA8Y2lyY2xlIGN4PSI5NSIgY3k9IjE0IiByPSIxLjMiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuNDUiLz4gPHBhdGggZD0iTTE4IDEyMCBDMTggODYgMzggNzAgNjAgNzAgQzgyIDcwIDEwMiA4NiAxMDIgMTIwIFoiIGZpbGw9IiM0YTNiMmEiLz4gPHBhdGggZD0iTTYwIDE0IEM0MCAxNCAzMCAzOCAzMiA2MCBDNDAgNTIgNTAgNDcgNjAgNDcgQzcwIDQ3IDgwIDUyIDg4IDYwIEM5MCAzOCA4MCAxNCA2MCAxNCBaIiBmaWxsPSIjNWM0YTMzIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNTIiIHI9IjE1IiBmaWxsPSIjMTUwZjBhIi8+IDxjaXJjbGUgY3g9IjU0IiBjeT0iNTEiIHI9IjIuNiIgZmlsbD0iI2ZmYjA2NiIvPiA8Y2lyY2xlIGN4PSI2NiIgY3k9IjUxIiByPSIyLjYiIGZpbGw9IiNmZmIwNjYiLz4gPHBhdGggZD0iTTg5IDI0IGwyLjQgNi40IDYuNCAyLjQgLTYuNCAyLjQgLTIuNCA2LjQgLTIuNCAtNi40IC02LjQgLTIuNCA2LjQgLTIuNCBaIiBmaWxsPSIjZmY4YTUwIi8+IDxjaXJjbGUgY3g9IjMxIiBjeT0iNDIiIHI9IjEuNiIgZmlsbD0iI2ZmOGE1MCIgb3BhY2l0eT0iMC43Ii8+IDwvc3ZnPg==";
 

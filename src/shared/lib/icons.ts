@@ -32,6 +32,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+/**
+ * The glyphs a section heading may carry, keyed by the name a document stores.
+ *
+ * Documents persist the name rather than the component, so this map is what
+ * turns a saved document back into something renderable.
+ */
 export const RESUME_ICONS: Record<string, LucideIcon> = {
   AlignLeft, Briefcase, GraduationCap, BookOpen, Trophy, BookMarked, Mic2,
   Heart, BadgeCheck, Building2, Users, FolderOpen, Smile, Wrench, Globe,

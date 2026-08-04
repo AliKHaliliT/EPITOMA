@@ -64,6 +64,7 @@ const SWATCHES = [
   "#0891b2", "#4f46e5", "#db2777", "#374151", "#111827", "#a16207",
 ];
 
+/** The Customize tab: templates, type, color, layout, and section arrangement. */
 export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSectionsChange, sampleMode, onSampleModeChange }: CustomizePanelProps) => {
   const [pane, setPane] = useState<Pane>("templates");
   const [confirmResetAll, setConfirmResetAll] = useState(false);

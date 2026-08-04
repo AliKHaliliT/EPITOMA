@@ -15,6 +15,7 @@ const labelCls = "text-xs font-medium text-muted";
 const BASIC_CHIPS = ["Nationality", "Date of Birth", "Availability", "Work Mode"];
 const MORE_CHIPS = ["Gender / Pronouns", "Visa", "Passport / ID", "Disability", "Expected Salary"];
 
+/** The editor for the document header: name, contact details, and links. */
 export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEditorProps) => {
   const [showMore, setShowMore] = useState(false);
   const set = (patch: Partial<PersonalDetails>) => onChange({ ...personal, ...patch });

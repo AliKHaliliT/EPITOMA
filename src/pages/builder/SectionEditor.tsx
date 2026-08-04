@@ -18,6 +18,7 @@ const uid = () =>
 const inputCls =
   "w-full px-3 py-2 bg-well border border-line rounded-lg text-sm text-ink";
 
+/** The editor for one section: its heading, its arrangement, and its entries. */
 export const SectionEditor = ({ section, onChange }: SectionEditorProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
