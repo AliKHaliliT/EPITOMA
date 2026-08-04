@@ -31,9 +31,6 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Next
 
-- Restructure the README to the baseline's ten-section schema (Philosophy, Domain,
-  Pillars, Structure stems), keeping the builder's guide sections as organic content
-  (2026-08-04).
 - Exercise the full import-sync-export loop against a portfolio.json produced by the
   current VITA demo seed (2026-07-28).
 

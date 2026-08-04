@@ -16,6 +16,22 @@ The builder runs as a single React and Vite page with no server, and your docume
 
 ---
 
+## The Philosophy: Why Does This Exist?
+
+A CV is where a personal record goes out of date first. It gets written once, diverges from the site within a month, and then exists as a document nobody can regenerate, because the facts were retyped rather than referenced. Every fix has to be made twice, so eventually it is made once.
+
+EPITOMA exists to make the document derived rather than authored. Content comes from the record and is refreshed on demand; what you own is the structure and the styling, which is the part a resume actually is. The split is the whole design: a sync updates the facts and never touches your ordering, your custom sections, or your look. And because a document is only worth having as a file someone can open, the same document exports as PDF, LaTeX, and Word, all agreeing with what the screen showed.
+
+---
+
+## The Domain: Why a Document Renderer?
+
+Rendering the same document four ways is a harsher constraint than it sounds, and it is the reason this domain is worth building against. The preview is DOM, the PDF is react-pdf primitives, Word is a dialect of HTML, and LaTeX is a typesetting language, so the four share no rendering model at all. Nothing but an explicit contract can keep a margin, a heading rule, or a subtitle placement meaning the same thing in all of them.
+
+The rest follows from being read-only and having no server. Content arrives either as an imported file or as seed files fetched from a public repository, so there are two doors and neither is trusted. Documents live in the browser, so the store is localStorage and the sync is a merge on source ids rather than a query. A domain with one output format and a backend would have hidden every one of those problems.
+
+---
+
 ## The ecosystem
 
 EPITOMA is one of three sister repositories.
@@ -40,7 +56,35 @@ Every styling decision resolves through a single layout contract shared by the p
 
 ---
 
-## Features
+## Core Architectural Pillars
+
+1. **Content is derived, structure is owned.** A sync refreshes synced sections by merging on source ids, keeping each surviving entry's hidden flag and order, dropping removed items, and appending new ones. Custom sections, section order, headings, and style are never touched.
+2. **One layout contract, four renderers.** Every geometry, type, color, and heading decision resolves in one place that the preview and all three exporters read. A characterization suite pins the agreement, because four rendering models cannot be kept honest by discipline alone.
+3. **Imports point downward, and a linter says so.** The source tree is five sliced layers, `app -> pages -> features -> entities -> shared`, entered only through each slice's own door. The page geometry lives with the resume entity precisely so the preview never has to import a feature.
+4. **Both doors are checked.** An uploaded snapshot is validated whole before it is stored and again on every read; an item rebuilt from a fetched seed file is checked per item, naming the file when it fails.
+5. **Nothing leaves the browser.** Documents live in localStorage, the PDF is generated client-side with the catalog fonts embedded, and reading a public repository needs no token. The hosted demo is the entire application.
+
+---
+
+## Project Structure
+
+```text
+epitoma/
+├── AGENTS.md              # Agent entry point and the single documentation index
+├── docs/                  # Technical documentation, indexed in AGENTS.md
+└── src/
+    ├── app/               # Composition root: bootstrap, providers, chrome, tokens
+    ├── pages/             # The one page, and everything only it composes
+    ├── features/          # export-document (PDF, LaTeX, Word)
+    ├── entities/          # resume (model, store, geometry, preview), portfolio (the imported snapshot)
+    └── shared/            # contract (the cross-repo format), config, lib, ui, testing
+```
+
+The annotated map of the whole system lives in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), and the format-by-format agreement in [`docs/EXPORT-PARITY.md`](docs/EXPORT-PARITY.md).
+
+---
+
+## Key Features
 
 - **Two content sources, both read-only.** You can import a `portfolio.json` exported by the admin panel, or point the Repo button at any public VITA repository and let Sync pull the profile, palette, and content straight from its head. It needs no token because it never writes anywhere.
 - **Sync that respects your edits.** Refreshing matches content by source id, so your section order, hidden entries, custom sections, and styling all survive it.
@@ -54,7 +98,7 @@ Every styling decision resolves through a single layout contract shared by the p
 
 ---
 
-## Getting started
+## Getting Started
 
 The [hosted builder](https://alikhalilit.github.io/EPITOMA/) works as it stands. Click Repo and point it at a public VITA repository, or import a `portfolio.json` produced by the [admin panel](https://github.com/AliKHaliliT/TABULARIUM), then create a Resume or CV. A blank document works too and can be filled in by hand.
 
