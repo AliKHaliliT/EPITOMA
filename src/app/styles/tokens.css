@@ -1,0 +1,78 @@
+/*
+ * The design tokens, and the only place a color is written down.
+ *
+ * Every token here becomes a Tailwind utility (--color-card gives bg-card,
+ * --radius-ctl gives rounded-ctl), which is how components are able to speak
+ * in tokens instead of raw values. The dark block below re-points the same
+ * names, so a component never names a theme. The builder shares this palette
+ * with its sibling repositories by seed file, not by import.
+ */
+
+@theme {
+  --font-sans: "Switzer", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+
+  /*
+   * Dossier palette: default preset: "Rangefinder" (international orange
+   * on stone gray, glacier-blue ornament). The full preset catalog and the
+   * runtime override mechanism live in src/lib/palette.ts (Admin →
+   * Appearance); these literals are what ships before any override.
+   * Every text/ground pair meets WCAG AA in both themes.
+   */
+  --color-background: #f0efeb;
+  --color-card: #faf9f6;
+  --color-text-primary: #191713;
+  --color-text-secondary: #6b675e;
+  --color-border: #d3d0c7; /* hairline: usually drawn dashed */
+  --color-border-strong: #a8a496;
+  --color-input-bg: #faf9f6;
+
+  /* Accents: signal is the working accent (links, active states, focus);
+     field is its loud fill twin (highlights, pixel bands, dots);
+     pulse is a decorative counterpoint. Canopy is a legacy alias of
+     signal so older call sites stay coherent. */
+  --color-signal: #bc4a10;
+  --color-canopy: #bc4a10;
+  --color-field: #ff6b2e;
+  --color-pulse: #7fb5c9;
+  --color-footer: #171512;
+  --color-footer-ink: #f0ede6;
+
+  /* Radius policy: data is square, actions are round. ctl = chips/inputs
+     (3px), card = surfaces (6px); pills and circles use rounded-full. */
+  --radius-ctl: 0.1875rem;
+  --radius-card: 0.375rem;
+
+  /* Shadow policy: borders do the structure. lift = sticky stack cards,
+     overlay = modals/search. Nothing else casts a shadow. */
+  --shadow-lift: 0 24px 48px -24px rgb(23 19 11 / 0.28);
+  --shadow-overlay: 0 24px 60px -12px rgb(23 19 11 / 0.35);
+
+  /* Type scale accents (everything else uses the default scale) */
+  --text-display: clamp(2rem, 1.2rem + 3.4vw, 3.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.025em;
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1.2;
+  --text-eyebrow--letter-spacing: 0.12em;
+}
+
+/* Dark Mode Overrides */
+:root.dark {
+  --color-background: #131110;
+  --color-card: #1b1815;
+  --color-text-primary: #efeae3;
+  --color-text-secondary: #a49c8f;
+  --color-border: #37312a;
+  --color-border-strong: #584f43;
+  --color-input-bg: #100e0c; /* darker than cards so inputs read as wells */
+  --color-signal: #ff8a50;
+  --color-canopy: #ff8a50;
+  --color-field: #ff7038;
+  --color-pulse: #8fc3d8;
+  --color-footer: #0f0d0b;
+  --color-footer-ink: #f0ede6;
+  --shadow-lift: 0 24px 48px -24px rgb(0 0 0 / 0.6);
+  --shadow-overlay: 0 24px 60px -12px rgb(0 0 0 / 0.65);
+}

@@ -6,6 +6,19 @@ Changelog; the Unreleased section is the staging area until the first version is
 
 ## Unreleased
 
+### Changed
+
+- Restructured the source tree into one-way sliced layers
+  (`app -> pages -> features -> entities -> shared`), each slice entered through its own
+  public door, with the composition root split into a bootstrap, a provider stack, and the
+  chrome. The page geometry moved to the resume entity so the preview no longer depends on
+  the export stack, and the builder state hook moved to the page that owns it. Suites moved
+  to a `tests/` tree mirroring `src/`.
+- Seed files fetched from a connected repository are now checked against the contract per
+  item. A file whose frontmatter cannot produce a valid item fails with its own path named,
+  instead of being asserted into shape and breaking a resume section later. An uploaded
+  `portfolio.json` was already checked whole and still is.
+
 ### Added
 
 - The builder as a standalone app, extracted from the VITA repository: document list,
@@ -77,7 +90,7 @@ Changelog; the Unreleased section is the staging area until the first version is
   structure so the Layout and Sections panes act on what the sheet shows, and renaming
   happens in place on the document selector.
 - Export parity, engineered instead of hoped for: a single layout contract
-  (`src/export/layout.ts`) resolves geometry, colors, heading decorations, entry
+  (`src/entities/resume/layout.ts`) resolves geometry, colors, heading decorations, entry
   composition, section shapes, and column regions once, and the Word and LaTeX
   renderers are structural translations of it. Word gets real tables instead of
   ignored flexbox, a shaded sidebar rail, chip and dot renderings, and a true footer
@@ -85,7 +98,7 @@ Changelog; the Unreleased section is the staging area until the first version is
   layouts, `multicols`/`paracol` columns with the rail fill, chips, dots, localized
   dates, and a ready fontspec block for exact fonts. `docs/EXPORT-PARITY.md` maps
   every feature to every format and lists the few deliberate divergences;
-  `src/export/parity.test.ts` pins the renderers to the contract.
+  `tests/src/features/export-document/parity.test.ts` pins the renderers to the contract.
 
 - The PDF exports directly: one click produces the file, no print window, no dialog,
   and no printer driver deciding the margins. The document is rendered in the browser

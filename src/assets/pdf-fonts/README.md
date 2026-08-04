@@ -5,7 +5,7 @@ directly generated PDFs so the exported file carries the exact typography on
 any machine, any language the builder supports (the full files include
 Latin-Extended for Turkish and Azerbaijani).
 
-Every family is libre, matching the catalog rule in `src/lib/resumeDefaults.ts`:
+Every family is libre, matching the catalog rule in `src/entities/resume/defaults.ts`:
 
 | Family | License |
 | --- | --- |

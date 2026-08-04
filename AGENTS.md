@@ -42,11 +42,26 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   (see [docs/BASELINE.md](docs/BASELINE.md)); read it when it exists, create it when first
   needed, and when unsure whether a fact is sensitive, ask the owner instead of recording
   it.
+- **The layer rule is absolute.** Imports point downward through
+  `app -> pages -> features -> entities -> shared`, never up or sideways. A slice is
+  entered only through its `index.ts` (suites excepted), and same-layer slices never
+  import each other; a concern spanning two of them moves up a layer. The page geometry
+  stays with the resume entity because the preview and the exporters both measure it. See
+  [decision 0004](docs/decisions/0004-build-the-builder-as-one-way-sliced-layers.md).
+- **Content is checked at the door.** An uploaded snapshot passes `isPortfolioSnapshot`;
+  an item rebuilt from a fetched seed file passes `validatePortfolioItem`. Never widen a
+  type with a cast to make remote content fit. See
+  [decision 0005](docs/decisions/0005-check-fetched-seed-files-against-the-contract.md).
+- **Colors come from the tokens** in `src/app/styles/tokens.css`, reached either as a token
+  utility or as the variable; never hardcode a color and never reach for a raw palette
+  class. The sheet itself is the deliberate exception, noted below.
+- **The environment is read only through `shared/config`.** No other module touches
+  `import.meta.env`.
 - **Motion runs behind `LazyMotion` strict** with the `domMax` feature set (the `Reorder`
   drag lists need it): always import and use `m.` from framer-motion, never `motion.`.
 - **Self-containment.** This app imports only npm packages plus its own `src/`. It carries
   its own copies of shared helpers and the portfolio contract
-  (`src/types/portfolio.ts`); nothing is imported from the sister repos, and the
+  (`src/shared/contract/portfolio.ts`); nothing is imported from the sister repos, and the
   `format`/`version` fields of the contract keep the sides honest.
 - **Content arrives only through `portfolio.json`.** There is no live content source; with
   no import, new documents are blank and Sync is disabled with guidance.

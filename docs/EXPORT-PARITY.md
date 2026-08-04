@@ -8,12 +8,12 @@ rather than discovered by the user.
 ## Architecture
 
 Every export is a structural renderer over one shared decision layer,
-`src/export/layout.ts`, which resolves every layout decision exactly once:
+`src/entities/resume/layout.ts`, which resolves every layout decision exactly once:
 geometry, the type scale, color decisions (including dark-fill ink flipping),
 heading decorations, entry composition, section body shapes, column regions,
 and proficiency ratings. The renderers translate those decisions into what
 each format can express; none of them re-decides anything.
-`src/export/parity.test.ts` pins the renderers to the contract.
+`tests/src/features/export-document/parity.test.ts` pins the renderers to the contract.
 
 - **PDF: generated directly, one click, no print dialog.** The document is
   rendered by @react-pdf's layout engine in the browser and downloaded as a

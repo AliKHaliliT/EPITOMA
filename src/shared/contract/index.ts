@@ -1,0 +1,2 @@
+export type { PortfolioAward, PortfolioBlogPost, PortfolioCertificate, PortfolioCourse, PortfolioEducation, PortfolioExperience, PortfolioGardenPost, PortfolioInterest, PortfolioItem, PortfolioOrganization, PortfolioPalette, PortfolioProject, PortfolioPublication, PortfolioReference, PortfolioSettings, PortfolioSnapshot, PortfolioSpeaking, PortfolioVolunteering } from "./portfolio";
+export { PORTFOLIO_FORMAT, PORTFOLIO_VERSION, PortfolioContractError, isPortfolioSnapshot, validatePortfolioItem } from "./portfolio";

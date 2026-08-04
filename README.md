@@ -26,7 +26,7 @@ EPITOMA is one of three sister repositories.
 | [**TABULARIUM**](https://github.com/AliKHaliliT/TABULARIUM) | Edits every ledger and publishes the seed files | [alikhalilit.github.io/TABULARIUM](https://alikhalilit.github.io/TABULARIUM/) |
 | **EPITOMA** (this repo) | Condenses the record into resumes and CVs | [alikhalilit.github.io/EPITOMA](https://alikhalilit.github.io/EPITOMA/) |
 
-The three apps talk through files rather than imports, and this repo carries its own copy of the snapshot contract in `src/types/portfolio.ts`, versioned under the `vita-portfolio` format name.
+The three apps talk through files rather than imports, and this repo carries its own copy of the snapshot contract in `src/shared/contract/portfolio.ts`, versioned under the `vita-portfolio` format name.
 
 ---
 
