@@ -5,6 +5,12 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Now
 
+- The documentation system is the client style's own: the rulebook is a byte-identical
+  copy of the Helm template's, the changelog is gone with its trigger unmet, the index
+  took the style's shape and finally lists EXPORT-PARITY.md, and improvements now travel
+  upstream through the report path in AGENTS.md (2026-08-04). Decision 0008 carries the
+  reasoning.
+
 - The source tree moved to one-way sliced layers after the client template in the style
   family, and the repository content path is now checked against the contract
   (2026-08-04). The reasoning is in decisions 0004 and 0005.
@@ -24,6 +30,9 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Next
 
+- Restructure the README to the baseline's ten-section schema (Philosophy, Domain,
+  Pillars, Structure stems), keeping the builder's guide sections as organic content
+  (2026-08-04).
 - Exercise the full import-sync-export loop against a portfolio.json produced by the
   current VITA demo seed (2026-07-28).
 

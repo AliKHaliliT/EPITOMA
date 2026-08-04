@@ -20,8 +20,9 @@ the indexed document that covers whatever you are about to touch.
 | `npm run lint` | ESLint |
 | `npx tsc -b` | Type-check all projects (the root tsconfig is solution-style; a plain `tsc --noEmit` checks nothing) |
 
-Run `npm test` after touching `resumeService` or `portfolio/source`: those suites pin the
-document sync semantics and the import validation.
+Run `npm test` after touching the resume entity's `store`, the portfolio `source`, or the
+export stack: those suites pin the document sync semantics, the import validation, and the
+cross-format export parity.
 
 ## Hard rules
 
@@ -59,6 +60,13 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   variable itself appears. The sheet itself is the deliberate exception, noted below.
 - **The environment is read only through `shared/config`.** No other module touches
   `import.meta.env`.
+- **Follow the doc-comment convention** in the [README's Conventions section](README.md#conventions)
+  and the documentation rules in [docs/CONVENTIONS.md](docs/CONVENTIONS.md); the latter is
+  frozen and must not be edited.
+- **The documentation rulebook is owned by the style.** [docs/CONVENTIONS.md](docs/CONVENTIONS.md)
+  changes only in the Helm template inside the My-Styles repository, never here, and this
+  project never diverges from its copy. A rule believed wrong or missing goes upstream
+  instead (see [The upstream report](#the-upstream-report)).
 - **Motion runs behind `LazyMotion` strict** with the `domMax` feature set (the `Reorder`
   drag lists need it): always import and use `m.` from framer-motion, never `motion.`.
 - **Self-containment.** This app imports only npm packages plus its own `src/`. It carries
@@ -73,19 +81,37 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
 - **Markdown formatting.** Every fenced block gets a language identifier; lists and fences
   are surrounded by blank lines (MD031, MD032, MD040).
 
+## The upstream report
+
+This project follows the Helm client style from the [My-Styles](https://github.com/AliKHaliliT/My-Styles)
+repository, and the rulebook it lives under is owned there. When work here surfaces
+something the style itself should have had, the improvement is not kept as a local
+advantage. Check the template's decision records first, and if the idea was already
+considered and rejected there, drop it unless new evidence exists. Otherwise write a
+self-contained report entry stating what the improvement is, how it surfaced, why it is
+believed better than what the template does today, and that the template's logs hold no
+prior ruling, and close it by telling the receiver to verify the claim with research
+before adopting it. Then send it upstream. The owner points an agent at the template with
+the report; anyone else files it as an issue on My-Styles. The full workflow, including
+the qualification gate and the final alignment check that follows integration, is defined
+in the template's AGENTS.md.
+
 ## Documentation index
 
-A document that is not listed here does not exist: no reader can be expected to find it.
-Register a new document in this table in the same change that creates it.
+This is the single index of the project's technical documentation. A document that is not
+listed here does not exist as far as this project is concerned: when you create a
+document, register it here in the same change; when you remove one, delist it here.
 
-| Document | Species | Read it when |
-| -------- | ------- | ------------ |
-| [STATE.md](STATE.md) | living | Always first: what is Now, Next, Deferred, or Blocked |
-| [README.md](README.md) | living | Human-facing overview and getting started |
-| [CHANGELOG.md](CHANGELOG.md) | records | What shipped, per release |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | living | Before any structural change: data model, bridge, export |
-| [docs/BASELINE.md](docs/BASELINE.md) | living | Which root files must exist, which are never tracked, and why |
-| [docs/CONVENTIONS.md](docs/CONVENTIONS.md) | living, frozen | Before writing any document: the rulebook, never edited directly |
-| [docs/decisions/](docs/decisions/) | records | Why a durable choice was made; cite by number, never edit |
+| Document | What it is and when to read it |
+| --- | --- |
+| [README.md](README.md) | Human-facing overview: philosophy, structure, setup, and the doc-comment convention. |
+| [STATE.md](STATE.md) | Living project state (Now / Next / Deferred / Blocked). Read first, always. |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The annotated map of the whole builder. Read before any structural change. |
+| [docs/CONVENTIONS.md](docs/CONVENTIONS.md) | The documentation rulebook: document species, schemas, naming. Frozen; owned by the style. Read before writing or changing any documentation. |
+| [docs/BASELINE.md](docs/BASELINE.md) | The repository baseline: always-present files, never-tracked files, and their modification rules. Read before adding, removing, or reshaping root-level or dot files. |
+| [docs/EXPORT-PARITY.md](docs/EXPORT-PARITY.md) | The cross-format export contract: what the preview, PDF, LaTeX, and Word outputs must agree on. Read before touching any exporter. |
+| [docs/decisions/](docs/decisions/) | Immutable decision records holding the project's "why". Read the relevant record before revisiting a settled topic; never edit an accepted record. |
 
-There are no assistant-specific instruction files: every agent reads this one.
+There are no assistant-specific instruction files: every assistant reads this file
+directly. If a tool genuinely cannot read AGENTS.md, give it a one-line shim that imports
+or points to this file and nothing more.

@@ -1,6 +1,6 @@
 # 0001. Adopt the two-species documentation system
 
-Status: Accepted
+Status: Superseded by [0008](0008-adopt-the-client-styles-documentation-system.md)
 Date: 2026-07-28
 
 ## Context

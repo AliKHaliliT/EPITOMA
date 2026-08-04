@@ -65,9 +65,25 @@ npm install
 npm run dev
 ```
 
-The app opens on port 3200. VITA runs on 3000 and TABULARIUM on 3100, so all three run side by side. The hosted builder always runs the latest release; a local clone catches up with an ordinary `git pull`.
+The app opens on port 3200. VITA runs on 3000 and TABULARIUM on 3100, so all three run side by side. The hosted builder always runs the latest build; a local clone catches up with an ordinary `git pull`.
 
 Contributors and coding agents should start at [`AGENTS.md`](AGENTS.md), which is the vendor-neutral entry point and the full documentation index.
+
+---
+
+## Conventions
+
+Documentation follows **TSDoc**, carrying the family's docstring discipline into TypeScript. Every exported symbol opens with a one-sentence summary. Where a function warrants full documentation, `@param` (one per parameter) and `@returns` are always present, writing `Nothing.` for a void return, and `@throws` lists every error thrown directly in the function's own body, including the defensive guards; an error that merely propagates from a callee is documented on the callee, and the absence of `@throws` on a fully documented function is itself the assertion that nothing is thrown directly. Complex components and services carry an `@example` block with a minimal, runnable snippet, serving the role the family's `Usage` section serves in Python.
+
+Not everything is documented that heavily, by design. Thin mappers keep a one-line summary, page components carry a single sentence stating what they compose, and props are documented as field comments on the props interface rather than in a tag block. The boundary is documented in full where its failure modes live, so the portfolio source states what an import must satisfy and the repository loader names the seed file a fetched value fails on.
+
+The rest of the TSDoc vocabulary is used where it fits and omitted where it does not: a caveat becomes a `@remarks` block rather than a loose sentence, cross-references use `@see`, defaults use `@defaultValue`, and retirement uses `@deprecated`. Tags you do not see are simply not called for by that code; generated code should add them as it introduces the behavior.
+
+Beyond doc comments, the project's technical documentation is governed by a fixed documentation system: a vendor-neutral [AGENTS.md](AGENTS.md) serves as the agent entry point and the single index of every document, [STATE.md](STATE.md) tracks the living project state, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) holds the current map of the system, and immutable decision records under [docs/decisions/](docs/decisions/) hold the reasoning behind every settled choice. The full rulebook, including the split between living documents and records and the writing rules for each species, lives in [docs/CONVENTIONS.md](docs/CONVENTIONS.md); that file is normative and must not be modified. The rationale behind adopting it in its current form is recorded in [the style-alignment decision record](docs/decisions/0008-adopt-the-client-styles-documentation-system.md).
+
+Both the rulebook and the conventions above are owned at the style level. A project built from this template never changes them locally, and an improvement discovered while refactoring against the template is not kept as a private advantage; [AGENTS.md](AGENTS.md) describes the upstream report that carries it back to the template, where it is verified and, if it holds, adopted for every project that follows the style.
+
+One further rule applies to every piece of prose in the project, from this README through doc comments to commit messages. Everything must read as if a person wrote it. The clearest machine tell is the clause-colon splice, a sentence shaped as claim, colon, elaboration; no human writes that way outside a slide deck, so in prose a colon may only introduce a list, a quote, or a label. Softer tells, such as a balanced semicolon antithesis or a neat triadic list, are each fine on their own but give the text away when stacked, because a paragraph of polished epigrams reads as machine writing even when every sentence would pass alone. Allow at most one such flourish per paragraph and write the rest as plain declarative sentences.
 
 ---
 
