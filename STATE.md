@@ -5,6 +5,12 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Now
 
+- The style's test contract is adopted, and the suites already satisfied it. Suites mirror
+  `src/`, collaborators are substituted only at a seam, no coverage threshold is imposed, and a
+  check found no module mocking anywhere here (2026-08-05). The fifth command is now a named
+  `typecheck` script rather than a bare `tsc -b`, so CI and the guide run the same thing.
+  Decision 0009 carries the reasoning, and two details of this project's CI travelled
+  upstream into the style in exchange.
 - The documentation system is the client style's own: the rulebook is a byte-identical
   copy of the Helm template's, the changelog is gone with its trigger unmet, the index
   took the style's shape and finally lists EXPORT-PARITY.md, and improvements now travel

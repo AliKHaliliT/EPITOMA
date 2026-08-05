@@ -122,3 +122,18 @@ matching the site between launches; clearing the imported portfolio clears the l
 The `.resume-page` preview stays token-independent regardless. The Import button routes by
 shape: a portfolio feeds content, and a previously exported Document (.json) comes back as
 a new document with its styling intact.
+
+## Testing
+
+Three rules hold however broad the suite is. Suites live in `tests/`, mirroring the source
+tree, one suite named after the unit it covers. A collaborator is replaced only at an
+architectural seam, by a hand-written fake satisfying the contract it stands in for, never by
+mocking a module's internals, since a test bound to an implementation voids the
+substitutability the layering exists to provide. And no coverage threshold is imposed, because
+a percentage gate buys assertions that assert nothing, so breadth stays a judgment call while
+placement and substitution do not.
+
+The 3 suites here are characterization tests over the resume service and the portfolio source. They contain no module
+mocking at all, which is what made adopting the rule a description of existing practice rather
+than a migration. The reasoning is recorded in
+[decision 0009](decisions/0009-adopt-the-styles-test-contract.md), and the rule itself is owned by the style.
