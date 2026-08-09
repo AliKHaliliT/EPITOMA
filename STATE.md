@@ -5,6 +5,8 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Now
 
+- CI greps every tracked byte for an em dash before anything installs, so the prose ban
+  is checked rather than remembered (2026-08-08).
 - The style's test contract is adopted, and the suites already satisfied it. Suites mirror
   `src/`, collaborators are substituted only at a seam, no coverage threshold is imposed, and a
   check found no module mocking anywhere here (2026-08-05). The fifth command is now a named
