@@ -233,7 +233,7 @@ function bodyTex(section: ResumeSection, style: ResumeStyle): string {
         rows.push(
           `\\begin{minipage}[t]{.47\\linewidth}${card(visible[i])}\\end{minipage}\\hfill` +
             (visible[i + 1] ? `\\begin{minipage}[t]{.47\\linewidth}${card(visible[i + 1])}\\end{minipage}` : "") +
-            `\\\\[6pt]`
+            "\\\\[6pt]"
         );
       }
       return rows.join("\n");
@@ -255,7 +255,7 @@ function bodyTex(section: ResumeSection, style: ResumeStyle): string {
         rows.push(
           `\\begin{minipage}[t]{.47\\linewidth}${entryTex(visible[i], style)}\\end{minipage}\\hfill` +
             (visible[i + 1] ? `\\begin{minipage}[t]{.47\\linewidth}${entryTex(visible[i + 1], style)}\\end{minipage}` : "") +
-            `\\\\`
+            "\\\\"
         );
       }
       return rows.join("\n");

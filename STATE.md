@@ -5,6 +5,15 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Now
 
+- Aligned with the style's 2026-08-10 rulings: the rulebook refreshed and its hash now
+  pinned in CI, the docs audit and its Docs step adopted, the version pinned at 0.0.1,
+  the quotes rule checked by ESLint, doc-comment presence checked by the jsdoc plugin,
+  every workflow on latest stable action majors, and the vendor libraries split into
+  their own cached chunk (2026-08-10). The reasoning lives in the style's decision
+  records, 0013 through 0016 in Helm.
+- The cross-app loop is pinned by a real artifact: a snapshot produced by VITA's own export
+  builder now lives in the fixtures and is imported through the real door on every test
+  run, palette included, so contract drift on either side goes red here (2026-08-10).
 - CI greps every tracked byte for an em dash before anything installs, so the prose ban
   is checked rather than remembered (2026-08-08).
 - The style's test contract is adopted, and the suites already satisfied it. Suites mirror
@@ -39,12 +48,11 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Next
 
-- Exercise the full import-sync-export loop against a portfolio.json produced by the
-  current VITA demo seed (2026-07-28).
+- Nothing queued.
 
 ## Deferred
 
-- A house favicon of its own; the app currently reuses the shared pixel-mark (2026-07-28).
+- Nothing deferred.
 
 ## Blocked
 

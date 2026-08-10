@@ -30,10 +30,10 @@ const link = (href: string | undefined, text: string, style: ResumeStyle, colors
 
 /** A full-width single-row table: Word's reliable way to right-align. */
 const leftRight = (left: string, right: string) =>
-  `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>` +
+  "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse\"><tr>" +
   `<td valign="baseline">${left}</td>` +
   `<td valign="baseline" align="right" style="white-space:nowrap">${right}</td>` +
-  `</tr></table>`;
+  "</tr></table>";
 
 // ── headings ────────────────────────────────────────────────────────────────
 
@@ -180,7 +180,7 @@ function bodyHtml(section: ResumeSection, style: ResumeStyle, colors: ColorPlan,
         (e.subtitle ? `<br/><span style="font-size:0.9em">${escapeHtml(e.subtitle)}</span>` : "") +
         (e.meta?.organization ? `<br/><span style="font-size:0.85em;color:#6b7280">${escapeHtml(String(e.meta.organization))}</span>` : "") +
         (e.meta?.email ? `<br/><span style="font-size:0.85em;color:#6b7280">${escapeHtml(String(e.meta.email))}</span>` : "") +
-        `</p>`;
+        "</p>";
       if (section.layout === "rows") return visible.map(card).join("");
       let rows = "";
       for (let i = 0; i < visible.length; i += 2) {
@@ -261,7 +261,7 @@ function headerHtml(doc: ResumeDocument, colors: ColorPlan): string {
   // With the "header" color scope, the block sits on its band (a shaded
   // full-width table cell; Word cannot paint the page margins).
   if (colors.headerBg) {
-    return `<table width="100%" cellpadding="0" cellspacing="0"><tr>` +
+    return "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>" +
       `<td align="${align}" style="background:${colors.headerBg};padding:8pt 10pt;${ink ? `color:${ink}` : ""}">${inner}</td>` +
       `</tr></table><p style="margin:0 0 ${style.elementSpacing}px"></p>`;
   }
@@ -294,10 +294,10 @@ export function documentToWordHtml(doc: ResumeDocument): string {
     // color into the page margins, so the band stops at the margins).
     const railInkStyle = colors.railInk ? `color:${colors.railInk};` : "";
     bodyInner =
-      `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>` +
+      "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse\"><tr>" +
       `<td valign="top" style="padding-right:${g.railGapMm}mm">${renderAll(regions.main)}</td>` +
       `<td valign="top" width="${Math.round((g.railWmm / g.contentWmm) * 100)}%" style="background:${colors.railBg};${railInkStyle}padding:6pt 8pt">${renderAll(regions.side)}</td>` +
-      `</tr></table>`;
+      "</tr></table>";
   } else if (regions.mode === "two" || regions.mode === "mix") {
     // Word cannot flow CSS columns from HTML; the two-column modes become a
     // balanced two-cell table. Mix keeps its prose sections full width.
@@ -310,10 +310,10 @@ export function documentToWordHtml(doc: ResumeDocument): string {
     const post = spanning.filter((s) => s.kind === "declaration");
     bodyInner =
       renderAll(pre) +
-      `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>` +
+      "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse\"><tr>" +
       `<td width="50%" valign="top" style="padding-right:5mm">${renderAll(cols.slice(0, half))}</td>` +
       `<td width="50%" valign="top">${renderAll(cols.slice(half))}</td>` +
-      `</tr></table>` +
+      "</tr></table>" +
       renderAll(post);
   } else {
     bodyInner = renderAll(regions.main);
@@ -323,7 +323,7 @@ export function documentToWordHtml(doc: ResumeDocument): string {
     ? `<span>${escapeHtml(style.footerText)}</span>`
     : "";
   const pageField = style.showPageNumbers
-    ? `<span style="mso-field-code:PAGE"></span> / <span style="mso-field-code:NUMPAGES"></span>`
+    ? "<span style=\"mso-field-code:PAGE\"></span> / <span style=\"mso-field-code:NUMPAGES\"></span>"
     : "";
   const footerDiv =
     footerLine || pageField

@@ -1,0 +1,766 @@
+{
+  "format": "vita-portfolio",
+  "version": 1,
+  "exportedAt": "2026-08-10T00:00:00.000Z",
+  "settings": {
+    "id": "profile",
+    "slug": "profile",
+    "title": "Wren Emberquill",
+    "name": "Wren Emberquill",
+    "role": "Artificer",
+    "location": "Cinderfen",
+    "avatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj4gPHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiMyMjFiMTQiLz4gPGNpcmNsZSBjeD0iMjIiIGN5PSIyNCIgcj0iMS40IiBmaWxsPSIjZjBlN2Q4IiBvcGFjaXR5PSIwLjUiLz4gPGNpcmNsZSBjeD0iMTAyIiBjeT0iNjYiIHI9IjEuMSIgZmlsbD0iI2YwZTdkOCIgb3BhY2l0eT0iMC4zNSIvPiA8Y2lyY2xlIGN4PSIxNCIgY3k9Ijc4IiByPSIxLjIiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuMyIvPiA8Y2lyY2xlIGN4PSI5NSIgY3k9IjE0IiByPSIxLjMiIGZpbGw9IiNmMGU3ZDgiIG9wYWNpdHk9IjAuNDUiLz4gPHBhdGggZD0iTTE4IDEyMCBDMTggODYgMzggNzAgNjAgNzAgQzgyIDcwIDEwMiA4NiAxMDIgMTIwIFoiIGZpbGw9IiM0YTNiMmEiLz4gPHBhdGggZD0iTTYwIDE0IEM0MCAxNCAzMCAzOCAzMiA2MCBDNDAgNTIgNTAgNDcgNjAgNDcgQzcwIDQ3IDgwIDUyIDg4IDYwIEM5MCAzOCA4MCAxNCA2MCAxNCBaIiBmaWxsPSIjNWM0YTMzIi8+IDxjaXJjbGUgY3g9IjYwIiBjeT0iNTIiIHI9IjE1IiBmaWxsPSIjMTUwZjBhIi8+IDxjaXJjbGUgY3g9IjU0IiBjeT0iNTEiIHI9IjIuNiIgZmlsbD0iI2ZmYjA2NiIvPiA8Y2lyY2xlIGN4PSI2NiIgY3k9IjUxIiByPSIyLjYiIGZpbGw9IiNmZmIwNjYiLz4gPHBhdGggZD0iTTg5IDI0IGwyLjQgNi40IDYuNCAyLjQgLTYuNCAyLjQgLTIuNCA2LjQgLTIuNCAtNi40IC02LjQgLTIuNCA2LjQgLTIuNCBaIiBmaWxsPSIjZmY4YTUwIi8+IDxjaXJjbGUgY3g9IjMxIiBjeT0iNDIiIHI9IjEuNiIgZmlsbD0iI2ZmOGE1MCIgb3BhY2l0eT0iMC43Ii8+IDwvc3ZnPg==",
+    "email": "wren.emberquill@example.com",
+    "phone": "",
+    "website": "https://example.com",
+    "github": "https://github.com/example",
+    "linkedin": "https://www.linkedin.com/in/example",
+    "twitter": "",
+    "scholar": "",
+    "medium": "",
+    "orcid": "",
+    "links": "Bestiary sketches [camera]: https://example.com/bestiary\nLecture scrolls: https://example.com/scrolls\nGuild post [at]: mailto:guild@example.com\n",
+    "nationality": "Fey-born",
+    "availability": "Open to quests",
+    "workMode": "Remote · By raven",
+    "dateOfBirth": "",
+    "declaration": "",
+    "languages": "Common: Fluent\nElvish: Conversational\nDraconic\n",
+    "skills": "Software Artifice: Runic Script, Golem Logic, Clockwork Patterns\nCloud & Sky Magic: Stormbinding, Aether Currents, Skyward Wards\nData & Lore: Ley-Line Analysis, Knowledge Grimoires\nGeospatial Divination: Realm Scrying, Star Cartography\nWandcraft: Whittling, Core Binding\n",
+    "now": "",
+    "uses": "A demo of the optional setup notes. Markdown works here: **bold**, `code`,\nand lists.\n\n- Workbench: oak, scarred, third-hand\n- Familiar: a moth who judges silently\n",
+    "type": "settings",
+    "tags": [],
+    "body": "A record from a world that does not exist. Every entry in this demo names the feature or edge case it exercises; replace all of it with your own life.\r\n"
+  },
+  "palette": {
+    "basedOn": "rangefinder",
+    "light": {
+      "background": "#f0efeb",
+      "card": "#faf9f6",
+      "textPrimary": "#191713",
+      "textSecondary": "#6b675e",
+      "border": "#d3d0c7",
+      "borderStrong": "#a8a496",
+      "inputBg": "#faf9f6",
+      "signal": "#bc4a10",
+      "field": "#ff6b2e",
+      "pulse": "#7fb5c9",
+      "footer": "#171512",
+      "footerInk": "#f0ede6"
+    },
+    "dark": {
+      "background": "#131110",
+      "card": "#1b1815",
+      "textPrimary": "#efeae3",
+      "textSecondary": "#a49c8f",
+      "border": "#37312a",
+      "borderStrong": "#584f43",
+      "inputBg": "#100e0c",
+      "signal": "#ff8a50",
+      "field": "#ff7038",
+      "pulse": "#8fc3d8",
+      "footer": "#0f0d0b",
+      "footerInk": "#f0ede6"
+    }
+  },
+  "content": {
+    "experience": [
+      {
+        "id": "guild-artificer-artificers-guild",
+        "slug": "guild-artificer-artificers-guild",
+        "title": "Guild Artificer",
+        "company": "The Artificers' Guild",
+        "location": "Cinderfen",
+        "startDate": "2024-03",
+        "employmentType": "full-time",
+        "link": "https://example.com/guild",
+        "tags": [
+          "Golem Systems",
+          "Ward Maintenance"
+        ],
+        "type": "experience",
+        "body": "- The current post: no `endDate`, so the range renders as \"Present\".\r\n- `employmentType` is set, so the badge appears next to the title.\r\n- Bullet-point bodies render as the responsibility list.\r\n"
+      },
+      {
+        "id": "foundry-enchanter-ironspire",
+        "slug": "foundry-enchanter-ironspire",
+        "title": "Foundry Enchanter",
+        "company": "Ironspire Foundry",
+        "location": "Remote",
+        "startDate": "2022-06",
+        "endDate": "2024-02",
+        "employmentType": "contract",
+        "tags": [
+          "Runesmithing"
+        ],
+        "type": "experience",
+        "body": "- A finished engagement: both dates set, so the full range renders.\r\n- `employmentType: contract` shows the type badge is not limited to full-time.\r\n- No `link`, so the foundry's name stays plain text.\r\n"
+      },
+      {
+        "id": "apprentice-tinker-academy",
+        "slug": "apprentice-tinker-academy",
+        "title": "Apprentice Tinker",
+        "company": "The Academy of Aetheric Studies",
+        "location": "Cinderfen",
+        "startDate": "2020-09",
+        "endDate": "2022-05",
+        "tags": [
+          "Clockwork"
+        ],
+        "type": "experience",
+        "body": "- No `employmentType` at all: the badge simply does not render, and nothing is invented in its place. The site never overclaims what the record does not say.\r\n"
+      }
+    ],
+    "education": [
+      {
+        "id": "magister-aetheric-systems",
+        "slug": "magister-aetheric-systems",
+        "title": "Magister of Aetheric Systems",
+        "institution": "The Academy of Aetheric Studies",
+        "location": "Cinderfen",
+        "startDate": "2018-09",
+        "endDate": "2020-06",
+        "degree": "Master",
+        "field": "Aetheric Systems",
+        "gpa": "3.8 / 4",
+        "link": "https://example.com/academy",
+        "tags": [
+          "Ley-Line Theory",
+          "Simulation"
+        ],
+        "type": "education",
+        "body": "The fully-dressed degree: `gpa` and `link` are both optional and both present here, and the title already carries the field, so the duplicate field line is suppressed while the `degree` badge still renders (\"Magister\" and \"Master\" are different words). Markdown headings in the body render as sub-sections.\r\n\r\n### Thesis · A Simulation Frame for Tidal Ley-Lines\r\n\r\nOne or two sentences describing the thesis; long-form detail belongs in a blog post linked from here.\r\n\r\n### Selected Coursework\r\n\r\nDistributed Wards · Numerical Divination · Systems Alchemy · Technical Calligraphy\r\n"
+      },
+      {
+        "id": "first-circle-diploma-artifice",
+        "slug": "first-circle-diploma-artifice",
+        "title": "First Circle Diploma in Artifice",
+        "institution": "Northwind Conservatory",
+        "location": "Port Meridian",
+        "startDate": "2014-09",
+        "endDate": "2018-06",
+        "degree": "Journeyman",
+        "field": "Artifice",
+        "tags": [
+          "Artifice"
+        ],
+        "type": "education",
+        "body": "The minimal degree, and an open one: `degree: Journeyman` is nobody's official credential level, yet it renders as a proper badge because degree values are open strings. No `gpa`, no `link`, so those rows hide cleanly, and the title already says \"Artifice\", so the duplicate field line is suppressed.\r\n"
+      }
+    ],
+    "awards": [
+      {
+        "id": "grand-prize-artificers-fair",
+        "slug": "grand-prize-artificers-fair",
+        "title": "Grand Prize of the Artificers' Fair",
+        "issuer": "The Cinderfen Artificers' Fair",
+        "date": "2025-11",
+        "awardType": "award",
+        "link": "https://example.com/fair",
+        "tags": [
+          "Fair"
+        ],
+        "type": "awards",
+        "body": "A plain award with a link: the issuer renders as the subtitle and the entry links out. `awardType` groups the Awards page.\r\n"
+      },
+      {
+        "id": "wyvern-regatta-first-place",
+        "slug": "wyvern-regatta-first-place",
+        "title": "Wyvern Regatta · First Place",
+        "issuer": "The Cinderfen Sky-Sailing Club",
+        "date": "2024-08",
+        "awardType": "beast-racing",
+        "type": "awards",
+        "tags": [],
+        "body": "An owner-invented `awardType`. Type fields are open strings: \"beast-racing\" is not in any predefined list, yet it groups and labels correctly (Title Case fallback). An accomplishment ledger should never gate what counts as an accomplishment.\r\n"
+      },
+      {
+        "id": "archmages-stipend",
+        "slug": "archmages-stipend",
+        "title": "The Archmage's Stipend",
+        "issuer": "The Academy of Aetheric Studies",
+        "date": "2019-01",
+        "awardType": "scholarship",
+        "amount": "500 gold crowns",
+        "type": "awards",
+        "tags": [],
+        "body": "A scholarship with an `amount`: the sum renders for scholarships and grants, and it is a free string, so \"500 gold crowns\" works as well as any currency. No `link`, so the title stays plain text.\r\n"
+      }
+    ],
+    "publications": [
+      {
+        "id": "latency-atlas-of-realms",
+        "slug": "latency-atlas-of-realms",
+        "title": "A Latency Atlas of the Known Realms",
+        "authors": "Wren Emberquill",
+        "venue": "Preprint scroll archive",
+        "year": "2026",
+        "link": "https://example.com/latency-atlas",
+        "pubType": "preprint",
+        "tags": [
+          "Measurement"
+        ],
+        "type": "publications",
+        "body": "A preprint: `pubType` drives the badge, and the link points at the scroll archive since there is no DOI yet.\r\n"
+      },
+      {
+        "id": "leyline-grid-scheduling",
+        "slug": "leyline-grid-scheduling",
+        "title": "Scheduling Strategies for Tidal Ley-Line Grids",
+        "authors": "Wren Emberquill, Rowan Halloway",
+        "venue": "The Aetheric Review",
+        "year": "2025",
+        "doi": "10.0000/aer.2025.001",
+        "link": "https://example.com/leyline-paper",
+        "pubType": "journal",
+        "tags": [
+          "Ley-Lines"
+        ],
+        "type": "publications",
+        "body": "The fully-dressed journal article: `doi` and `link` both render as outbound chips, and `year` drives the newest-first ordering. The site owner's name is emphasized in the author line by matching the profile name.\r\n"
+      },
+      {
+        "id": "scrying-conclave-paper",
+        "slug": "scrying-conclave-paper",
+        "title": "Tracing Failures Across Distributed Wards",
+        "authors": "Wren Emberquill, et al.",
+        "venue": "The Grand Conclave of Mages",
+        "year": "2024",
+        "pubType": "conference",
+        "tags": [
+          "Wards"
+        ],
+        "type": "publications",
+        "body": "A conference paper with no `doi` and no `link`: the chips simply do not render. The \"et al.\" author form works when the full list is unavailable.\r\n"
+      },
+      {
+        "id": "charter-stormcaller-buoy",
+        "slug": "charter-stormcaller-buoy",
+        "title": "Stormcaller Buoy (Charter of Invention No. 000001)",
+        "authors": "Wren Emberquill",
+        "venue": "The Royal Charter Office",
+        "year": "2023",
+        "pubType": "charter",
+        "tags": [
+          "Invention"
+        ],
+        "type": "publications",
+        "body": "An owner-invented `pubType`: \"charter\" is not a predefined value (neither was \"patent\"), but open type fields accept anything citable and label it correctly.\r\n"
+      }
+    ],
+    "speaking": [
+      {
+        "id": "attendance-grand-conclave",
+        "slug": "attendance-grand-conclave",
+        "title": "The Grand Conclave of Mages 2026",
+        "event": "The Grand Conclave of Mages",
+        "date": "2026-03",
+        "location": "Port Meridian",
+        "speakingType": "attendance",
+        "link": "https://example.com/conclave",
+        "story": "/blog/hello-vita",
+        "type": "speaking",
+        "tags": [],
+        "body": "An owner-invented `speakingType`: \"attendance\" records being in the hall, not at the lectern, and the open type field labels it honestly. The `story` field links this entry to a long-form piece; the counts on the home page say \"entries\", never \"talks\", so attendance never overclaims.\r\n"
+      },
+      {
+        "id": "talk-cinderfen-artificers-meetup",
+        "slug": "talk-cinderfen-artificers-meetup",
+        "title": "Observability for Small Guilds",
+        "event": "Cinderfen Artificers' Meetup",
+        "date": "2025-10",
+        "location": "Cinderfen",
+        "speakingType": "talk",
+        "link": "https://example.com/meetup",
+        "slides": "https://example.com/slides",
+        "video": "https://example.com/scrying-orb-recording",
+        "tags": [
+          "Wards"
+        ],
+        "type": "speaking",
+        "body": "The fully-dressed talk: `link`, `slides`, and `video` each render their own outbound chip when present.\r\n"
+      }
+    ],
+    "volunteering": [
+      {
+        "id": "peer-reviewer-aetheric-review",
+        "slug": "peer-reviewer-aetheric-review",
+        "title": "Peer Reviewer",
+        "organization": "The Aetheric Review",
+        "startDate": "2025-06",
+        "endDate": "",
+        "link": "https://example.com/aetheric-review",
+        "tags": [
+          "Scholarly Service"
+        ],
+        "type": "volunteering",
+        "body": "Ongoing service: an empty `endDate` renders as \"Present\". Manuscript reviews and scholarly service live in volunteering by convention.\r\n"
+      },
+      {
+        "id": "mentor-apprentices-hall",
+        "slug": "mentor-apprentices-hall",
+        "title": "Mentor",
+        "organization": "The Apprentices' Hall",
+        "role": "Weekend Mentor",
+        "location": "Cinderfen",
+        "startDate": "2021-02",
+        "endDate": "2023-12",
+        "type": "volunteering",
+        "tags": [],
+        "body": "A finished engagement with the optional `role` and `location` filled and no `link`: every optional field hides or shows independently.\r\n"
+      }
+    ],
+    "certificates": [
+      {
+        "id": "golem-architect-associate",
+        "slug": "golem-architect-associate",
+        "title": "Certified Golem Architect · Associate",
+        "issuer": "The Arcane Standards Council",
+        "date": "2024-05-20",
+        "credentialId": "RUNE-1234-5678",
+        "link": "https://example.com/verify",
+        "certType": "technical",
+        "tags": [
+          "Golems"
+        ],
+        "type": "certificates",
+        "body": "The fully-dressed certificate: `credentialId` renders as a mono chip and `link` points at the verification sigil. `certType` feeds the filter pills on the certificates page.\r\n"
+      },
+      {
+        "id": "elvish-language-certificate",
+        "slug": "elvish-language-certificate",
+        "title": "Elvish Language Certificate · B2",
+        "issuer": "The Silverleaf Institute",
+        "date": "2023-03",
+        "certType": "language",
+        "type": "certificates",
+        "tags": [],
+        "body": "A language certificate: `certType: language` shows the type list is open to any domain, and with no `credentialId` or `link` the chips just do not render.\r\n"
+      },
+      {
+        "id": "wilds-field-medicine",
+        "slug": "wilds-field-medicine",
+        "title": "Wilds Field Medicine",
+        "issuer": "The Rangers of Thornwick",
+        "date": "2022-07",
+        "certType": "field-craft",
+        "type": "certificates",
+        "tags": [],
+        "body": "An owner-invented `certType`: \"field-craft\" is nobody's official category, and it still filters and labels correctly (Title Case fallback). Certificates are whatever you have a parchment for.\r\n"
+      }
+    ],
+    "references": [
+      {
+        "id": "available-on-request",
+        "slug": "available-on-request",
+        "title": "Further references",
+        "name": "Further references",
+        "organization": "",
+        "relationship": "",
+        "type": "references",
+        "tags": [],
+        "body": "The minimal reference: just a name and a body. Available upon request.\r\n"
+      },
+      {
+        "id": "archmagister-rowan-halloway",
+        "slug": "archmagister-rowan-halloway",
+        "title": "Reference from thesis supervisor",
+        "name": "Archmagister Rowan Halloway",
+        "organization": "The Academy of Aetheric Studies",
+        "relationship": "Magister Supervisor",
+        "email": "r.halloway@example.com",
+        "phone": "+1 000 000 0000",
+        "link": "https://example.com/halloway",
+        "type": "references",
+        "tags": [],
+        "body": "The fully-dressed reference: `name` is the primary identifier (not `title`), the email renders as an obfuscated copy-chip rather than a scrapeable mailto, and the phone and profile link show when present.\r\n"
+      }
+    ],
+    "interests": [
+      {
+        "id": "dragon-watching",
+        "slug": "dragon-watching",
+        "title": "Dragon watching",
+        "category": "hobby",
+        "story": "/blog/hello-vita",
+        "type": "interests",
+        "tags": [],
+        "body": "An interest with both a body and a `story` link: the ledger row shows this one-liner and the \"read the story\" affordance side by side. From a safe distance, always.\r\n"
+      },
+      {
+        "id": "gryphon-riding",
+        "slug": "gryphon-riding",
+        "title": "Gryphon riding",
+        "category": "sport",
+        "type": "interests",
+        "tags": [],
+        "body": "An interest with a body but no story: just the one-line voice, no link.\r\n"
+      },
+      {
+        "id": "storm-scrying",
+        "slug": "storm-scrying",
+        "title": "Storm scrying",
+        "category": "technical",
+        "type": "interests",
+        "tags": [],
+        "body": ""
+      },
+      {
+        "id": "wand-whittling",
+        "slug": "wand-whittling",
+        "title": "Wand whittling",
+        "category": "craft",
+        "type": "interests",
+        "tags": [],
+        "body": "An owner-invented `category`: \"craft\" is not in the curated order, so it appends after the known categories alphabetically. Interest categories are open strings like every type field.\r\n"
+      }
+    ],
+    "organizations": [
+      {
+        "id": "artificers-guild",
+        "slug": "artificers-guild",
+        "title": "The Artificers' Guild",
+        "role": "Member",
+        "memberType": "professional",
+        "startDate": "2021-01",
+        "endDate": "",
+        "location": "The Known Realms",
+        "website": "https://example.com/guild",
+        "type": "organizations",
+        "tags": [],
+        "body": "A current membership: empty `endDate` renders as ongoing, and `website` links the card out.\r\n"
+      },
+      {
+        "id": "cinderfen-makers-circle",
+        "slug": "cinderfen-makers-circle",
+        "title": "The Cinderfen Makers' Circle",
+        "role": "Workshop Volunteer",
+        "memberType": "community",
+        "startDate": "2019-04",
+        "endDate": "2021-06",
+        "location": "Cinderfen",
+        "type": "organizations",
+        "tags": [],
+        "body": "A past community membership: both dates set, no `website`. `memberType` is an open string like every type field.\r\n"
+      }
+    ],
+    "projects": [
+      {
+        "id": "everburning-lantern",
+        "slug": "everburning-lantern",
+        "title": "The Everburning Lantern",
+        "role": "Lead Artificer",
+        "year": "2026",
+        "image": "https://picsum.photos/seed/lantern/960/540",
+        "link": "https://example.com/lantern",
+        "stats": "1.2k wicks lit",
+        "featured": true,
+        "tags": [
+          "Enchantment",
+          "Glasswork"
+        ],
+        "type": "projects",
+        "body": "The fully-dressed project: `featured: true` headlines the home page's Selected work chapter and the top of the projects ledger, and it carries every optional field at once (image, link, role, stats, tags). The first featured entry wins; with none, the newest project takes the spot.\r\n"
+      },
+      {
+        "id": "paper-wyvern",
+        "slug": "paper-wyvern",
+        "title": "Paper Wyvern",
+        "year": "2025",
+        "tags": [
+          "Origami Golems"
+        ],
+        "type": "projects",
+        "body": "A project with no link at all. Link-less entries are first-class: the title renders as plain text, nothing pretends to be clickable, and the entry still opens its detail modal.\r\n"
+      },
+      {
+        "id": "tidewardens-gauge",
+        "slug": "tidewardens-gauge",
+        "title": "Tidewarden's Gauge",
+        "role": "Solo build",
+        "year": "2025",
+        "link": "https://example.com/tidewarden",
+        "tags": [
+          "Brasswork",
+          "Divination"
+        ],
+        "type": "projects",
+        "body": "A linked project without an image: the ledger renders a quiet glyph placeholder instead of leaving a hole, and the title links out with a host chip.\r\n"
+      },
+      {
+        "id": "grimoire-of-field-notes",
+        "slug": "grimoire-of-field-notes",
+        "title": "Grimoire of Field Notes",
+        "role": "Keeper",
+        "year": "2024",
+        "image": "https://example.com/this-image-does-not-exist.png",
+        "link": "https://example.com/grimoire",
+        "tags": [
+          "Bookbinding"
+        ],
+        "type": "projects",
+        "body": "The broken-image case: the `image` URL here returns nothing, so the SafeImage component swaps in its quiet glyph fallback instead of a browser error icon. Hot-linked previews that die later never break the page.\r\n"
+      },
+      {
+        "id": "undated-reliquary",
+        "slug": "undated-reliquary",
+        "title": "The Undated Reliquary",
+        "tags": [
+          "Curiosities"
+        ],
+        "type": "projects",
+        "body": "An entry with no `year`. Dated lists sort newest first, and undated entries close the list instead of poisoning the order, so this one always sits at the bottom of the ledger. Nobody remembers when the reliquary was made, which is rather the point.\r\n"
+      }
+    ],
+    "posts": [
+      {
+        "id": "half-formed-idea",
+        "slug": "half-formed-idea",
+        "title": "A Half-Formed Incantation",
+        "type": "posts",
+        "desc": "A Seedling note, planted before it is ready.",
+        "tags": [
+          "Ideas"
+        ],
+        "body": "A `Seedling`: the garden's youngest kind, published while still rough. The kind badge and the filter pills come straight from this frontmatter value.\r\n",
+        "postType": "Seedling"
+      },
+      {
+        "id": "on-demo-content",
+        "slug": "on-demo-content",
+        "title": "On Conjured Content",
+        "type": "posts",
+        "desc": "An Evergreen note, the settled end of the garden spectrum.",
+        "tags": [
+          "Meta"
+        ],
+        "body": "An `Evergreen` note: revised until stable, kept because it stays true. Good demo content is documentation that happens to render; each entry in this seed states which behavior it exercises, even when the entry is about dragons.\r\n",
+        "postType": "Evergreen"
+      },
+      {
+        "id": "reading-log",
+        "slug": "reading-log",
+        "title": "The Reading Ledger",
+        "type": "posts",
+        "desc": "A living list, the third of the open note kinds.",
+        "tags": [
+          "Reading"
+        ],
+        "body": "The `List` kind: a long living document that grows over time rather than maturing like a note. Garden kinds are open strings; Seedling and Evergreen are conventions, not a schema.\r\n\r\n- *The Sea of Forgotten Stars* · finished, worth the hype\r\n- *Runes & Ruination* · in progress\r\n- *A Field Guide to Invisible Beasts* · next\r\n",
+        "postType": "List"
+      }
+    ],
+    "blog": [
+      {
+        "id": "hello-vita",
+        "slug": "hello-vita",
+        "title": "Hello, VITA",
+        "date": "2026-05-10",
+        "excerpt": "The fully-dressed native blog post, with a cover, a series, a reading time, and tags.",
+        "cover": "https://picsum.photos/seed/cinderfen/1200/630",
+        "series": "Dispatches from Cinderfen",
+        "readingTime": 4,
+        "tags": [
+          "Meta",
+          "Writing"
+        ],
+        "type": "blog",
+        "body": "This is a native post: it lives in the repo, renders on its own route, and carries every optional field at once. The `cover` shows in the ledger and on the post page, `series` groups related posts, `readingTime` renders as a mono readout, and tags feed the blog's filter pills.\r\n\r\nStory links from other content types (an interest, a book, a speaking entry, a city) can point at a post like this one, so a one-line record connects to real writing. Half of Wren's demo record ends up here, which is exactly the point.\r\n\r\n## Markdown works everywhere\r\n\r\nBodies are Markdown: **bold**, `code`, lists, and headings all render through the shared prose styles.\r\n"
+      },
+      {
+        "id": "published-elsewhere",
+        "slug": "published-elsewhere",
+        "title": "Published in Another Realm",
+        "date": "2026-02-18",
+        "excerpt": "An externally-published post; the canonical home is another realm's press and VITA links out.",
+        "externalUrl": "https://example.com/external-post",
+        "tags": [
+          "Meta"
+        ],
+        "type": "blog",
+        "body": "The `externalUrl` case: writing whose canonical home is elsewhere (a guild gazette, another realm's press, Medium in the mundane world) renders distinctly in every list: a dashed frame, a host chip naming the destination, and an outbound arrow. Clicking goes straight to the source; this body, if present, shows as a summary only.\r\n"
+      },
+      {
+        "id": "the-bare-minimum-post",
+        "slug": "the-bare-minimum-post",
+        "title": "The Bare Minimum Scroll",
+        "date": "2025-09-01",
+        "tags": [
+          "Writing"
+        ],
+        "type": "blog",
+        "body": "A post with no cover, no series, no excerpt, and no reading time: the ledger derives its preview from the body's first lines, and every missing field simply hides. Even the humblest scroll gets shelved properly.\r\n"
+      }
+    ],
+    "updates": [
+      {
+        "id": "2026-06-01-demo-live",
+        "slug": "2026-06-01-demo-live",
+        "title": "Untitled",
+        "date": "2026-06-01",
+        "updateType": "milestone",
+        "type": "updates",
+        "tags": [],
+        "body": "A `milestone` update: the loudest of the three feed kinds, for events worth a flag. The demo record went live across the realms today. The newest updates feed the home page's Now chapter.\r\n"
+      },
+      {
+        "id": "2026-04-12-a-passing-thought",
+        "slug": "2026-04-12-a-passing-thought",
+        "title": "Untitled",
+        "date": "2026-04-12",
+        "updateType": "note",
+        "type": "updates",
+        "tags": [],
+        "body": "A `note` update: a short thought with no ceremony, the kind a familiar would ignore. The type defaults to note when omitted.\r\n"
+      },
+      {
+        "id": "2026-03-05-worth-reading",
+        "slug": "2026-03-05-worth-reading",
+        "title": "Untitled",
+        "date": "2026-03-05",
+        "updateType": "link",
+        "link": "https://example.com/worth-reading",
+        "linkTitle": "A scroll worth reading",
+        "type": "updates",
+        "tags": [],
+        "body": "A `link` update: commentary attached to a URL, with `linkTitle` naming the destination chip.\r\n"
+      }
+    ],
+    "books": [
+      {
+        "id": "field-guide-to-invisible-beasts",
+        "slug": "field-guide-to-invisible-beasts",
+        "title": "A Field Guide to Invisible Beasts",
+        "author": "Q. Alder",
+        "status": "To Read",
+        "story": "/garden/reading-log",
+        "type": "books",
+        "tags": [],
+        "body": "A book on the To Read shelf carrying a `story` link: the modal offers \"read the story\", pointing at the garden's reading ledger. Any item can connect to its long-form writing this way.\r\n"
+      },
+      {
+        "id": "runes-and-ruination",
+        "slug": "runes-and-ruination",
+        "title": "Runes & Ruination",
+        "author": "Ines Kovar",
+        "status": "Read",
+        "type": "books",
+        "tags": [],
+        "body": "A finished book with no cover and no rating: the shelf renders a quiet placeholder spine, and the rating row hides.\r\n"
+      },
+      {
+        "id": "sea-of-forgotten-stars",
+        "slug": "sea-of-forgotten-stars",
+        "title": "The Sea of Forgotten Stars",
+        "author": "Marlowe of the Deepward",
+        "cover": "https://picsum.photos/seed/starsea/400/600",
+        "status": "Reading",
+        "rating": 4,
+        "type": "books",
+        "tags": [],
+        "body": "The fully-dressed book: a cover, a status, and a rating. The library shelves order To Read, then Reading, then Read; this one sits on the middle shelf.\r\n"
+      }
+    ],
+    "courses": [
+      {
+        "id": "practical-scrying",
+        "slug": "practical-scrying",
+        "title": "Practical Scrying",
+        "provider": "The Open Athenaeum",
+        "link": "https://example.com/course",
+        "date": "2025-02",
+        "tags": [
+          "Divination"
+        ],
+        "type": "courses",
+        "body": "A course with a `link` and a `date`: courses render on the education page under Courses & Continued Learning, next to the formal degrees.\r\n"
+      },
+      {
+        "id": "realm-cartography",
+        "slug": "realm-cartography",
+        "title": "Introduction to Realm Cartography",
+        "provider": "Cinderfen Commons College",
+        "date": "2023-09",
+        "type": "courses",
+        "tags": [],
+        "body": "A course without a `link`: the provider renders as plain text and nothing pretends to be clickable.\r\n"
+      }
+    ],
+    "trips": [
+      {
+        "id": "lanternfall",
+        "slug": "lanternfall",
+        "title": "Lanternfall",
+        "city": "Lanternfall",
+        "country": "The Sundermist Isles",
+        "date": "2025-04",
+        "image": "https://picsum.photos/seed/lanternfall/960/540",
+        "coordinates": "12° N of the Dragon Meridian",
+        "story": "/blog/hello-vita",
+        "type": "trips",
+        "tags": [],
+        "body": "The fully-dressed city: a date (which drives newest-first ordering and the realm's year group), an image, coordinates (a free string, so any system of navigation works), and a `story` link to long-form writing about the journey.\r\n"
+      },
+      {
+        "id": "skelda",
+        "slug": "skelda",
+        "title": "Skelda",
+        "city": "Skelda",
+        "country": "Rimeholt",
+        "date": "2024-08",
+        "image": "https://picsum.photos/seed/skelda/960/540",
+        "type": "trips",
+        "tags": [],
+        "body": "A dated city under a realm that declares no `years` of its own: the realm's year group derives from its newest city date, so Rimeholt files under 2024 because of this entry.\r\n"
+      },
+      {
+        "id": "thornwick",
+        "slug": "thornwick",
+        "title": "Thornwick",
+        "city": "Thornwick",
+        "country": "The Verdant Wilds",
+        "date": "2022-06",
+        "type": "trips",
+        "tags": [],
+        "body": "The orphan case: this city names a `country` that has no realm entry of its own, so it renders under the orphan group instead of disappearing. The join is an exact string match on the realm's name; add a Verdant Wilds country file and this city moves home.\r\n"
+      },
+      {
+        "id": "mistharbor",
+        "slug": "mistharbor",
+        "title": "Mistharbor",
+        "city": "Mistharbor",
+        "country": "The Sundermist Isles",
+        "type": "trips",
+        "tags": [],
+        "body": "The minimal city: no date, no image, no coordinates. Undated cities close their realm's list, and the missing image renders as the quiet glyph placeholder.\r\n"
+      }
+    ],
+    "countries": [
+      {
+        "id": "rimeholt",
+        "slug": "rimeholt",
+        "title": "Rimeholt",
+        "name": "Rimeholt",
+        "code": "FH",
+        "visited": true,
+        "type": "countries",
+        "tags": [],
+        "body": "A realm with no `years` and no image of its own: its year group derives from its newest dated city, and with none it would file under Undated, which always closes the list.\r\n"
+      },
+      {
+        "id": "the-sundermist-isles",
+        "slug": "the-sundermist-isles",
+        "title": "The Sundermist Isles",
+        "name": "The Sundermist Isles",
+        "code": "SI",
+        "image": "https://picsum.photos/seed/isles/960/540",
+        "years": "2023, 2025",
+        "visited": true,
+        "type": "countries",
+        "tags": [],
+        "body": "The fully-dressed realm: an image, explicit `years` (which place it in the year groups), and two city entries joined to it by an exact `country` name match.\r\n"
+      }
+    ]
+  }
+}
