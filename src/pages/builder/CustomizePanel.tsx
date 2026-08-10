@@ -152,7 +152,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
         {/* The nuclear option: every setting in every pane back to stock. */}
         <button
           onClick={() => setConfirmResetAll(true)}
-          className="mx-2 mt-auto flex items-center justify-center gap-1 rounded-md border border-line px-2 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-muted transition-colors hover:border-red-400 hover:text-red-500"
+          className="mx-2 mt-auto flex items-center justify-center gap-1 rounded-md border border-line px-2 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.08em] text-muted transition-colors hover:border-danger hover:text-danger"
           title="Reset every Customize setting to its default"
         >
           <RotateCcw size={11} /> Reset all

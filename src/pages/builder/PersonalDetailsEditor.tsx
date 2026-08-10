@@ -81,7 +81,7 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
               onChange={(e) => setLink(i, { url: e.target.value })}
               placeholder="https://…"
             />
-            <button onClick={() => removeLink(i)} className="p-2 text-muted hover:text-red-600 rounded-lg" title="Remove">
+            <button onClick={() => removeLink(i)} className="p-2 text-muted hover:text-danger rounded-lg" title="Remove">
               <X size={15} />
             </button>
           </div>
@@ -103,7 +103,7 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
               <div key={key} className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted">{key}</span>
-                  <button onClick={() => removeChip(key)} className="text-muted hover:text-red-600" title="Remove">
+                  <button onClick={() => removeChip(key)} className="text-muted hover:text-danger" title="Remove">
                     <X size={13} />
                   </button>
                 </div>

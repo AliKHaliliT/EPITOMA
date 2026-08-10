@@ -159,7 +159,7 @@ function EntryRow({
         <button onClick={onToggleEdit} className="p-1.5 text-muted hover:text-signal rounded-md" title="Edit">
           <Pencil size={14} />
         </button>
-        <button onClick={onDelete} className="p-1.5 text-muted hover:text-red-600 rounded-md" title="Delete">
+        <button onClick={onDelete} className="p-1.5 text-muted hover:text-danger rounded-md" title="Delete">
           <Trash2 size={14} />
         </button>
       </div>

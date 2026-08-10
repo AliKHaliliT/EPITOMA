@@ -89,7 +89,7 @@ export const ConfirmDialog = ({
                 onClick={onConfirm}
                 className={
                   danger
-                    ? "rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                    ? "rounded-full bg-danger px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
                     : "rounded-full bg-ink px-4 py-2 text-sm font-medium text-surface transition-opacity hover:opacity-90"
                 }
               >

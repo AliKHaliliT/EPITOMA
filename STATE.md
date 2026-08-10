@@ -5,6 +5,11 @@ Current project status. Read this before starting work. Format and rules: see
 
 ## Now
 
+- Aligned with the style's document budgets and rule census: the rulebook re-copied and
+  re-pinned, the audit now holding budgets, the index contract, the STATE schema, names,
+  and the raw-palette ban, and ESLint enforcing the env and HTTP homes (2026-08-10).
+- Danger and warn joined the token vocabulary, and the audit's first run caught eight
+  components naming palette hexes directly, all re-toned (2026-08-10).
 - Aligned with the style's 2026-08-10 rulings: the rulebook refreshed and its hash now
   pinned in CI, the docs audit and its Docs step adopted, the version pinned at 0.0.1,
   the quotes rule checked by ESLint, doc-comment presence checked by the jsdoc plugin,

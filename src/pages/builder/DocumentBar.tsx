@@ -151,7 +151,7 @@ export const DocumentBar = ({
             <button onClick={commitRename} className="p-2 text-signal hover:bg-field/10 rounded-lg" title="Save name (Enter)">
               <Check size={15} />
             </button>
-            <button onClick={() => setEditingName(false)} className="p-2 text-muted hover:text-red-500 rounded-lg" title="Cancel (Esc)">
+            <button onClick={() => setEditingName(false)} className="p-2 text-muted hover:text-danger rounded-lg" title="Cancel (Esc)">
               <X size={15} />
             </button>
           </span>
@@ -278,7 +278,7 @@ export const DocumentBar = ({
             Portfolio · {relativeDate(snapshot.exportedAt)}
             <button
               onClick={() => setPending("forget")}
-              className="p-0.5 hover:text-red-600"
+              className="p-0.5 hover:text-danger"
               title="Forget imported portfolio"
               aria-label="Forget imported portfolio"
             >
@@ -306,7 +306,7 @@ export const DocumentBar = ({
           <button
             onClick={() => setPending("delete")}
             disabled={editingName}
-            className="p-2 text-muted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+            className="p-2 text-muted hover:text-danger hover:bg-danger dark:hover:bg-danger/20 rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
             title="Delete"
           >
             <Trash2 size={15} />
@@ -339,7 +339,7 @@ export const DocumentBar = ({
       {importError && (
         <p
           role="alert"
-          className="m-0 flex w-full items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-900/20 dark:text-red-400"
+          className="m-0 flex w-full items-center justify-between gap-3 rounded-lg border border-danger bg-danger px-3 py-2 text-sm text-danger dark:border-danger dark:bg-danger/20 dark:text-danger"
         >
           {importError}
           <button

@@ -29,6 +29,10 @@
   --signal: #bc4a10;
   --field: #ff6b2e;
   --pulse: #7fb5c9;
+  /* danger and warn are the status tones: destructive actions, validation errors,
+     and cautions never name a palette hex directly. */
+  --danger: #b3261e;
+  --warn: #a05a00;
   --footer: #171512;
   --footer-ink: #f0ede6;
 }
@@ -44,6 +48,8 @@
   --signal: #ff8a50;
   --field: #ff7038;
   --pulse: #8fc3d8;
+  --danger: #f28b82;
+  --warn: #e8b04a;
   --footer: #0f0d0b;
   --footer-ink: #f0ede6;
   --shadow-lift: 0 24px 48px -24px rgb(0 0 0 / 0.6);
@@ -86,6 +92,8 @@
   --color-signal: var(--signal);
   --color-field: var(--field);
   --color-pulse: var(--pulse);
+  --color-danger: var(--danger);
+  --color-warn: var(--warn);
   --color-footer: var(--footer);
   --color-footer-ink: var(--footer-ink);
 }

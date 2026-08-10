@@ -146,7 +146,7 @@ function SectionRow({
         <button onClick={onToggleVisible} className="p-1.5 text-muted hover:text-ink rounded-md" title={section.visible ? "Hide section" : "Show section"}>
           {section.visible ? <Eye size={15} /> : <EyeOff size={15} />}
         </button>
-        <button onClick={onDelete} className="p-1.5 text-muted hover:text-red-600 rounded-md" title="Remove section">
+        <button onClick={onDelete} className="p-1.5 text-muted hover:text-danger rounded-md" title="Remove section">
           <Trash2 size={15} />
         </button>
         <button onClick={onToggleExpand} className="p-1.5 text-muted hover:text-ink rounded-md">

@@ -73,6 +73,19 @@ export default defineConfig([
       // is only for avoiding escapes. The style's rule, checked here.
       quotes: ['error', 'double', { avoidEscape: true }],
       'jsx-quotes': ['error', 'prefer-double'],
+      // The environment is read only through shared/config, and HTTP lives only in its
+      // documented home; both rules are checked here, with the homes excepted below.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.meta.name='import'][object.property.name='meta'][property.name='env']",
+          message: 'Read the environment through shared/config, never import.meta.env directly.',
+        },
+      ],
+      'no-restricted-globals': [
+        'error',
+        { name: 'fetch', message: 'HTTP lives in its documented home, not inline.' },
+      ],
     },
   },
   {
@@ -104,6 +117,13 @@ export default defineConfig([
           ],
         },
       ],
+    },
+  },
+  {
+    files: ['src/shared/config/**', 'src/entities/portfolio/**', 'vite.config.ts'],
+    rules: {
+      'no-restricted-syntax': 'off',
+      'no-restricted-globals': 'off',
     },
   },
   ...layerRules,

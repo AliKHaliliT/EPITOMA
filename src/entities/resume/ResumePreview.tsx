@@ -664,7 +664,7 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
           {sample && (
             <button
               onClick={onExitSample}
-              className="rounded-sm border border-amber-500/60 bg-amber-500/10 px-1.5 py-px text-amber-600 transition-colors hover:border-amber-500 dark:text-amber-400"
+              className="rounded-sm border border-warn/60 bg-warn/10 px-1.5 py-px text-warn transition-colors hover:border-warn dark:text-warn"
               title="The sheet is showing sample data. Click to show your document."
             >
               Sample data ×
@@ -714,7 +714,7 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
                   {style.footerText && (
                     <span
                       aria-hidden
-                      className="pointer-events-none absolute left-0 right-0 z-10 text-center text-[10px] text-gray-400"
+                      className="pointer-events-none absolute left-0 right-0 z-10 text-center text-[10px] text-muted"
                       style={{ bottom: (style.marginY * MM_TO_PX) / 2 + 6 }}
                     >
                       {style.footerText}
@@ -723,7 +723,7 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
                   {style.showPageNumbers && (
                     <span
                       aria-hidden
-                      className="pointer-events-none absolute left-0 right-0 z-10 text-center font-mono text-[9px] text-gray-400"
+                      className="pointer-events-none absolute left-0 right-0 z-10 text-center font-mono text-[9px] text-muted"
                       style={{ bottom: (style.marginY * MM_TO_PX) / 2 - 6 }}
                     >
                       {i + 1} / {pageCount}
