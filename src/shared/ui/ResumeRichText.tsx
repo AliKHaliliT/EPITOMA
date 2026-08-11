@@ -1,9 +1,10 @@
-// Rich-text editor for resume entry descriptions. Unlike the site's
-// RichTextEditor (which round-trips through Markdown), this stores HTML directly
-// so text alignment and underline survive: Markdown can't represent them.
+// The lazy door for the resume rich-text field: the Quill editor is heavy and
+// only matters once someone edits a description, so it loads on first render
+// of the field rather than riding the first paint.
 
-import ReactQuill from "react-quill-new";
-import "react-quill-new/dist/quill.snow.css";
+import { Suspense, lazy } from "react";
+
+const ResumeRichTextEditor = lazy(() => import("./ResumeRichTextEditor"));
 
 interface ResumeRichTextProps {
   /** The current body, as HTML rather than Markdown. */
@@ -14,33 +15,13 @@ interface ResumeRichTextProps {
   placeholder?: string;
 }
 
-const modules = {
-  toolbar: [
-    ["bold", "italic", "underline"],
-    [{ list: "bullet" }, { list: "ordered" }],
-    [{ align: "" }, { align: "center" }, { align: "right" }, { align: "justify" }],
-    ["link"],
-    ["clean"],
-  ],
-};
-
 /** A small rich-text field for an entry description, storing HTML. */
-export const ResumeRichText = ({ value, onChange, placeholder }: ResumeRichTextProps) => {
-  // Quill emits empty editors as "<p><br></p>"; normalize that to "".
-  const handleChange = (html: string) => {
-    onChange(html === "<p><br></p>" ? "" : html);
-  };
-
-  return (
-    <div className="resume-quill h-48 flex flex-col">
-      <ReactQuill
-        theme="snow"
-        value={value || ""}
-        onChange={handleChange}
-        modules={modules}
-        className="h-full flex flex-col"
-        placeholder={placeholder || "Description…"}
-      />
-    </div>
-  );
-};
+export const ResumeRichText = (props: ResumeRichTextProps) => (
+  <Suspense
+    fallback={
+      <div className="resume-quill h-48 rounded border border-line bg-well" aria-busy="true" />
+    }
+  >
+    <ResumeRichTextEditor {...props} />
+  </Suspense>
+);
