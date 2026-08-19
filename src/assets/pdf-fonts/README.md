@@ -19,5 +19,5 @@ Every family is libre, matching the catalog rule in `src/entities/resume/default
 | Source Serif 4 | SIL OFL 1.1 |
 
 Sourced from Google Fonts (fonts.gstatic.com). Three faces per family:
-regular, bold, italic. They ship as lazy Vite assets: nothing here loads
+regular, bold, italic. They ship as lazy Vite assets, so nothing here loads
 until a PDF export actually needs the family.

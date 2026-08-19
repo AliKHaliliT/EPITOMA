@@ -108,7 +108,7 @@ named anywhere, so documents render identically on every machine.
 ## Known constraints
 
 - Everything is client-side; clearing browser storage deletes all documents.
-- The imported snapshot is a point-in-time copy: content edits in the ecosystem require a
+- The imported snapshot is a point-in-time copy, so content edits in the ecosystem require a
   re-export and re-import, which is the deliberate cross-repo contract.
 - Framer `Reorder` drag does not respond to synthetic test events; drive it with native
   `PointerEvent`s when testing.

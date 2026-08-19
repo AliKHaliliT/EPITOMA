@@ -1,6 +1,6 @@
 # Repository Baseline
 
-This file is the living rulebook for the repository's always-present files: which files must exist, which must never be tracked, and how each may be modified. Unlike [CONVENTIONS.md](CONVENTIONS.md), this document is not frozen: the baseline evolves with tooling, and changes that reshape it are recorded as decision records (its current shape arrived with the style alignment in [0008](decisions/0008-adopt-the-client-styles-documentation-system.md)).
+This file is the living rulebook for the repository's always-present files: which files must exist, which must never be tracked, and how each may be modified. Unlike [CONVENTIONS.md](CONVENTIONS.md), this document is not frozen. The baseline evolves with tooling, and changes that reshape it are recorded as decision records (its current shape arrived with the style alignment in [0008](decisions/0008-adopt-the-client-styles-documentation-system.md)).
 
 ## Always present
 
@@ -29,7 +29,7 @@ The README's sections appear in this order, each with a content contract. Headin
 9. **Conventions.** The canonical paragraphs (the doc-comment convention, the documentation system, and the prose rule) are inherited verbatim from the template, with only truth-preserving clause edits, such as a project without a changelog dropping that clause. Project-specific rules may be appended as new sentences; the canonical text is never rewritten. Paraphrase is drift, not adaptation.
 10. **License.** Present in public repositories only, accompanying the `LICENSE` file. Its body is always exactly one line: `This work is under an [someLicense](url) License.`, with the license name and its URL filled in (for example `[MIT](https://choosealicense.com/licenses/mit/)`).
 
-Link and image referencing follows the repository boundary. Internal document links are always relative, because they never leave the repository that resolves them, and relative paths survive forks and renames. Images are referenced relatively too, until the README itself leaves the repository: when the project is published to a package index, every image switches to the absolute raw form, `https://github.com/<owner>/<repo>/blob/<branch>/util_resources/readme/<file>?raw=true`, since the index page has no repository to resolve a relative path against. Pin the branch to `main` by default; pin to the release tag instead when a version's index page must stay historically accurate, at the cost of updating the URL when tagging.
+Link and image referencing follows the repository boundary. Internal document links are always relative, because they never leave the repository that resolves them, and relative paths survive forks and renames. Images are referenced relatively too, until the README itself leaves the repository. When the project is published to a package index, every image switches to the absolute raw form, `https://github.com/<owner>/<repo>/blob/<branch>/util_resources/readme/<file>?raw=true`, since the index page has no repository to resolve a relative path against. Pin the branch to `main` by default; pin to the release tag instead when a version's index page must stay historically accurate, at the cost of updating the URL when tagging.
 
 ## Present when the trigger exists
 

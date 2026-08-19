@@ -21,7 +21,7 @@ each format can express; none of them re-decides anything.
   (Latin-Extended included, so Turkish and Azerbaijani glyphs travel). The
   engine paginates with the preview's own rules: entries never split across
   a page boundary and a heading keeps its first block. Full-bleed color
-  works here: the header band and the sidebar rail run to the sheet edge on
+  works here. The header band and the sidebar rail run to the sheet edge on
   every page, exactly like the preview.
 - **Word and LaTeX** trade fidelity for editability, translating the same
   contract into tables/paragraph borders (Word) and macros/paracol (LaTeX).
@@ -85,5 +85,5 @@ is a bug.
 A `lineHeight` set on `<Page>` silently suppresses every fixed `render`-prop
 `Text` (page numbers, the footer). The line height therefore lives on a
 content wrapper `View`, and the fixed elements stay direct children of the
-page. Large type (the name) also needs its own `lineHeight`: the multiplier
+page. Large type (the name) also needs its own `lineHeight`. The multiplier
 resolves to an absolute value where it is declared and inherits as such.
