@@ -10,10 +10,7 @@ interface SectionEditorProps {
   onChange: (section: ResumeSection) => void;
 }
 
-const uid = () =>
-  typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `e-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+const uid = () => crypto.randomUUID();
 
 const inputCls =
   "w-full px-3 py-2 bg-well border border-line rounded-lg text-sm text-ink";
