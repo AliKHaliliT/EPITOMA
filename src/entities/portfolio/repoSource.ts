@@ -44,6 +44,7 @@ const TYPE_DIRS: Record<string, string> = {
   blog: "blog",
   updates: "updates",
   books: "books",
+  media: "media",
   courses: "courses",
   trips: "travel/cities",
   countries: "travel/countries",
