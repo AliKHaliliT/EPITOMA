@@ -7,4 +7,6 @@ export { proficiencyDots, resolveColors, resolveEntry, resolveGeometry, resolveH
 export type { AccentApply, ColorScope, ColumnMode, DocumentKind, HeaderAlign, HeaderDetails, HeadingCase, HeadingIcons, LinkIconStyle, ListStyle, PageFormat, PaletteMode, PersonalDetails, PersonalLink, PhotoShape, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle, SectionKind, SectionLayout, SubtitlePlacement, SubtitleStyle } from "./model";
 export { PAGE_DIMS, isResumeDocumentFile } from "./model";
 export { RAIL_FRAC, bodyStyle, dateStyle, descriptionClass, descriptionStyle, entryHeaderStyle, headingStyle, jobTitleStyle, linkStyle, loadFonts, luminance, nameStyle, pageStyle, railColors, sectionStyle, subtitleStyle, tint } from "./previewStyles";
+export type { FieldOverlay, RegionPreset } from "./regions";
+export { FIELD_OVERLAYS, REGION_PRESETS, SIGNATURE_SECTION_ID, applyField, applyRegion } from "./regions";
 export { ResumeService } from "./store";

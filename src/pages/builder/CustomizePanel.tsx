@@ -4,7 +4,7 @@ import {
   Minus, Plus, GripVertical, Check as CheckIcon, ChevronDown, Eye, RotateCcw,
   Link2, ExternalLink, MapPin, Image as ImageIcon, Square,
 } from "lucide-react";
-import { DocumentKind, ResumeSection, ResumeStyle, DEFAULT_STYLE, SECTION_CATALOG, TEMPLATE_PRESETS, FONT_OPTIONS, fontStack, sampleDocument, sectionRegion, type TemplatePreset, ResumeSheet, loadFonts } from "@/entities/resume";
+import { DocumentKind, ResumeDocument, ResumeSection, ResumeStyle, DEFAULT_STYLE, SECTION_CATALOG, TEMPLATE_PRESETS, FONT_OPTIONS, REGION_PRESETS, FIELD_OVERLAYS, applyRegion, applyField, fontStack, sampleDocument, sectionRegion, type TemplatePreset, ResumeSheet, loadFonts } from "@/entities/resume";
 import { ConfirmDialog } from "@/shared/ui";
 import { cn } from "@/shared/lib";
 
@@ -15,6 +15,8 @@ interface CustomizePanelProps {
   onStyleChange: (style: ResumeStyle) => void;
   sections: ResumeSection[];
   onSectionsChange: (sections: ResumeSection[]) => void;
+  /** Applies a whole-document change, as the region and field presets need. */
+  onApplyDocument: (fn: (doc: ResumeDocument) => ResumeDocument) => void;
   /** When on, the live preview typesets the sample document instead of the record. */
   sampleMode: boolean;
   onSampleModeChange: (on: boolean) => void;
@@ -23,11 +25,11 @@ interface CustomizePanelProps {
 // Eight dense panes instead of fourteen thin ones: each pane owns a whole
 // concern and fills its canvas, clustered under mono micro-headers.
 type Pane =
-  | "templates" | "page" | "type" | "entries"
+  | "templates" | "region" | "page" | "type" | "entries"
   | "headings" | "colors" | "header" | "finish";
 
 const NAV: { group: string; items: { id: Pane; label: string }[] }[] = [
-  { group: "Page", items: [{ id: "templates", label: "Templates" }, { id: "page", label: "Page" }] },
+  { group: "Page", items: [{ id: "templates", label: "Templates" }, { id: "region", label: "Region" }, { id: "page", label: "Page" }] },
   { group: "Type", items: [{ id: "type", label: "Type" }] },
   { group: "Structure", items: [{ id: "entries", label: "Entries" }, { id: "headings", label: "Headings" }] },
   { group: "Identity", items: [{ id: "colors", label: "Colors" }, { id: "header", label: "Header" }] },
@@ -38,6 +40,7 @@ const PANE_ORDER: Pane[] = NAV.flatMap((g) => g.items.map((i) => i.id));
 
 const PANE_HINTS: Record<Pane, string> = {
   templates: "Start from a look, then tune anything below.",
+  region: "Where the sheet is going: the market and the field, and what each expects.",
   page: "The physical sheet: language, dates, size, and the column plan.",
   type: "The whole typographic spec: faces, sizes, and rhythm.",
   entries: "How each item lays out, and each section's body shape.",
@@ -50,6 +53,7 @@ const PANE_HINTS: Record<Pane, string> = {
 /** Which style fields each pane owns, so its Reset restores exactly those. */
 const PANE_FIELDS: Record<Pane, (keyof ResumeStyle)[]> = {
   templates: [],
+  region: ["region", "field"],
   page: ["language", "dateFormat", "pageFormat", "columns"],
   type: ["bodyFont", "nameFont", "baseFontSize", "nameFontSize", "headingFontSize", "entryHeaderFontSize", "lineHeight", "elementSpacing", "marginX", "marginY"],
   entries: ["entryLayout", "subtitleStyle", "subtitlePlacement", "indentBody", "listStyle"],
@@ -65,7 +69,7 @@ const SWATCHES = [
 ];
 
 /** The Customize tab: templates, type, color, layout, and section arrangement. */
-export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSectionsChange, sampleMode, onSampleModeChange }: CustomizePanelProps) => {
+export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSectionsChange, onApplyDocument, sampleMode, onSampleModeChange }: CustomizePanelProps) => {
   const [pane, setPane] = useState<Pane>("templates");
   const [confirmResetAll, setConfirmResetAll] = useState(false);
   const set = (patch: Partial<ResumeStyle>) => onStyleChange({ ...style, ...patch });
@@ -244,6 +248,70 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {pane === "region" && (
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label>Market</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {REGION_PRESETS.map((r) => (
+                  <button
+                    key={r.key}
+                    // A region writes into the ordinary knobs and the header,
+                    // so it goes through the document, not the style alone;
+                    // everything it set stays editable in the panes below.
+                    onClick={() => onApplyDocument((doc) => applyRegion(doc, r))}
+                    className={cn(
+                      "rounded-lg border p-3 text-left transition-colors",
+                      style.region === r.key
+                        ? "border-signal ring-1 ring-signal/40"
+                        : "border-line hover:border-line-strong"
+                    )}
+                  >
+                    <span className="block text-sm font-medium text-ink">{r.label}</span>
+                    <span className="mt-0.5 block text-[11px] leading-snug text-muted">{r.description}</span>
+                  </button>
+                ))}
+              </div>
+              {REGION_PRESETS.filter((r) => r.key === style.region).map((r) => (
+                <ul key={r.key} className="m-0 list-disc space-y-1 pl-4 text-[11.5px] leading-snug text-muted">
+                  {r.notes.map((n) => <li key={n}>{n}</li>)}
+                </ul>
+              ))}
+            </div>
+
+            <div className="space-y-2 border-t border-line pt-4">
+              <Label>Field</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {FIELD_OVERLAYS.map((f) => (
+                  <button
+                    key={f.key}
+                    onClick={() => onApplyDocument((doc) => applyField(doc, f))}
+                    className={cn(
+                      "rounded-lg border p-3 text-left transition-colors",
+                      style.field === f.key
+                        ? "border-signal ring-1 ring-signal/40"
+                        : "border-line hover:border-line-strong"
+                    )}
+                  >
+                    <span className="block text-sm font-medium text-ink">{f.label}</span>
+                    <span className="mt-0.5 block text-[11px] leading-snug text-muted">{f.description}</span>
+                  </button>
+                ))}
+              </div>
+              {FIELD_OVERLAYS.filter((f) => f.key === style.field).map((f) => (
+                <ul key={f.key} className="m-0 list-disc space-y-1 pl-4 text-[11.5px] leading-snug text-muted">
+                  {f.notes.map((n) => <li key={n}>{n}</li>)}
+                </ul>
+              ))}
+            </div>
+
+            <p className="m-0 text-[11px] leading-snug text-muted">
+              A preset is a starting point. It turns the Page, Header, and section knobs the way that
+              market or field expects, and every one of them stays yours to change afterwards.
+            </p>
           </div>
         )}
 

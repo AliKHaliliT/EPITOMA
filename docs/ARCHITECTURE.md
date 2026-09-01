@@ -47,7 +47,8 @@ It is pure data with no dependencies, which is what makes that placement honest.
 One page. `src/app/App.tsx` provides the ground and the reading rail;
 `src/pages/builder/BuilderPage.tsx` is the whole product: a header, the `DocumentBar` (document
 list, New, Import, Sync, Download), the Overview, Content, and Customize tabs, and a
-persistent preview. There is no router and no server.
+persistent preview. The Customize tab's Region pane applies market and field presets
+(`src/entities/resume/regions.ts`) as whole-document changes through the builder's update hook. There is no router and no server.
 
 ## The portfolio bridge
 

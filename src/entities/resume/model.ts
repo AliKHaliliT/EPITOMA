@@ -153,6 +153,10 @@ export interface ResumeStyle {
   dateFormat: string; // e.g. "MMM YYYY", "MMM DD, YYYY", "MM/YYYY"
   pageFormat: PageFormat;
   template: string; // preset key
+  /** The region preset last applied, if any; the knobs it set stay editable. */
+  region?: string;
+  /** The field overlay last applied, if any. */
+  field?: string;
 
   // Layout
   columns: ColumnMode;

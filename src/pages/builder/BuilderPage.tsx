@@ -171,6 +171,7 @@ export const ResumeBuilder = () => {
                   onStyleChange={(style) => rs.update((d) => ({ ...d, style }))}
                   sections={rs.activeDoc.sections}
                   onSectionsChange={(sections) => rs.update((d) => ({ ...d, sections }))}
+                  onApplyDocument={(fn) => rs.update(fn)}
                   sampleMode={sampleMode}
                   onSampleModeChange={setSampleMode}
                 />
