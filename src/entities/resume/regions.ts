@@ -13,6 +13,7 @@
 
 import type { ResumeDocument, ResumeSection, ResumeStyle, SectionKind } from "./model";
 import { DEFAULT_SECTION_SPECS } from "./defaults";
+import { localizeHeading, placeDateLine, relocalizeSections } from "./headings";
 
 /** One market's conventions, applied to the style, the header chips, and the closing. */
 export interface RegionPreset {
@@ -168,14 +169,14 @@ const withoutKeys = (extra: Record<string, string>, keys: string[]): Record<stri
   Object.fromEntries(Object.entries(extra).filter(([k]) => !keys.includes(k)));
 
 /** The closing block a signature region expects: place and date, then the signature. */
-const signatureSection = (): ResumeSection => ({
+const signatureSection = (language?: string): ResumeSection => ({
   id: SIGNATURE_SECTION_ID,
   kind: "declaration",
-  heading: "Unterschrift",
+  heading: localizeHeading("Signature", language),
   icon: "PenLine",
   visible: true,
   source: "custom",
-  entries: [{ id: `${SIGNATURE_SECTION_ID}-line`, description: "<p>Ort, Datum</p>" }],
+  entries: [{ id: `${SIGNATURE_SECTION_ID}-line`, description: `<p>${placeDateLine(language)}</p>` }],
 });
 
 /**
@@ -191,8 +192,12 @@ const signatureSection = (): ResumeSection => ({
 export function applyRegion(doc: ResumeDocument, preset: RegionPreset): ResumeDocument {
   const extra = withoutKeys(doc.personal.extra ?? {}, preset.dropChips);
   for (const chip of preset.addChips) if (!(chip in extra)) extra[chip] = "";
-  const sections = doc.sections.filter((s) => s.id !== SIGNATURE_SECTION_ID);
-  if (preset.signature) sections.push(signatureSection());
+  const language = preset.style.language ?? doc.style.language;
+  const sections = relocalizeSections(
+    doc.sections.filter((s) => s.id !== SIGNATURE_SECTION_ID),
+    language
+  );
+  if (preset.signature) sections.push(signatureSection(language));
   return {
     ...doc,
     personal: { ...doc.personal, extra },
@@ -224,7 +229,8 @@ export function applyField(doc: ResumeDocument, overlay: FieldOverlay): ResumeDo
     .map((s, i) => ({ s, i }))
     .sort((a, b) => rank(a.s) - rank(b.s) || a.i - b.i)
     .map(({ s }) => {
-      const heading = overlay.headings[s.kind] ?? s.heading;
+      const preferred = overlay.headings[s.kind];
+      const heading = preferred ? localizeHeading(preferred, doc.style.language) : s.heading;
       const limit = overlay.limited ? limits.get(s.kind) : undefined;
       const lift = overlay.unlimited.includes(s.kind);
       const entries =

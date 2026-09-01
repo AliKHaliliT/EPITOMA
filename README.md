@@ -94,7 +94,7 @@ The annotated map of the whole system lives in [`docs/ARCHITECTURE.md`](docs/ARC
 - **A Customize panel built like an instrument.** It has machined gauge sliders, pixel toggles, font pickers that show every face in itself, option tiles that preview what each choice does, and resets per pane as well as for everything at once.
 - **Sidebar layouts.** A full-height tinted rail carries the reference sections, each section can be assigned to the main column or the rail, dark fills flip their type to light, and languages can render as proficiency dots.
 - **Four export formats from one layout contract.** The PDF generates directly in the browser with embedded fonts, vector icons, and no print dialog. Word and LaTeX are structural translations of the same contract, and the document `.json` is a perfect backup that re-imports exactly. The full mapping lives in [`docs/EXPORT-PARITY.md`](docs/EXPORT-PARITY.md).
-- **Localized documents.** Dates and the open-ended range word render in English, UK English, French, German, Spanish, Turkish, or Azerbaijani, and they do so in every format.
+- **Localized documents.** Dates, the open-ended range word, and every heading the builder itself wrote render in English, UK English, French, German, Spanish, Turkish, or Azerbaijani, in every format; a heading you typed yourself is never translated over.
 - **Everything local.** Documents live in your browser's storage, and nothing leaves the machine.
 
 ---

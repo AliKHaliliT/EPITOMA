@@ -9,4 +9,5 @@ export { PAGE_DIMS, isResumeDocumentFile } from "./model";
 export { RAIL_FRAC, bodyStyle, dateStyle, descriptionClass, descriptionStyle, entryHeaderStyle, headingStyle, jobTitleStyle, linkStyle, loadFonts, luminance, nameStyle, pageStyle, railColors, sectionStyle, subtitleStyle, tint } from "./previewStyles";
 export type { FieldOverlay, RegionPreset } from "./regions";
 export { FIELD_OVERLAYS, REGION_PRESETS, SIGNATURE_SECTION_ID, applyField, applyRegion } from "./regions";
+export { localizeHeading, placeDateLine, relocalizeSections, setDocumentLanguage } from "./headings";
 export { ResumeService } from "./store";

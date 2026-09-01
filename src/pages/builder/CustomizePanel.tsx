@@ -4,7 +4,7 @@ import {
   Minus, Plus, GripVertical, Check as CheckIcon, ChevronDown, Eye, RotateCcw,
   Link2, ExternalLink, MapPin, Image as ImageIcon, Square,
 } from "lucide-react";
-import { DocumentKind, ResumeDocument, ResumeSection, ResumeStyle, DEFAULT_STYLE, SECTION_CATALOG, TEMPLATE_PRESETS, FONT_OPTIONS, REGION_PRESETS, FIELD_OVERLAYS, applyRegion, applyField, fontStack, sampleDocument, sectionRegion, type TemplatePreset, ResumeSheet, loadFonts } from "@/entities/resume";
+import { DocumentKind, ResumeDocument, ResumeSection, ResumeStyle, DEFAULT_STYLE, SECTION_CATALOG, TEMPLATE_PRESETS, FONT_OPTIONS, REGION_PRESETS, FIELD_OVERLAYS, applyRegion, applyField, setDocumentLanguage, fontStack, sampleDocument, sectionRegion, type TemplatePreset, ResumeSheet, loadFonts } from "@/entities/resume";
 import { ConfirmDialog } from "@/shared/ui";
 import { cn } from "@/shared/lib";
 
@@ -318,7 +318,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
         {pane === "page" && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <Select label="Language" value={style.language} onChange={(v) => set({ language: v })}
+              <Select label="Language" value={style.language} onChange={(v) => onApplyDocument((doc) => setDocumentLanguage(doc, v))}
                 options={["Azerbaijani", "English", "English (UK)", "French", "German", "Spanish", "Turkish"]} />
               <Select label="Date format" value={style.dateFormat} onChange={(v) => set({ dateFormat: v })}
                 options={["MMM YYYY", "MMM DD, YYYY", "MM/YYYY", "YYYY"]} />
