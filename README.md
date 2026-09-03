@@ -12,7 +12,7 @@
 
 EPITOMA is the resume builder of the [VITA](https://github.com/AliKHaliliT/VITA) ecosystem. *Epitoma* is Latin for an abridgment of a larger work, which is exactly what a resume is to a *vita*. This app takes your whole record and condenses it into print-ready resumes and CVs.
 
-The builder runs as a single React and Vite page with no server, and your documents stay in your browser. The repository's documentation and engineering conventions follow [My-Styles](https://github.com/AliKHaliliT/My-Styles), aligned to its commit `767fbff`.
+The builder runs as a single React and Vite page with no server, and your documents stay in your browser. The repository's documentation and engineering conventions follow [My-Styles](https://github.com/AliKHaliliT/My-Styles), aligned to its commit `4238623`.
 
 ---
 

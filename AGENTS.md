@@ -190,7 +190,9 @@ to next, so the reply is a re-alignment order rather than a verdict to interpret
 
 Re-alignment is one refactor, not a trickle. Read the decision records the template gained
 since the commit named in the README, because every rule change carries one; recopy the
-files the style owns verbatim, the rulebook and the docs audit; re-adapt from a diff
+files the style owns verbatim, the rulebook, the docs audit, and the tool-configuration
+blocks with their project names re-adapted, since the lint and type-check settings and the
+comments giving their reasons are style-owned law like the rulebook; re-adapt from a diff
 whatever was adapted before; run every checking command above; and move the pin in the
 README. No changelog is kept, because the records are the changelog and a summary would be
 a lossy copy of them.
