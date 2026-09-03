@@ -50,6 +50,34 @@ list, New, Import, Sync, Download), the Overview, Content, and Customize tabs, a
 persistent preview. The Customize tab's Region pane applies market and field presets
 (`src/entities/resume/regions.ts`) as whole-document changes through the builder's update hook. There is no router and no server.
 
+```text
+epitoma/
+├── AGENTS.md                   # Agent entry point and the documentation index
+├── index.html                  # The single page; mounts src/app/main.tsx
+├── vite.config.ts              # Build, the @ -> src alias, and Vitest configuration
+├── eslint.config.js            # Flat ESLint configuration; carries the layer and token rules
+├── tsconfig.json               # Solution file referencing the app and node configs
+├── tsconfig.app.json           # Compiler options for the browser bundle under src/
+├── tsconfig.node.json          # Compiler options for the build tooling (vite.config.ts)
+│
+├── scripts/                    # Tracked repository tooling
+│   └── audit-docs.mjs          # The docs audit; the gate's Docs command
+│
+├── docs/                       # Technical documentation (indexed in AGENTS.md)
+│
+├── src/
+│   ├── app/                    # Composition root: bootstrap, providers, chrome, tokens
+│   ├── pages/                  # The one page: the document bar, the panels, the editors
+│   ├── features/               # export-document (PDF, LaTeX, Word)
+│   ├── entities/
+│   │   ├── resume/             # Document model, storage, geometry, presets, preview
+│   │   └── portfolio/          # The imported snapshot and the repository that supplies one
+│   └── shared/                 # contract, config, lib, ui, testing
+│
+└── tests/                      # Vitest suites mirroring the src structure
+    └── src/
+```
+
 ## The portfolio bridge
 
 Content arrives exclusively as a `portfolio.json` file exported by the ecosystem's admin
@@ -138,3 +166,15 @@ The 3 suites here are characterization tests over the resume service and the por
 mocking at all, which is what made adopting the rule a description of existing practice rather
 than a migration. The reasoning is recorded in
 [decision 0009](decisions/0009-adopt-the-styles-test-contract.md), and the rule itself is owned by the style.
+
+## Exemplars
+
+The map says where things live; these files say how they read. An artifact of a kind listed
+here is cut from its exemplar and rewritten, never written fresh from the rule, because the
+rule names what must exist and only these bytes carry the dialect.
+
+- The document model and its store: `src/entities/resume/model.ts` and `store.ts`.
+- A pure preset table with the functions that apply it: `src/entities/resume/regions.ts`.
+- The layout contract every renderer reads: `src/entities/resume/layout.ts`.
+- A parity suite: `tests/src/features/export-document/parity.test.ts`, and a unit suite: `tests/src/entities/resume/headings.test.ts`.
+- A decision record: `docs/decisions/0012-preset-the-cv-by-region-and-field.md`.

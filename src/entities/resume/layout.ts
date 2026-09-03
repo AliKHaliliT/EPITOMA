@@ -208,8 +208,7 @@ export type SectionShape =
 /**
  * Works out one section's arrangement.
  *
- * @param section - The section being drawn, whose layout may override the default.
- * @param style - The document style, which supplies the fallback layout.
+ * @param section - The section being drawn, whose layout decides the arrangement.
  *
  * @returns The arrangement the renderers follow for this section.
  */
@@ -248,8 +247,8 @@ export interface RegionSplit {
 /**
  * Divides visible sections between the main column and the side rail.
  *
- * @param sections - Every section of the document, in document order.
  * @param style - The document style, which decides whether a rail exists at all.
+ * @param sections - Every section of the document, in document order.
  *
  * @returns The two ordered lists; in single-column mode the rail comes back empty.
  */

@@ -117,11 +117,13 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   seam, by a hand-written fake satisfying the contract it stands in for, and never by mocking a
   module's internals, because a test bound to an implementation voids the substitutability the
   layers exist to provide while still passing green. No coverage threshold is imposed, so
-  breadth stays a judgment call while placement and substitution do not. See
-  [decision 0009](docs/decisions/0009-adopt-the-styles-test-contract.md).
-- **Follow the doc-comment convention** in the [README's Conventions section](README.md#conventions)
-  and the documentation rules in [docs/CONVENTIONS.md](docs/CONVENTIONS.md); the latter is
-  frozen and must not be edited.
+  breadth stays a judgment call while placement and substitution do not. An invariant with
+  no observable output, such as work done once rather than twice, is observed through a
+  counting fake at the seam it crosses, and where no seam exists the invariant is asking for
+  one. See [decision 0009](docs/decisions/0009-adopt-the-styles-test-contract.md).
+- **Follow the doc-comment convention** in the rulebook's code-level section and the
+  documentation rules in [docs/CONVENTIONS.md](docs/CONVENTIONS.md); that file is frozen
+  and must not be edited.
 - **The documentation rulebook is owned by the style.** [docs/CONVENTIONS.md](docs/CONVENTIONS.md)
   changes only in the Helm template inside the My-Styles repository, never here, and this
   project never diverges from its copy. A rule believed wrong or missing goes upstream
@@ -181,6 +183,18 @@ the report; anyone else files it as an issue on My-Styles. The full workflow, in
 the qualification gate and the final alignment check that follows integration, is defined
 in the template's AGENTS.md.
 
+The reply travels the same road down. The template's maintainer answers a report with one
+file that names, per entry, whether it was kept, adapted, or refused and why, what this
+project now reverts in favor of the template's version, and the template commit to align
+to next, so the reply is a re-alignment order rather than a verdict to interpret.
+
+Re-alignment is one refactor, not a trickle. Read the decision records the template gained
+since the commit named in the README, because every rule change carries one; recopy the
+files the style owns verbatim, the rulebook and the docs audit; re-adapt from a diff
+whatever was adapted before; run every checking command above; and move the pin in the
+README. No changelog is kept, because the records are the changelog and a summary would be
+a lossy copy of them.
+
 ## Documentation index
 
 This is the single index of the project's technical documentation. A document that is not
@@ -189,7 +203,7 @@ document, register it here in the same change; when you remove one, delist it he
 
 | Document | What it is and when to read it |
 | --- | --- |
-| [README.md](README.md) | Human-facing overview: philosophy, structure, setup, and the doc-comment convention. |
+| [README.md](README.md) | Human-facing overview: philosophy, structure, and setup. |
 | [STATE.md](STATE.md) | Living project state (Now / Next / Deferred / Blocked). Read first, always. |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The annotated map of the whole builder. Read before any structural change. |
 | [docs/CONVENTIONS.md](docs/CONVENTIONS.md) | The documentation rulebook: document species, schemas, naming. Frozen; owned by the style. Read before writing or changing any documentation. |
