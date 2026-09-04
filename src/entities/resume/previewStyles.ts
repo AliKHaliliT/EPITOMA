@@ -131,7 +131,7 @@ export const dateStyle = (style: ResumeStyle): CSSProperties => ({
 });
 
 /** An entry's title line. */
-export const entryHeaderStyle = (_style: ResumeStyle): CSSProperties => ({
+export const entryHeaderStyle = (): CSSProperties => ({
   fontSize: "var(--r-entry-size)",
   fontWeight: 600,
 });
@@ -161,7 +161,7 @@ export function bodyStyle(style: ResumeStyle): CSSProperties {
 }
 
 /** A section block, kept from splitting across a page break. */
-export const sectionStyle = (_style: ResumeStyle): CSSProperties => ({
+export const sectionStyle = (): CSSProperties => ({
   marginBottom: "var(--r-gap)",
   breakInside: "avoid",
 });

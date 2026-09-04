@@ -55,7 +55,7 @@ function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: Resume
   const subtitleInline = style.subtitlePlacement === "same" || layout === 3;
 
   const titleEl = entry.title && (
-    <span style={entryHeaderStyle(style)}>
+    <span style={entryHeaderStyle()}>
       {entry.link ? (
         <a href={entry.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
           {entry.title}
@@ -243,7 +243,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
         <div data-atom={atom} className={layout === "rows" ? "space-y-2" : "grid grid-cols-2 gap-3"}>
           {visible.map((e) => (
             <div key={e.id}>
-              <div style={entryHeaderStyle(style)}>{e.title}</div>
+              <div style={entryHeaderStyle()}>{e.title}</div>
               {e.subtitle && <div style={{ ...subtitleStyle(style), fontSize: "0.9em" }}>{e.subtitle}</div>}
               {(e.meta?.organization as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.organization as string}</div>}
               {(e.meta?.email as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.email as string}</div>}
@@ -269,7 +269,7 @@ function SectionBody({ section, style }: { section: ResumeSection; style: Resume
             {visible.map((e) => (
               <div key={e.id} className="flex items-baseline justify-between gap-3">
                 <span className="min-w-0">
-                  <span style={entryHeaderStyle(style)}>
+                  <span style={entryHeaderStyle()}>
                     {e.link ? (
                       <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
                         {e.title}
@@ -441,7 +441,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
       <section
         key={section.id}
         style={{
-          ...sectionStyle(style),
+          ...sectionStyle(),
           // Mix layout: prose sections escape the columns.
           ...(style.columns === "mix" &&
           (section.kind === "summary" || section.kind === "declaration")
