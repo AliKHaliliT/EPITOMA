@@ -85,14 +85,6 @@ export default defineConfig([
     },
   },
   {
-    // Context modules intentionally export a Provider + its hook as a pair;
-    // the only cost is a full-reload fallback for these files in dev HMR.
-    files: ['**/context/*.tsx'],
-    rules: {
-      'react-refresh/only-export-components': 'off',
-    },
-  },
-  {
     // Every export carries a doc comment; the one-sentence minimum is the rulebook's
     // code-level convention. Suites live outside src and are exempt. Where a comment
     // documents parameters, the names must be the signature's, which a machine decides.
