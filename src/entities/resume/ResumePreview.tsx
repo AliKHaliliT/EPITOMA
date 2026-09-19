@@ -633,7 +633,11 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
 }) => {
   const { style } = doc;
   const [pageCount, setPageCount] = useState(1);
-  const [scrolled, setScrolled] = useState(false);
+  // Deliberately not state. Mounting anything on a scroll threshold changed the
+  // scroll height at the very position that decided the threshold, so crossing
+  // it flipped the flag back and the sheet oscillated between two layouts. The
+  // control is always mounted, contributes no height, and only its class moves.
+  const topBtnRef = useRef<HTMLButtonElement>(null);
   const dims = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;
   const pageHeightPx = dims.h * MM_TO_PX;
   const sheetWidthPx = dims.w * MM_TO_PX;
@@ -678,7 +682,15 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
           document, never the app behind it. */}
       <div
         ref={scrollRef}
-        onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 240)}
+        onScroll={(e) => {
+          const show = e.currentTarget.scrollTop > 240;
+          topBtnRef.current?.classList.toggle("opacity-0", !show);
+          topBtnRef.current?.classList.toggle("invisible", !show);
+        }}
+        // Scroll anchoring is off because the sheet's own height is derived from
+        // its page count: letting the browser chase a height change fights the
+        // reader at a page boundary.
+        style={{ overflowAnchor: "none" }}
         className="relative max-h-[calc(100vh-7.5rem)] overflow-y-auto overscroll-contain p-4"
       >
         <div ref={fitRef}>
@@ -735,17 +747,19 @@ export const ResumePreview = ({ doc, sample, onExitSample }: {
           </div>
         </div>
 
-        {/* Back to the first page, for long documents. */}
-        {scrolled && (
+        {/* Back to the first page, for long documents. The row is sticky and
+            zero-height so the control adds nothing to the scrollable content. */}
+        <div className="pointer-events-none sticky bottom-3 z-20 flex h-0 justify-end pr-1">
           <button
+            ref={topBtnRef}
             onClick={() => scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-            className="sticky bottom-3 left-full z-20 mr-1 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-card text-muted shadow-md transition-colors hover:border-signal hover:text-signal"
+            className="pointer-events-auto invisible flex h-9 w-9 -translate-y-full items-center justify-center rounded-full border border-line bg-card text-muted opacity-0 shadow-md transition-[color,border-color,opacity] hover:border-signal hover:text-signal"
             title="Scroll to the first page"
             aria-label="Scroll to the first page"
           >
             <ArrowUp size={16} />
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
