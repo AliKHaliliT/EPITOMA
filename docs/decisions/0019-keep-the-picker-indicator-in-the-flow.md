@@ -1,6 +1,6 @@
 # 0019. Keep the date picker indicator in the flow rather than over the control
 
-Status: Accepted
+Status: Superseded by [0021](0021-own-the-month-control.md)
 Date: 2026-09-19
 
 ## Context

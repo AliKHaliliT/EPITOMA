@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link2, X } from "lucide-react";
 import { ResumeEntry, SectionKind } from "@/entities/resume";
-import { ResumeRichText } from "@/shared/ui";
+import { MonthField, ResumeRichText } from "@/shared/ui";
 
 interface EntryEditorProps {
   entry: ResumeEntry;
@@ -125,7 +125,7 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
             <input className={inputCls} value={entry.link || ""} onChange={(e) => set({ link: e.target.value })} placeholder="https://…" />
           </Field>
           <Field label="Date">
-            <input type="month" className={inputCls} value={entry.startDate || ""} onChange={(e) => set({ startDate: e.target.value })} />
+            <MonthField label="Date" value={entry.startDate || ""} onChange={(v) => set({ startDate: v })} />
           </Field>
         </div>
         <DoneBar onClose={onClose} />
@@ -164,17 +164,18 @@ export const EntryEditor = ({ entry, kind, onChange, onClose }: EntryEditorProps
         </Field>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Start date">
-          <input type="month" className={inputCls} value={entry.startDate || ""} onChange={(e) => set({ startDate: e.target.value })} />
+          <MonthField label="Start date" value={entry.startDate || ""} onChange={(v) => set({ startDate: v })} />
         </Field>
         <Field label="End date">
-          <input type="month" className={inputCls} value={entry.endDate || ""} onChange={(e) => set({ endDate: e.target.value })} />
-        </Field>
-        <Field label="Location">
-          <input className={inputCls} value={entry.location || ""} onChange={(e) => set({ location: e.target.value })} />
+          <MonthField label="End date" value={entry.endDate || ""} onChange={(v) => set({ endDate: v })} />
         </Field>
       </div>
+
+      <Field label="Location">
+        <input className={inputCls} value={entry.location || ""} onChange={(e) => set({ location: e.target.value })} />
+      </Field>
 
       <Field label="Description">
         <ResumeRichText value={entry.description || ""} onChange={(v) => set({ description: v })} />
