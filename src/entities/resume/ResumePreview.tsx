@@ -5,6 +5,7 @@ import {
   Mail, Phone, MapPin, Globe, Github, Linkedin, Twitter, GraduationCap,
   BookOpen, Link2, ExternalLink, ArrowUp, type LucideIcon,
 } from "lucide-react";
+import { planPushes } from "./pagination";
 import { PAGE_DIMS, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "./model";
 import { fmtResumeDate, languageLocale, presentWord } from "./dates";
 import { iconByName } from "@/shared/lib";
@@ -326,55 +327,50 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
   // ([data-atom], inside a [data-flow]) that would cross the bottom margin is
   // pushed to the next page's top margin via paddingTop; a heading left alone
   // at a page's foot travels with its first block. The maths works on natural
-  // positions (current pushes subtracted), so re-running converges instead of
-  // oscillating, and the same pushes flow into the print/PDF output.
+  // positions (current pushes subtracted), and the same pushes flow into the
+  // print/PDF output.
+  //
+  // The pass reads every atom, then decides, then writes, and never mixes the
+  // three. Reading a rect forces the pending layout, so a padding written part
+  // way through a walk is already in the rects the rest of the walk measures,
+  // while the running total of pushes above still expects to subtract it. Below
+  // the first write every natural position then came out one push too high, the
+  // decision flipped, and the next pass flipped it back several times a second.
   const paginate = () => {
     const rootEl = rootRef.current;
     if (!rootEl) return;
     const pageHpx = pageHmm * MM_TO_PX;
     const mYpx = style.marginY * MM_TO_PX;
-    const contentAreaH = pageHpx - 2 * mYpx;
     // The preview scales the sheet with a transform; rects come back scaled.
     const scale = rootEl.getBoundingClientRect().width / rootEl.offsetWidth || 1;
+    const rootTop = rootEl.getBoundingClientRect().top;
 
     rootEl.querySelectorAll<HTMLElement>("[data-flow]").forEach((flow) => {
       const atoms = Array.from(flow.querySelectorAll<HTMLElement>("[data-atom]"));
       if (!atoms.length) return;
-      const rootTop = rootEl.getBoundingClientRect().top;
+
+      // Read. One layout, sampled before anything in it moves.
       let before = 0; // applied pushes above the current atom
-      let offset = 0; // freshly computed pushes above the current atom
-      let prevHead: { el: HTMLElement; top: number } | null = null;
-
-      atoms.forEach((a) => {
-        const applied = parseFloat(a.style.paddingTop) || 0;
-        const r = a.getBoundingClientRect();
-        const natTop = (r.top - rootTop) / scale - before;
-        const natH = r.height / scale - applied;
-        const top = natTop + offset;
-        const page = Math.floor(top / pageHpx);
-        const limit = (page + 1) * pageHpx - mYpx;
-        const isHead = (a.dataset.atom || "").startsWith("h:");
-
-        let push = 0;
-        let pushEl: HTMLElement = a;
-        if (top + natH > limit + 1 && natH <= contentAreaH) {
-          const from = prevHead ? prevHead.top : top;
-          pushEl = prevHead ? prevHead.el : a;
-          push = (page + 1) * pageHpx + mYpx - from;
-        }
-
-        if (pushEl === a) {
-          const want = push > 0.5 ? `${push}px` : "";
-          if ((a.style.paddingTop || "") !== want) a.style.paddingTop = want;
-        } else {
-          // Pushing the orphaned heading instead; this atom itself stays flat.
-          const want = `${push}px`;
-          if ((pushEl.style.paddingTop || "") !== want) pushEl.style.paddingTop = want;
-          if ((a.style.paddingTop || "") !== "") a.style.paddingTop = "";
-        }
+      const measured = atoms.map((el) => {
+        const applied = parseFloat(el.style.paddingTop) || 0;
+        const r = el.getBoundingClientRect();
+        const atom = {
+          natTop: (r.top - rootTop) / scale - before,
+          natH: r.height / scale - applied,
+          isHead: (el.dataset.atom || "").startsWith("h:"),
+        };
         before += applied;
-        offset += push;
-        prevHead = isHead ? { el: a, top: top + push } : null;
+        return atom;
+      });
+
+      // Decide, on measurements alone.
+      const pushes = planPushes(measured, { pageH: pageHpx, marginY: mYpx });
+
+      // Write. Every atom is named, so one needing no push is cleared rather
+      // than left holding the previous pass's padding.
+      atoms.forEach((el, i) => {
+        const want = pushes[i] > 0.5 ? `${pushes[i]}px` : "";
+        if ((el.style.paddingTop || "") !== want) el.style.paddingTop = want;
       });
     });
   };
