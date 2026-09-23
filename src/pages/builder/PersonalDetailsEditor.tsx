@@ -43,26 +43,7 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
   return (
     <div className="space-y-5 border-t border-line pt-4 mt-2">
       {/* Basic fields */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Field label="Full name">
-          <input className={inputCls} value={personal.name || ""} onChange={(e) => set({ name: e.target.value })} />
-        </Field>
-        <Field label="Professional title">
-          <input className={inputCls} value={personal.title || ""} onChange={(e) => set({ title: e.target.value })} />
-        </Field>
-        <Field label="Location">
-          <input className={inputCls} value={personal.location || ""} onChange={(e) => set({ location: e.target.value })} />
-        </Field>
-        <Field label="Phone">
-          <input className={inputCls} value={personal.phone || ""} onChange={(e) => set({ phone: e.target.value })} />
-        </Field>
-        <Field label="Email">
-          <input className={inputCls} value={personal.email || ""} onChange={(e) => set({ email: e.target.value })} />
-        </Field>
-        <Field label="Photo URL">
-          <input className={inputCls} value={personal.photo || ""} onChange={(e) => set({ photo: e.target.value })} placeholder="https://…" />
-        </Field>
-      </div>
+      {basicFields(personal, set)}
 
       {/* Links */}
       <div className="space-y-2">
@@ -139,6 +120,32 @@ export const PersonalDetailsEditor = ({ personal, onChange }: PersonalDetailsEdi
     </div>
   );
 };
+
+// The six plain header fields, each written straight back through `set`.
+function basicFields(personal: PersonalDetails, set: (patch: Partial<PersonalDetails>) => void) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <Field label="Full name">
+        <input className={inputCls} value={personal.name || ""} onChange={(e) => set({ name: e.target.value })} />
+      </Field>
+      <Field label="Professional title">
+        <input className={inputCls} value={personal.title || ""} onChange={(e) => set({ title: e.target.value })} />
+      </Field>
+      <Field label="Location">
+        <input className={inputCls} value={personal.location || ""} onChange={(e) => set({ location: e.target.value })} />
+      </Field>
+      <Field label="Phone">
+        <input className={inputCls} value={personal.phone || ""} onChange={(e) => set({ phone: e.target.value })} />
+      </Field>
+      <Field label="Email">
+        <input className={inputCls} value={personal.email || ""} onChange={(e) => set({ email: e.target.value })} />
+      </Field>
+      <Field label="Photo URL">
+        <input className={inputCls} value={personal.photo || ""} onChange={(e) => set({ photo: e.target.value })} placeholder="https://…" />
+      </Field>
+    </div>
+  );
+}
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1">

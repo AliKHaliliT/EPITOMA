@@ -4,7 +4,7 @@
 // spec), so a style setting cannot mean different things in different
 // formats. docs/export-parity.md carries the format-by-format mapping table.
 
-import { PAGE_DIMS, ResumeSection, ResumeStyle } from "./model";
+import { PAGE_DIMS, ResumeSection, ResumeStyle, SectionLayout } from "./model";
 import { sectionRegion } from "./defaults";
 import { RAIL_FRAC, luminance, railColors, tint } from "./previewStyles";
 
@@ -205,6 +205,22 @@ export type SectionShape =
   | "entry-rows"   // compact one-line rows (no body)
   | "entry-grid";  // entry rows in a two-column grid
 
+// The kinds with a body of their own, each keyed to the layouts it offers.
+const KIND_SHAPES = new Map<string, (layout: SectionLayout) => SectionShape>([
+  ["summary", () => "prose"],
+  ["declaration", () => "prose"],
+  ["skills", (layout) => (layout === "bubble" ? "skill-chips" : "skill-groups")],
+  ["languages", (layout) => (layout === "dots" ? "lang-dots" : layout === "grid" ? "lang-grid" : "lang-list")],
+  ["interests", (layout) => (layout === "rows" ? "plain-rows" : "chips")],
+  ["blog", () => "linked-list"],
+  ["garden", () => "linked-list"],
+  ["references", () => "ref-cards"],
+]);
+
+// Every other kind draws full entry rows, in a grid or as compact rows when asked.
+const entryShape = (layout: SectionLayout): SectionShape =>
+  layout === "grid" ? "entry-grid" : layout === "rows" ? "entry-rows" : "entries";
+
 /**
  * Works out one section's arrangement.
  *
@@ -215,24 +231,7 @@ export type SectionShape =
 export function sectionShape(section: ResumeSection): SectionShape {
   const kind = section.customType === "skill" ? "skills" : section.kind;
   const layout = section.layout || "list";
-  switch (kind) {
-    case "summary":
-    case "declaration":
-      return "prose";
-    case "skills":
-      return layout === "bubble" ? "skill-chips" : "skill-groups";
-    case "languages":
-      return layout === "dots" ? "lang-dots" : layout === "grid" ? "lang-grid" : "lang-list";
-    case "interests":
-      return layout === "rows" ? "plain-rows" : "chips";
-    case "blog":
-    case "garden":
-      return "linked-list";
-    case "references":
-      return "ref-cards";
-    default:
-      return layout === "grid" ? "entry-grid" : layout === "rows" ? "entry-rows" : "entries";
-  }
+  return (KIND_SHAPES.get(kind) ?? entryShape)(layout);
 }
 
 // ── column regions ──────────────────────────────────────────────────────────

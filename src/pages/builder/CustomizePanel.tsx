@@ -22,6 +22,12 @@ interface CustomizePanelProps {
   onSampleModeChange: (on: boolean) => void;
 }
 
+/** The panel's props with its two style writers, as every pane reads them. */
+interface PaneProps extends CustomizePanelProps {
+  set: (patch: Partial<ResumeStyle>) => void;
+  setAccent: (patch: Partial<ResumeStyle["accentApply"]>) => void;
+}
+
 // Eight dense panes instead of fourteen thin ones: each pane owns a whole
 // concern and fills its canvas, clustered under mono micro-headers.
 type Pane =
@@ -114,9 +120,10 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
     );
   };
 
-  const sectionsWithLayouts = sections.filter(
-    (s) => SECTION_LAYOUTS[s.customType === "skill" ? "skills" : s.kind]
-  );
+  const paneProps: PaneProps = {
+    style, docKind, onStyleChange, sections, onSectionsChange, onApplyDocument, sampleMode, onSampleModeChange,
+    set, setAccent,
+  };
 
   return (
     <div className="bg-card border border-line rounded-xl flex min-h-[420px]">
@@ -189,439 +196,7 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
           exit={{ opacity: 0, y: -5 }}
           transition={{ duration: 0.16, ease: [0.2, 0.7, 0.2, 1] }}
         >
-        {pane === "templates" && (
-          <div className="space-y-3">
-            <button
-              onClick={() => onSampleModeChange(!sampleMode)}
-              className={cn(
-                "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
-                sampleMode
-                  ? "border-signal bg-surface text-ink"
-                  : "border-line text-muted hover:border-line-strong hover:text-ink"
-              )}
-            >
-              <Eye size={15} className={sampleMode ? "text-signal" : undefined} />
-              <span className="flex-1">
-                Preview with sample data
-                <span className="block text-[11px] leading-snug opacity-80">
-                  The big sheet typesets the sample record while you browse; your document is untouched.
-                </span>
-              </span>
-              <span className={cn(
-                "font-mono text-[9.5px] uppercase tracking-[0.1em]",
-                sampleMode ? "text-signal" : "opacity-60"
-              )}>
-                {sampleMode ? "on" : "off"}
-              </span>
-            </button>
-            <div className="grid grid-cols-2 gap-3">
-              {TEMPLATE_PRESETS.filter((t) => t.kinds.includes(docKind)).map((t) => (
-                <button
-                  key={t.key}
-                  // A template is a complete look: build it on the DEFAULTS,
-                  // never on the current style, so nothing from the previous
-                  // template (a dark rail fill, a photo toggle) leaks through.
-                  // The Page-pane basics survive unless the preset says
-                  // otherwise.
-                  onClick={() =>
-                    onStyleChange({
-                      ...structuredClone(DEFAULT_STYLE),
-                      language: style.language,
-                      pageFormat: style.pageFormat,
-                      dateFormat: style.dateFormat,
-                      ...t.style,
-                      template: t.key,
-                    })
-                  }
-                  className={cn(
-                    "rounded-lg border p-2 text-left transition-colors",
-                    style.template === t.key
-                      ? "border-signal ring-1 ring-signal/40"
-                      : "border-line hover:border-line-strong"
-                  )}
-                >
-                  <TemplateThumb preset={t} />
-                  <span className="mt-1.5 block text-sm font-medium text-ink">{t.label}</span>
-                  <span className="mt-0.5 block text-[11px] leading-snug text-muted">
-                    {t.description}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {pane === "region" && (
-          <div className="space-y-5">
-            <div className="space-y-2">
-              <Label>Market</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {REGION_PRESETS.map((r) => (
-                  <button
-                    key={r.key}
-                    // A region writes into the ordinary knobs and the header,
-                    // so it goes through the document, not the style alone;
-                    // everything it set stays editable in the panes below.
-                    onClick={() => onApplyDocument((doc) => applyRegion(doc, r))}
-                    className={cn(
-                      "rounded-lg border p-3 text-left transition-colors",
-                      style.region === r.key
-                        ? "border-signal ring-1 ring-signal/40"
-                        : "border-line hover:border-line-strong"
-                    )}
-                  >
-                    <span className="block text-sm font-medium text-ink">{r.label}</span>
-                    <span className="mt-0.5 block text-[11px] leading-snug text-muted">{r.description}</span>
-                  </button>
-                ))}
-              </div>
-              {REGION_PRESETS.filter((r) => r.key === style.region).map((r) => (
-                <ul key={r.key} className="m-0 list-disc space-y-1 pl-4 text-[11.5px] leading-snug text-muted">
-                  {r.notes.map((n) => <li key={n}>{n}</li>)}
-                </ul>
-              ))}
-            </div>
-
-            <div className="space-y-2 border-t border-line pt-4">
-              <Label>Field</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {FIELD_OVERLAYS.map((f) => (
-                  <button
-                    key={f.key}
-                    onClick={() => onApplyDocument((doc) => applyField(doc, f))}
-                    className={cn(
-                      "rounded-lg border p-3 text-left transition-colors",
-                      style.field === f.key
-                        ? "border-signal ring-1 ring-signal/40"
-                        : "border-line hover:border-line-strong"
-                    )}
-                  >
-                    <span className="block text-sm font-medium text-ink">{f.label}</span>
-                    <span className="mt-0.5 block text-[11px] leading-snug text-muted">{f.description}</span>
-                  </button>
-                ))}
-              </div>
-              {FIELD_OVERLAYS.filter((f) => f.key === style.field).map((f) => (
-                <ul key={f.key} className="m-0 list-disc space-y-1 pl-4 text-[11.5px] leading-snug text-muted">
-                  {f.notes.map((n) => <li key={n}>{n}</li>)}
-                </ul>
-              ))}
-            </div>
-
-            <p className="m-0 text-[11px] leading-snug text-muted">
-              A preset is a starting point. It turns the Page, Header, and section knobs the way that
-              market or field expects, and every one of them stays yours to change afterwards.
-            </p>
-          </div>
-        )}
-
-        {pane === "page" && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <Select label="Language" value={style.language} onChange={(v) => onApplyDocument((doc) => setDocumentLanguage(doc, v))}
-                options={["Azerbaijani", "English", "English (UK)", "French", "German", "Spanish", "Turkish"]} />
-              <Select label="Date format" value={style.dateFormat} onChange={(v) => set({ dateFormat: v })}
-                options={["MMM YYYY", "MMM DD, YYYY", "MM/YYYY", "YYYY"]} />
-            </div>
-            <Tiles label="Page size" value={style.pageFormat} onChange={(v) => set({ pageFormat: v as ResumeStyle["pageFormat"] })}
-              options={[
-                { value: "A3", label: "A3" }, { value: "A4", label: "A4" }, { value: "A5", label: "A5" },
-                { value: "Letter", label: "Letter" }, { value: "Legal", label: "Legal" },
-              ]} />
-            <Tiles label="Columns" value={style.columns} onChange={(v) => set({ columns: v as ResumeStyle["columns"] })}
-              hint={style.columns === "sidebar"
-                ? "Sidebar sets a tinted rail beside the main flow; assign each section below. The rail's fill is under Colors."
-                : "Mix keeps two columns but lets the summary and declaration span the full width."}
-              options={[
-                { value: "one", label: "One", glyph: <ColumnsGlyph mode="one" /> },
-                { value: "two", label: "Two", glyph: <ColumnsGlyph mode="two" /> },
-                { value: "mix", label: "Mix", glyph: <ColumnsGlyph mode="mix" /> },
-                { value: "sidebar", label: "Sidebar", glyph: <ColumnsGlyph mode="sidebar" /> },
-              ]} />
-            <Cluster title="Section order">
-              <Reorder.Group axis="y" values={sections} onReorder={onSectionsChange} className="space-y-1">
-                {sections.map((s) => (
-                  <OrderRow
-                    key={s.id}
-                    section={s}
-                    region={style.columns === "sidebar" ? sectionRegion(s) : undefined}
-                    onRegionToggle={() =>
-                      onSectionsChange(
-                        sections.map((x) =>
-                          x.id === s.id
-                            ? { ...x, region: sectionRegion(x) === "side" ? "main" as const : "side" as const }
-                            : x
-                        )
-                      )
-                    }
-                  />
-                ))}
-              </Reorder.Group>
-            </Cluster>
-          </div>
-        )}
-
-        {pane === "type" && (
-          <div className="space-y-4">
-            <Cluster title="Family">
-              <div className="grid grid-cols-2 gap-x-4">
-                <FontSelect label="Body font" value={style.bodyFont} onChange={(v) => set({ bodyFont: v })} />
-                <FontSelect label="Name font" value={style.nameFont || ""} allowInherit onChange={(v) => set({ nameFont: v })} />
-              </div>
-            </Cluster>
-            <Cluster title="Size">
-              <GaugeGroup>
-                <Gauge label="Base" value={style.baseFontSize} min={7} max={14} step={0.5} suffix="pt" onChange={(v) => set({ baseFontSize: v })} />
-                <Gauge label="Name" value={style.nameFontSize} min={0} max={24} step={1} prefix="+" suffix="pt" onChange={(v) => set({ nameFontSize: v })} />
-                <Gauge label="Headings" value={style.headingFontSize} min={0} max={12} step={1} prefix="+" suffix="pt" onChange={(v) => set({ headingFontSize: v })} />
-                <Gauge label="Entries" value={style.entryHeaderFontSize} min={0} max={8} step={1} prefix="+" suffix="pt" onChange={(v) => set({ entryHeaderFontSize: v })} />
-              </GaugeGroup>
-            </Cluster>
-            <Cluster title="Rhythm">
-              <GaugeGroup>
-                <Gauge label="Leading" value={style.lineHeight} min={1} max={2} step={0.05} onChange={(v) => set({ lineHeight: v })} />
-                <Gauge label="Gaps" value={style.elementSpacing} min={0} max={24} step={1} suffix="px" onChange={(v) => set({ elementSpacing: v })} />
-                <Gauge label="Margin X" value={style.marginX} min={4} max={30} step={1} suffix="mm" onChange={(v) => set({ marginX: v })} />
-                <Gauge label="Margin Y" value={style.marginY} min={4} max={30} step={1} suffix="mm" onChange={(v) => set({ marginY: v })} />
-              </GaugeGroup>
-            </Cluster>
-          </div>
-        )}
-
-        {pane === "entries" && (
-          <div className="space-y-4">
-            <Tiles label="Entry layout" value={String(style.entryLayout)} onChange={(v) => set({ entryLayout: Number(v) as ResumeStyle["entryLayout"] })}
-              options={[
-                { value: "1", label: "Date right", glyph: <EntryGlyph variant={1} /> },
-                { value: "2", label: "Stacked", glyph: <EntryGlyph variant={2} /> },
-                { value: "3", label: "One line", glyph: <EntryGlyph variant={3} /> },
-              ]} />
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <Tiles label="Subtitle style" value={style.subtitleStyle} onChange={(v) => set({ subtitleStyle: v as ResumeStyle["subtitleStyle"] })}
-                options={[
-                  { value: "normal", label: "Normal", glyph: <span className="text-[11px] leading-none">Co</span> },
-                  { value: "bold", label: "Bold", glyph: <span className="text-[11px] font-bold leading-none">Co</span> },
-                  { value: "italic", label: "Italic", glyph: <span className="text-[11px] italic leading-none">Co</span> },
-                ]} />
-              <Tiles label="Subtitle placement" value={style.subtitlePlacement} onChange={(v) => set({ subtitlePlacement: v as ResumeStyle["subtitlePlacement"] })}
-                options={[
-                  { value: "same", label: "Same line", glyph: <PlacementGlyph same /> },
-                  { value: "next", label: "Next line", glyph: <PlacementGlyph /> },
-                ]} />
-              <Tiles label="List style" value={style.listStyle} onChange={(v) => set({ listStyle: v as ResumeStyle["listStyle"] })}
-                options={[
-                  { value: "bullet", label: "Bullet", glyph: <span className="font-mono text-[11px] leading-none">•</span> },
-                  { value: "hyphen", label: "Hyphen", glyph: <span className="font-mono text-[11px] leading-none">–</span> },
-                ]} />
-              <div className="flex items-end pb-2.5">
-                <Check label="Indent body text" checked={style.indentBody} onChange={(v) => set({ indentBody: v })} />
-              </div>
-            </div>
-            <Cluster title="Section bodies">
-              {sectionsWithLayouts.length === 0 ? (
-                <p className="m-0 text-[11px] text-muted">
-                  No sections with body options. Skills, languages, certificates, interests, and references carry them.
-                </p>
-              ) : (
-                <div className="divide-y divide-dashed divide-line rounded-lg border border-line">
-                  {sectionsWithLayouts.map((s) => {
-                    const opts = SECTION_LAYOUTS[s.customType === "skill" ? "skills" : s.kind]!;
-                    return (
-                      <div key={s.id} className="flex items-center justify-between gap-3 px-2.5 py-1.5">
-                        <span className="truncate text-xs text-ink">{s.heading}</span>
-                        <Tiles
-                          value={s.layout || opts[0]}
-                          onChange={(v) => onSectionsChange(sections.map((x) => (x.id === s.id ? { ...x, layout: v as ResumeSection["layout"] } : x)))}
-                          options={opts.map((o) => ({ value: o, label: o[0].toUpperCase() + o.slice(1) }))}
-                          dense
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </Cluster>
-          </div>
-        )}
-
-        {pane === "headings" && (
-          <div className="space-y-4">
-            <Tiles label="Decoration" value={String(style.headingStyle)} onChange={(v) => set({ headingStyle: Number(v) as ResumeStyle["headingStyle"] })}
-              options={[1, 2, 3, 4, 5, 6].map((n) => ({
-                value: String(n),
-                label: HEADING_STYLE_LABELS[n - 1],
-                glyph: <HeadingGlyph variant={n as 1 | 2 | 3 | 4 | 5 | 6} accent={style.accentColor} />,
-              }))} />
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <Tiles label="Capitalization" value={style.headingCase} onChange={(v) => set({ headingCase: v as ResumeStyle["headingCase"] })}
-                options={[
-                  { value: "capitalize", label: "Capitalize", glyph: <span className="text-[11px] leading-none">Aa</span> },
-                  { value: "uppercase", label: "Uppercase", glyph: <span className="text-[10px] font-semibold leading-none tracking-wide">AA</span> },
-                ]} />
-              <Tiles label="Icons" value={style.headingIcons} onChange={(v) => set({ headingIcons: v as ResumeStyle["headingIcons"] })}
-                options={[
-                  { value: "none", label: "None", glyph: <span className="text-[11px] leading-none opacity-40">×</span> },
-                  { value: "outline", label: "Outline", glyph: <Square size={11} /> },
-                  { value: "filled", label: "Filled", glyph: <Square size={11} fill="currentColor" /> },
-                ]} />
-            </div>
-            {style.headingIcons !== "none" && (
-              <GaugeGroup>
-                <Gauge label="Icon size" value={style.headingIconSize || 13} min={9} max={22} step={1} suffix="px" onChange={(v) => set({ headingIconSize: v })} />
-              </GaugeGroup>
-            )}
-          </div>
-        )}
-
-        {pane === "colors" && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <Tiles label="Color scope" value={style.colorScope} onChange={(v) => set({ colorScope: v as ResumeStyle["colorScope"] })}
-                options={[
-                  { value: "page", label: "Page", glyph: <ScopeGlyph mode="page" accent={style.accentColor} /> },
-                  { value: "header", label: "Header", glyph: <ScopeGlyph mode="header" accent={style.accentColor} /> },
-                  { value: "border", label: "Border", glyph: <ScopeGlyph mode="border" accent={style.accentColor} /> },
-                ]} />
-              <Tiles label="Palette" value={style.palette} onChange={(v) => set({ palette: v as ResumeStyle["palette"] })}
-                options={[
-                  { value: "single", label: "Single", glyph: <span className="block h-3 w-3 rounded-[2px]" style={{ background: style.accentColor }} /> },
-                  { value: "image", label: "Image", glyph: <ImageIcon size={12} /> },
-                ]} />
-            </div>
-            {(style.colorScope === "header" || style.columns === "sidebar") && (
-              <div className="flex items-center gap-2">
-                <Label>{style.columns === "sidebar" ? "Rail & header fill" : "Header fill"}</Label>
-                <input
-                  type="color"
-                  value={style.headerFillColor || "#eef2fb"}
-                  onChange={(e) => set({ headerFillColor: e.target.value })}
-                  aria-label="Header band color"
-                  className="h-6 w-8 cursor-pointer rounded-[3px] border border-line-strong bg-transparent p-0.5"
-                />
-                <button
-                  onClick={() => set({ headerFillColor: "" })}
-                  className={cn(
-                    "rounded-md border px-2 py-0.5 text-[11px] font-medium transition-colors",
-                    !style.headerFillColor
-                      ? "border-signal text-signal"
-                      : "border-line text-muted hover:text-ink"
-                  )}
-                >
-                  Auto (from accent)
-                </button>
-              </div>
-            )}
-            {style.palette === "image" && (
-              <div className="space-y-1.5">
-                <Label>Background image URL</Label>
-                <input className={INPUT} value={style.backgroundImage || ""} onChange={(e) => set({ backgroundImage: e.target.value })} placeholder="https://…" />
-              </div>
-            )}
-            <Cluster title="Accent">
-              <div className="flex flex-wrap items-center gap-1.5">
-                {SWATCHES.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => set({ accentColor: c })}
-                    aria-label={`Accent ${c}`}
-                    className={cn(
-                      "relative h-7 w-7 rounded-[3px] border transition-transform hover:scale-105",
-                      style.accentColor === c ? "border-transparent" : "border-line-strong"
-                    )}
-                    style={{ background: c }}
-                  >
-                    {style.accentColor === c && (
-                      <span className="absolute inset-0 rounded-[3px] ring-2 ring-signal ring-offset-2 ring-offset-card" />
-                    )}
-                  </button>
-                ))}
-                <input type="color" value={style.accentColor} onChange={(e) => set({ accentColor: e.target.value })}
-                  className="h-7 w-7 cursor-pointer rounded-[3px] bg-transparent" title="Custom color" />
-              </div>
-            </Cluster>
-            <Cluster title="Apply accent to">
-              <div className="grid grid-cols-3 gap-x-3 gap-y-1.5">
-                {([
-                  ["name", "Name"], ["jobTitle", "Job title"], ["headings", "Headings"],
-                  ["headingsLine", "Heading line"], ["headerIcons", "Header icons"],
-                  ["dates", "Dates"], ["subtitle", "Subtitle"],
-                  ["linkIcons", "Link icons"],
-                ] as const).map(([k, lbl]) => (
-                  <Check key={k} label={lbl} checked={style.accentApply[k]} onChange={(v) => setAccent({ [k]: v })} compact />
-                ))}
-              </div>
-            </Cluster>
-          </div>
-        )}
-
-        {pane === "header" && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              <Tiles label="Alignment" value={style.headerAlign} onChange={(v) => set({ headerAlign: v as ResumeStyle["headerAlign"] })}
-                options={[
-                  { value: "left", label: "Left", glyph: <AlignGlyph /> },
-                  { value: "center", label: "Center", glyph: <AlignGlyph center /> },
-                ]} />
-              <Tiles label="Details" value={style.headerDetails} onChange={(v) => set({ headerDetails: v as ResumeStyle["headerDetails"] })}
-                options={[
-                  { value: "icon", label: "Icon", glyph: <span className="flex items-center gap-0.5 text-[9px] leading-none"><MapPin size={9} /> a</span> },
-                  { value: "bullet", label: "Bullet", glyph: <span className="font-mono text-[10px] leading-none">a•b</span> },
-                  { value: "bar", label: "Bar", glyph: <span className="font-mono text-[10px] leading-none">a|b</span> },
-                ]} />
-            </div>
-            <Cluster title="Portrait">
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 items-end gap-x-4">
-                  <Tiles label="Shape" value={style.photoShape} onChange={(v) => set({ photoShape: v as ResumeStyle["photoShape"] })}
-                    options={[
-                      { value: "circle", label: "Circle", glyph: <span className="block h-3.5 w-3.5 rounded-full bg-current opacity-60" /> },
-                      { value: "rounded", label: "Rounded", glyph: <span className="block h-3.5 w-3.5 rounded bg-current opacity-60" /> },
-                      { value: "square", label: "Square", glyph: <span className="block h-3.5 w-3.5 bg-current opacity-60" /> },
-                    ]} />
-                  <div className="pb-2.5">
-                    <Check label="Show photo" checked={style.showPhoto} onChange={(v) => set({ showPhoto: v })} />
-                  </div>
-                </div>
-                <GaugeGroup>
-                  <Gauge label="Size" value={style.photoSize} min={48} max={160} step={4} suffix="px" onChange={(v) => set({ photoSize: v })} />
-                </GaugeGroup>
-                <p className="m-0 text-[11px] text-muted">
-                  The image itself lives in the header's personal details, synced from the portfolio's avatar or set per document.
-                </p>
-              </div>
-            </Cluster>
-          </div>
-        )}
-
-        {pane === "finish" && (
-          <div className="space-y-4">
-            <Cluster title="Links">
-              <div className="grid grid-cols-2 items-end gap-x-4 gap-y-3">
-                <div className="space-y-2 pb-1">
-                  <Check label="Underline" checked={style.linkUnderline} onChange={(v) => set({ linkUnderline: v })} />
-                  <Check label="Accent colored" checked={style.linkColored} onChange={(v) => set({ linkColored: v })} />
-                  <Check label="Show link icon" checked={style.linkIcon} onChange={(v) => set({ linkIcon: v })} />
-                </div>
-                <Tiles label="Icon style" value={style.linkIconStyle} onChange={(v) => set({ linkIconStyle: v as ResumeStyle["linkIconStyle"] })}
-                  options={[
-                    { value: "chain", label: "Chain", glyph: <Link2 size={11} /> },
-                    { value: "external", label: "External", glyph: <ExternalLink size={11} /> },
-                  ]} />
-              </div>
-            </Cluster>
-            <Cluster title="Footer">
-              <div className="space-y-2">
-                <input className={INPUT} value={style.footerText} onChange={(e) => set({ footerText: e.target.value })} placeholder="e.g. References available on request" />
-                <div className="flex items-center justify-between gap-3">
-                  <Check label="Show page numbers" checked={style.showPageNumbers} onChange={(v) => set({ showPageNumbers: v })} />
-                  <p className="m-0 text-[11px] text-muted">
-                    Runs in the bottom margin of every page.
-                  </p>
-                </div>
-              </div>
-            </Cluster>
-          </div>
-        )}
+        {PANES[pane](paneProps)}
         </m.div>
         </AnimatePresence>
       </div>
@@ -640,6 +215,475 @@ export const CustomizePanel = ({ style, docKind, onStyleChange, sections, onSect
       />
     </div>
   );
+};
+
+// The panes' bodies, one function per pane.
+function templatesPane({ style, docKind, onStyleChange, sampleMode, onSampleModeChange }: PaneProps) {
+  return (
+    <div className="space-y-3">
+      <button
+        onClick={() => onSampleModeChange(!sampleMode)}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+          sampleMode
+            ? "border-signal bg-surface text-ink"
+            : "border-line text-muted hover:border-line-strong hover:text-ink"
+        )}
+      >
+        <Eye size={15} className={sampleMode ? "text-signal" : undefined} />
+        <span className="flex-1">
+          Preview with sample data
+          <span className="block text-[11px] leading-snug opacity-80">
+            The big sheet typesets the sample record while you browse; your document is untouched.
+          </span>
+        </span>
+        <span className={cn(
+          "font-mono text-[9.5px] uppercase tracking-[0.1em]",
+          sampleMode ? "text-signal" : "opacity-60"
+        )}>
+          {sampleMode ? "on" : "off"}
+        </span>
+      </button>
+      <div className="grid grid-cols-2 gap-3">
+        {TEMPLATE_PRESETS.filter((t) => t.kinds.includes(docKind)).map((t) => (
+          <button
+            key={t.key}
+            // A template is a complete look, so build it on the DEFAULTS and
+            // never on the current style, and nothing from the previous
+            // template (a dark rail fill, a photo toggle) leaks through.
+            // The Page-pane basics survive unless the preset says
+            // otherwise.
+            onClick={() =>
+              onStyleChange({
+                ...structuredClone(DEFAULT_STYLE),
+                language: style.language,
+                pageFormat: style.pageFormat,
+                dateFormat: style.dateFormat,
+                ...t.style,
+                template: t.key,
+              })
+            }
+            className={cn(
+              "rounded-lg border p-2 text-left transition-colors",
+              style.template === t.key
+                ? "border-signal ring-1 ring-signal/40"
+                : "border-line hover:border-line-strong"
+            )}
+          >
+            <TemplateThumb preset={t} />
+            <span className="mt-1.5 block text-sm font-medium text-ink">{t.label}</span>
+            <span className="mt-0.5 block text-[11px] leading-snug text-muted">
+              {t.description}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function regionPane({ style, onApplyDocument }: PaneProps) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <Label>Market</Label>
+        <div className="grid grid-cols-2 gap-3">
+          {REGION_PRESETS.map((r) => (
+            <button
+              key={r.key}
+              // A region writes into the ordinary knobs and the header,
+              // so it goes through the document, not the style alone;
+              // everything it set stays editable in the panes below.
+              onClick={() => onApplyDocument((doc) => applyRegion(doc, r))}
+              className={cn(
+                "rounded-lg border p-3 text-left transition-colors",
+                style.region === r.key
+                  ? "border-signal ring-1 ring-signal/40"
+                  : "border-line hover:border-line-strong"
+              )}
+            >
+              <span className="block text-sm font-medium text-ink">{r.label}</span>
+              <span className="mt-0.5 block text-[11px] leading-snug text-muted">{r.description}</span>
+            </button>
+          ))}
+        </div>
+        {REGION_PRESETS.filter((r) => r.key === style.region).map((r) => (
+          <ul key={r.key} className="m-0 list-disc space-y-1 pl-4 text-[11.5px] leading-snug text-muted">
+            {r.notes.map((n) => <li key={n}>{n}</li>)}
+          </ul>
+        ))}
+      </div>
+
+      <div className="space-y-2 border-t border-line pt-4">
+        <Label>Field</Label>
+        <div className="grid grid-cols-2 gap-3">
+          {FIELD_OVERLAYS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => onApplyDocument((doc) => applyField(doc, f))}
+              className={cn(
+                "rounded-lg border p-3 text-left transition-colors",
+                style.field === f.key
+                  ? "border-signal ring-1 ring-signal/40"
+                  : "border-line hover:border-line-strong"
+              )}
+            >
+              <span className="block text-sm font-medium text-ink">{f.label}</span>
+              <span className="mt-0.5 block text-[11px] leading-snug text-muted">{f.description}</span>
+            </button>
+          ))}
+        </div>
+        {FIELD_OVERLAYS.filter((f) => f.key === style.field).map((f) => (
+          <ul key={f.key} className="m-0 list-disc space-y-1 pl-4 text-[11.5px] leading-snug text-muted">
+            {f.notes.map((n) => <li key={n}>{n}</li>)}
+          </ul>
+        ))}
+      </div>
+
+      <p className="m-0 text-[11px] leading-snug text-muted">
+        A preset is a starting point. It turns the Page, Header, and section knobs the way that
+        market or field expects, and every one of them stays yours to change afterwards.
+      </p>
+    </div>
+  );
+}
+
+function pagePane({ style, set, sections, onSectionsChange, onApplyDocument }: PaneProps) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <Select label="Language" value={style.language} onChange={(v) => onApplyDocument((doc) => setDocumentLanguage(doc, v))}
+          options={["Azerbaijani", "English", "English (UK)", "French", "German", "Spanish", "Turkish"]} />
+        <Select label="Date format" value={style.dateFormat} onChange={(v) => set({ dateFormat: v })}
+          options={["MMM YYYY", "MMM DD, YYYY", "MM/YYYY", "YYYY"]} />
+      </div>
+      <Tiles label="Page size" value={style.pageFormat} onChange={(v) => set({ pageFormat: v as ResumeStyle["pageFormat"] })}
+        options={[
+          { value: "A3", label: "A3" }, { value: "A4", label: "A4" }, { value: "A5", label: "A5" },
+          { value: "Letter", label: "Letter" }, { value: "Legal", label: "Legal" },
+        ]} />
+      <Tiles label="Columns" value={style.columns} onChange={(v) => set({ columns: v as ResumeStyle["columns"] })}
+        hint={style.columns === "sidebar"
+          ? "Sidebar sets a tinted rail beside the main flow; assign each section below. The rail's fill is under Colors."
+          : "Mix keeps two columns but lets the summary and declaration span the full width."}
+        options={[
+          { value: "one", label: "One", glyph: <ColumnsGlyph mode="one" /> },
+          { value: "two", label: "Two", glyph: <ColumnsGlyph mode="two" /> },
+          { value: "mix", label: "Mix", glyph: <ColumnsGlyph mode="mix" /> },
+          { value: "sidebar", label: "Sidebar", glyph: <ColumnsGlyph mode="sidebar" /> },
+        ]} />
+      <Cluster title="Section order">
+        <Reorder.Group axis="y" values={sections} onReorder={onSectionsChange} className="space-y-1">
+          {sections.map((s) => (
+            <OrderRow
+              key={s.id}
+              section={s}
+              region={style.columns === "sidebar" ? sectionRegion(s) : undefined}
+              onRegionToggle={() =>
+                onSectionsChange(
+                  sections.map((x) =>
+                    x.id === s.id
+                      ? { ...x, region: sectionRegion(x) === "side" ? "main" as const : "side" as const }
+                      : x
+                  )
+                )
+              }
+            />
+          ))}
+        </Reorder.Group>
+      </Cluster>
+    </div>
+  );
+}
+
+function typePane({ style, set }: PaneProps) {
+  return (
+    <div className="space-y-4">
+      <Cluster title="Family">
+        <div className="grid grid-cols-2 gap-x-4">
+          <FontSelect label="Body font" value={style.bodyFont} onChange={(v) => set({ bodyFont: v })} />
+          <FontSelect label="Name font" value={style.nameFont || ""} allowInherit onChange={(v) => set({ nameFont: v })} />
+        </div>
+      </Cluster>
+      <Cluster title="Size">
+        <GaugeGroup>
+          <Gauge label="Base" value={style.baseFontSize} min={7} max={14} step={0.5} suffix="pt" onChange={(v) => set({ baseFontSize: v })} />
+          <Gauge label="Name" value={style.nameFontSize} min={0} max={24} step={1} prefix="+" suffix="pt" onChange={(v) => set({ nameFontSize: v })} />
+          <Gauge label="Headings" value={style.headingFontSize} min={0} max={12} step={1} prefix="+" suffix="pt" onChange={(v) => set({ headingFontSize: v })} />
+          <Gauge label="Entries" value={style.entryHeaderFontSize} min={0} max={8} step={1} prefix="+" suffix="pt" onChange={(v) => set({ entryHeaderFontSize: v })} />
+        </GaugeGroup>
+      </Cluster>
+      <Cluster title="Rhythm">
+        <GaugeGroup>
+          <Gauge label="Leading" value={style.lineHeight} min={1} max={2} step={0.05} onChange={(v) => set({ lineHeight: v })} />
+          <Gauge label="Gaps" value={style.elementSpacing} min={0} max={24} step={1} suffix="px" onChange={(v) => set({ elementSpacing: v })} />
+          <Gauge label="Margin X" value={style.marginX} min={4} max={30} step={1} suffix="mm" onChange={(v) => set({ marginX: v })} />
+          <Gauge label="Margin Y" value={style.marginY} min={4} max={30} step={1} suffix="mm" onChange={(v) => set({ marginY: v })} />
+        </GaugeGroup>
+      </Cluster>
+    </div>
+  );
+}
+
+function entriesPane({ style, set, sections, onSectionsChange }: PaneProps) {
+  const sectionsWithLayouts = sections.filter(
+    (s) => SECTION_LAYOUTS[s.customType === "skill" ? "skills" : s.kind]
+  );
+  return (
+    <div className="space-y-4">
+      <Tiles label="Entry layout" value={String(style.entryLayout)} onChange={(v) => set({ entryLayout: Number(v) as ResumeStyle["entryLayout"] })}
+        options={[
+          { value: "1", label: "Date right", glyph: <EntryGlyph variant={1} /> },
+          { value: "2", label: "Stacked", glyph: <EntryGlyph variant={2} /> },
+          { value: "3", label: "One line", glyph: <EntryGlyph variant={3} /> },
+        ]} />
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <Tiles label="Subtitle style" value={style.subtitleStyle} onChange={(v) => set({ subtitleStyle: v as ResumeStyle["subtitleStyle"] })}
+          options={[
+            { value: "normal", label: "Normal", glyph: <span className="text-[11px] leading-none">Co</span> },
+            { value: "bold", label: "Bold", glyph: <span className="text-[11px] font-bold leading-none">Co</span> },
+            { value: "italic", label: "Italic", glyph: <span className="text-[11px] italic leading-none">Co</span> },
+          ]} />
+        <Tiles label="Subtitle placement" value={style.subtitlePlacement} onChange={(v) => set({ subtitlePlacement: v as ResumeStyle["subtitlePlacement"] })}
+          options={[
+            { value: "same", label: "Same line", glyph: <PlacementGlyph same /> },
+            { value: "next", label: "Next line", glyph: <PlacementGlyph /> },
+          ]} />
+        <Tiles label="List style" value={style.listStyle} onChange={(v) => set({ listStyle: v as ResumeStyle["listStyle"] })}
+          options={[
+            { value: "bullet", label: "Bullet", glyph: <span className="font-mono text-[11px] leading-none">•</span> },
+            { value: "hyphen", label: "Hyphen", glyph: <span className="font-mono text-[11px] leading-none">–</span> },
+          ]} />
+        <div className="flex items-end pb-2.5">
+          <Check label="Indent body text" checked={style.indentBody} onChange={(v) => set({ indentBody: v })} />
+        </div>
+      </div>
+      <Cluster title="Section bodies">
+        {sectionsWithLayouts.length === 0 ? (
+          <p className="m-0 text-[11px] text-muted">
+            No sections with body options. Skills, languages, certificates, interests, and references carry them.
+          </p>
+        ) : (
+          <div className="divide-y divide-dashed divide-line rounded-lg border border-line">
+            {sectionsWithLayouts.map((s) => {
+              const opts = SECTION_LAYOUTS[s.customType === "skill" ? "skills" : s.kind]!;
+              return (
+                <div key={s.id} className="flex items-center justify-between gap-3 px-2.5 py-1.5">
+                  <span className="truncate text-xs text-ink">{s.heading}</span>
+                  <Tiles
+                    value={s.layout || opts[0]}
+                    onChange={(v) => onSectionsChange(sections.map((x) => (x.id === s.id ? { ...x, layout: v as ResumeSection["layout"] } : x)))}
+                    options={opts.map((o) => ({ value: o, label: o[0].toUpperCase() + o.slice(1) }))}
+                    dense
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Cluster>
+    </div>
+  );
+}
+
+function headingsPane({ style, set }: PaneProps) {
+  return (
+    <div className="space-y-4">
+      <Tiles label="Decoration" value={String(style.headingStyle)} onChange={(v) => set({ headingStyle: Number(v) as ResumeStyle["headingStyle"] })}
+        options={[1, 2, 3, 4, 5, 6].map((n) => ({
+          value: String(n),
+          label: HEADING_STYLE_LABELS[n - 1],
+          glyph: <HeadingGlyph variant={n as 1 | 2 | 3 | 4 | 5 | 6} accent={style.accentColor} />,
+        }))} />
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <Tiles label="Capitalization" value={style.headingCase} onChange={(v) => set({ headingCase: v as ResumeStyle["headingCase"] })}
+          options={[
+            { value: "capitalize", label: "Capitalize", glyph: <span className="text-[11px] leading-none">Aa</span> },
+            { value: "uppercase", label: "Uppercase", glyph: <span className="text-[10px] font-semibold leading-none tracking-wide">AA</span> },
+          ]} />
+        <Tiles label="Icons" value={style.headingIcons} onChange={(v) => set({ headingIcons: v as ResumeStyle["headingIcons"] })}
+          options={[
+            { value: "none", label: "None", glyph: <span className="text-[11px] leading-none opacity-40">×</span> },
+            { value: "outline", label: "Outline", glyph: <Square size={11} /> },
+            { value: "filled", label: "Filled", glyph: <Square size={11} fill="currentColor" /> },
+          ]} />
+      </div>
+      {style.headingIcons !== "none" && (
+        <GaugeGroup>
+          <Gauge label="Icon size" value={style.headingIconSize || 13} min={9} max={22} step={1} suffix="px" onChange={(v) => set({ headingIconSize: v })} />
+        </GaugeGroup>
+      )}
+    </div>
+  );
+}
+
+function colorsPane({ style, set, setAccent }: PaneProps) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <Tiles label="Color scope" value={style.colorScope} onChange={(v) => set({ colorScope: v as ResumeStyle["colorScope"] })}
+          options={[
+            { value: "page", label: "Page", glyph: <ScopeGlyph mode="page" accent={style.accentColor} /> },
+            { value: "header", label: "Header", glyph: <ScopeGlyph mode="header" accent={style.accentColor} /> },
+            { value: "border", label: "Border", glyph: <ScopeGlyph mode="border" accent={style.accentColor} /> },
+          ]} />
+        <Tiles label="Palette" value={style.palette} onChange={(v) => set({ palette: v as ResumeStyle["palette"] })}
+          options={[
+            { value: "single", label: "Single", glyph: <span className="block h-3 w-3 rounded-[2px]" style={{ background: style.accentColor }} /> },
+            { value: "image", label: "Image", glyph: <ImageIcon size={12} /> },
+          ]} />
+      </div>
+      {(style.colorScope === "header" || style.columns === "sidebar") && (
+        <div className="flex items-center gap-2">
+          <Label>{style.columns === "sidebar" ? "Rail & header fill" : "Header fill"}</Label>
+          <input
+            type="color"
+            value={style.headerFillColor || "#eef2fb"}
+            onChange={(e) => set({ headerFillColor: e.target.value })}
+            aria-label="Header band color"
+            className="h-6 w-8 cursor-pointer rounded-[3px] border border-line-strong bg-transparent p-0.5"
+          />
+          <button
+            onClick={() => set({ headerFillColor: "" })}
+            className={cn(
+              "rounded-md border px-2 py-0.5 text-[11px] font-medium transition-colors",
+              !style.headerFillColor
+                ? "border-signal text-signal"
+                : "border-line text-muted hover:text-ink"
+            )}
+          >
+            Auto (from accent)
+          </button>
+        </div>
+      )}
+      {style.palette === "image" && (
+        <div className="space-y-1.5">
+          <Label>Background image URL</Label>
+          <input className={INPUT} value={style.backgroundImage || ""} onChange={(e) => set({ backgroundImage: e.target.value })} placeholder="https://…" />
+        </div>
+      )}
+      <Cluster title="Accent">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {SWATCHES.map((c) => (
+            <button
+              key={c}
+              onClick={() => set({ accentColor: c })}
+              aria-label={`Accent ${c}`}
+              className={cn(
+                "relative h-7 w-7 rounded-[3px] border transition-transform hover:scale-105",
+                style.accentColor === c ? "border-transparent" : "border-line-strong"
+              )}
+              style={{ background: c }}
+            >
+              {style.accentColor === c && (
+                <span className="absolute inset-0 rounded-[3px] ring-2 ring-signal ring-offset-2 ring-offset-card" />
+              )}
+            </button>
+          ))}
+          <input type="color" value={style.accentColor} onChange={(e) => set({ accentColor: e.target.value })}
+            className="h-7 w-7 cursor-pointer rounded-[3px] bg-transparent" title="Custom color" />
+        </div>
+      </Cluster>
+      <Cluster title="Apply accent to">
+        <div className="grid grid-cols-3 gap-x-3 gap-y-1.5">
+          {([
+            ["name", "Name"], ["jobTitle", "Job title"], ["headings", "Headings"],
+            ["headingsLine", "Heading line"], ["headerIcons", "Header icons"],
+            ["dates", "Dates"], ["subtitle", "Subtitle"],
+            ["linkIcons", "Link icons"],
+          ] as const).map(([k, lbl]) => (
+            <Check key={k} label={lbl} checked={style.accentApply[k]} onChange={(v) => setAccent({ [k]: v })} compact />
+          ))}
+        </div>
+      </Cluster>
+    </div>
+  );
+}
+
+function headerPane({ style, set }: PaneProps) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+        <Tiles label="Alignment" value={style.headerAlign} onChange={(v) => set({ headerAlign: v as ResumeStyle["headerAlign"] })}
+          options={[
+            { value: "left", label: "Left", glyph: <AlignGlyph /> },
+            { value: "center", label: "Center", glyph: <AlignGlyph center /> },
+          ]} />
+        <Tiles label="Details" value={style.headerDetails} onChange={(v) => set({ headerDetails: v as ResumeStyle["headerDetails"] })}
+          options={[
+            { value: "icon", label: "Icon", glyph: <span className="flex items-center gap-0.5 text-[9px] leading-none"><MapPin size={9} /> a</span> },
+            { value: "bullet", label: "Bullet", glyph: <span className="font-mono text-[10px] leading-none">a•b</span> },
+            { value: "bar", label: "Bar", glyph: <span className="font-mono text-[10px] leading-none">a|b</span> },
+          ]} />
+      </div>
+      <Cluster title="Portrait">
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 items-end gap-x-4">
+            <Tiles label="Shape" value={style.photoShape} onChange={(v) => set({ photoShape: v as ResumeStyle["photoShape"] })}
+              options={[
+                { value: "circle", label: "Circle", glyph: <span className="block h-3.5 w-3.5 rounded-full bg-current opacity-60" /> },
+                { value: "rounded", label: "Rounded", glyph: <span className="block h-3.5 w-3.5 rounded bg-current opacity-60" /> },
+                { value: "square", label: "Square", glyph: <span className="block h-3.5 w-3.5 bg-current opacity-60" /> },
+              ]} />
+            <div className="pb-2.5">
+              <Check label="Show photo" checked={style.showPhoto} onChange={(v) => set({ showPhoto: v })} />
+            </div>
+          </div>
+          <GaugeGroup>
+            <Gauge label="Size" value={style.photoSize} min={48} max={160} step={4} suffix="px" onChange={(v) => set({ photoSize: v })} />
+          </GaugeGroup>
+          <p className="m-0 text-[11px] text-muted">
+            The image itself lives in the header's personal details, synced from the portfolio's avatar or set per document.
+          </p>
+        </div>
+      </Cluster>
+    </div>
+  );
+}
+
+function finishPane({ style, set }: PaneProps) {
+  return (
+    <div className="space-y-4">
+      <Cluster title="Links">
+        <div className="grid grid-cols-2 items-end gap-x-4 gap-y-3">
+          <div className="space-y-2 pb-1">
+            <Check label="Underline" checked={style.linkUnderline} onChange={(v) => set({ linkUnderline: v })} />
+            <Check label="Accent colored" checked={style.linkColored} onChange={(v) => set({ linkColored: v })} />
+            <Check label="Show link icon" checked={style.linkIcon} onChange={(v) => set({ linkIcon: v })} />
+          </div>
+          <Tiles label="Icon style" value={style.linkIconStyle} onChange={(v) => set({ linkIconStyle: v as ResumeStyle["linkIconStyle"] })}
+            options={[
+              { value: "chain", label: "Chain", glyph: <Link2 size={11} /> },
+              { value: "external", label: "External", glyph: <ExternalLink size={11} /> },
+            ]} />
+        </div>
+      </Cluster>
+      <Cluster title="Footer">
+        <div className="space-y-2">
+          <input className={INPUT} value={style.footerText} onChange={(e) => set({ footerText: e.target.value })} placeholder="e.g. References available on request" />
+          <div className="flex items-center justify-between gap-3">
+            <Check label="Show page numbers" checked={style.showPageNumbers} onChange={(v) => set({ showPageNumbers: v })} />
+            <p className="m-0 text-[11px] text-muted">
+              Runs in the bottom margin of every page.
+            </p>
+          </div>
+        </div>
+      </Cluster>
+    </div>
+  );
+}
+
+// One body per pane, drawn under the pane's title.
+const PANES: Record<Pane, (p: PaneProps) => React.ReactNode> = {
+  templates: templatesPane,
+  region: regionPane,
+  page: pagePane,
+  type: typePane,
+  entries: entriesPane,
+  headings: headingsPane,
+  colors: colorsPane,
+  header: headerPane,
+  finish: finishPane,
 };
 
 // Per-kind layout options offered under Entries → Section bodies.

@@ -53,14 +53,8 @@ function months(locale: string): string[] {
   return names;
 }
 
-/** Honours the document's `style.dateFormat` (MMM YYYY / MMM DD, YYYY /
- *  MM/YYYY / YYYY) in the document's language. */
-export function fmtResumeDate(d: string | undefined, fmt: string, language?: string): string {
-  if (!d) return "";
-  const [y, m, day] = d.split("T")[0].split("-");
-  const month = m ? parseInt(m, 10) : undefined;
-  if (!y || !month || month < 1 || month > 12) return d;
-  const mon = months(languageLocale(language))[month - 1];
+/** Lays out a checked year, month, and day in one of the date formats. */
+function applyDateFormat(fmt: string, y: string, month: number, mon: string, day: string | undefined): string {
   switch (fmt) {
     case "MMM DD, YYYY":
       return day ? `${mon} ${parseInt(day, 10)}, ${y}` : `${mon} ${y}`;
@@ -71,4 +65,15 @@ export function fmtResumeDate(d: string | undefined, fmt: string, language?: str
     default:
       return `${mon} ${y}`;
   }
+}
+
+/** Honours the document's `style.dateFormat` (MMM YYYY / MMM DD, YYYY /
+ *  MM/YYYY / YYYY) in the document's language. */
+export function fmtResumeDate(d: string | undefined, fmt: string, language?: string): string {
+  if (!d) return "";
+  const [y, m, day] = d.split("T")[0].split("-");
+  const month = m ? parseInt(m, 10) : undefined;
+  if (!y || !month || month < 1 || month > 12) return d;
+  const mon = months(languageLocale(language))[month - 1];
+  return applyDateFormat(fmt, y, month, mon, day);
 }

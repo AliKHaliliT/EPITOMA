@@ -12,7 +12,7 @@ import {
 } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/stylesheet";
 import { icons } from "lucide";
-import { ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle, fmtResumeDate, presentWord, proficiencyDots, resolveColors, resolveEntry, resolveGeometry, resolveHeading, resolveType, sectionShape, splitRegions, type ColorPlan, type HeadingSpec, type TypeScale } from "@/entities/resume";
+import { PersonalDetails, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle, fmtResumeDate, presentWord, proficiencyDots, resolveColors, resolveEntry, resolveGeometry, resolveHeading, resolveType, sectionShape, splitRegions, type ColorPlan, type Geometry, type HeadingSpec, type RegionSplit, type SectionShape, type TypeScale } from "@/entities/resume";
 import { ensurePdfFont } from "./pdfFonts";
 
 const MM = 2.83465; // mm → pt
@@ -94,6 +94,33 @@ const range = (s: string | undefined, e: string | undefined, style: ResumeStyle)
 
 // ── rich text (entry descriptions) ──────────────────────────────────────────
 
+// An inline link, or plain text when its target is empty or an anchor.
+function inlineLink(el: HTMLElement, key: number, kids: React.ReactNode[], ctx: Ctx): React.ReactNode {
+  const href = el.getAttribute("href") || "";
+  if (!href || href.startsWith("#")) return <Text key={key}>{kids}</Text>;
+  return <Link key={key} src={href} style={linkStyle(ctx)}>{kids}</Link>;
+}
+
+// One inline element of a description, as the node its tag stands for.
+function inlineElement(el: HTMLElement, key: number, kids: React.ReactNode[], ctx: Ctx): React.ReactNode {
+  switch (el.tagName.toLowerCase()) {
+    case "strong":
+    case "b":
+      return <Text key={key} style={{ fontWeight: 700 }}>{kids}</Text>;
+    case "em":
+    case "i":
+      return <Text key={key} style={{ fontStyle: "italic" }}>{kids}</Text>;
+    case "u":
+      return <Text key={key} style={{ textDecoration: "underline" }}>{kids}</Text>;
+    case "a":
+      return inlineLink(el, key, kids, ctx);
+    case "br":
+      return "\n";
+    default:
+      return kids;
+  }
+}
+
 function htmlToNodes(html: string | undefined, ctx: Ctx): React.ReactNode {
   if (!html) return null;
   let root: Document;
@@ -110,25 +137,7 @@ function htmlToNodes(html: string | undefined, ctx: Ctx): React.ReactNode {
     if (node.nodeType !== Node.ELEMENT_NODE) return null;
     const el = node as HTMLElement;
     const kids = Array.from(el.childNodes).map(inline);
-    switch (el.tagName.toLowerCase()) {
-      case "strong":
-      case "b":
-        return <Text key={key} style={{ fontWeight: 700 }}>{kids}</Text>;
-      case "em":
-      case "i":
-        return <Text key={key} style={{ fontStyle: "italic" }}>{kids}</Text>;
-      case "u":
-        return <Text key={key} style={{ textDecoration: "underline" }}>{kids}</Text>;
-      case "a": {
-        const href = el.getAttribute("href") || "";
-        if (!href || href.startsWith("#")) return <Text key={key}>{kids}</Text>;
-        return <Link key={key} src={href} style={linkStyle(ctx)}>{kids}</Link>;
-      }
-      case "br":
-        return "\n";
-      default:
-        return kids;
-    }
+    return inlineElement(el, key, kids, ctx);
   };
 
   const blocks: React.ReactNode[] = [];
@@ -200,25 +209,28 @@ function titleNodes(e: ResumeEntry, ctx: Ctx) {
 
 // ── entries ─────────────────────────────────────────────────────────────────
 
+// Layout 3, title, subtitle, location, and date on one running line.
+function oneLineEntry(e: ResumeEntry, ctx: Ctx, dates: string, gap: number, locSize: number) {
+  return (
+    <View wrap={false} style={{ marginBottom: gap }}>
+      <Text style={{ color: ctx.ink }}>
+        {titleNodes(e, ctx)}
+        {subtitleNodes(e, ctx, true)}
+        {e.location ? <Text style={{ fontSize: locSize, color: ctx.muted }}> · {e.location}</Text> : null}
+        {dates ? <Text style={dateStyle(ctx)}> · {dates}</Text> : null}
+      </Text>
+      {htmlToNodes(e.description, ctx)}
+    </View>
+  );
+}
+
 function EntryBlock({ e, ctx }: { e: ResumeEntry; ctx: Ctx }) {
   const spec = resolveEntry(ctx.style);
   const dates = range(e.startDate, e.endDate, ctx.style);
   const gap = ctx.style.elementSpacing * 0.75;
   const locSize = ctx.t.basePt * 0.85;
 
-  if (spec.layout === 3) {
-    return (
-      <View wrap={false} style={{ marginBottom: gap }}>
-        <Text style={{ color: ctx.ink }}>
-          {titleNodes(e, ctx)}
-          {subtitleNodes(e, ctx, true)}
-          {e.location ? <Text style={{ fontSize: locSize, color: ctx.muted }}> · {e.location}</Text> : null}
-          {dates ? <Text style={dateStyle(ctx)}> · {dates}</Text> : null}
-        </Text>
-        {htmlToNodes(e.description, ctx)}
-      </View>
-    );
-  }
+  if (spec.layout === 3) return oneLineEntry(e, ctx, dates, gap, locSize);
 
   const first = (inRow: boolean) => (
     <Text style={inRow ? { flex: 1, paddingRight: 8, color: ctx.ink } : { color: ctx.ink }}>
@@ -288,172 +300,196 @@ function Dots({ n, ctx }: { n: number; ctx: Ctx }) {
   );
 }
 
+/** The pieces every section body is drawn from. */
+interface BodyArgs {
+  section: ResumeSection;
+  visible: ResumeEntry[];
+  ctx: Ctx;
+}
+
+// One body per section shape, drawing only the visible entries.
+const SECTION_BODIES: Record<SectionShape, (a: BodyArgs) => React.ReactNode> = {
+  prose: ({ visible, ctx }) => <View>{htmlToNodes(visible[0]?.description, ctx)}</View>,
+
+  "skill-groups": ({ visible, ctx }) => (
+    <View>
+      {visible.map((e) => (
+        <Text key={e.id} style={{ marginBottom: 1.5, color: ctx.ink }}>
+          <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}: </Text>
+          {items(e).join(", ")}
+        </Text>
+      ))}
+    </View>
+  ),
+
+  "skill-chips": ({ visible, ctx }) => (
+    <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+      {visible.flatMap((e) => (items(e).length ? items(e) : [e.title || ""])).map((it, i) => (
+        <Chip key={i} text={it} bg={ctx.colors.accentTint} ctx={ctx} />
+      ))}
+    </View>
+  ),
+
+  "lang-dots": ({ visible, ctx }) => (
+    <View>
+      {visible.map((e) => (
+        <View key={e.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
+          <Text style={{ flex: 1, paddingRight: 6, fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
+          <Dots n={proficiencyDots(e.subtitle)} ctx={ctx} />
+        </View>
+      ))}
+    </View>
+  ),
+
+  "lang-grid": ({ visible, ctx }) => (
+    <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+      {visible.map((e) => (
+        <Text key={e.id} style={{ width: "50%", marginBottom: 1.5, color: ctx.ink }}>
+          <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
+          {e.subtitle ? <Text style={{ opacity: 0.75 }}> · {e.subtitle}</Text> : null}
+        </Text>
+      ))}
+    </View>
+  ),
+
+  "lang-list": ({ visible, ctx }) => (
+    <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+      {visible.map((e) => (
+        <Text key={e.id} style={{ marginRight: 14, marginBottom: 1.5, color: ctx.ink }}>
+          <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
+          {e.subtitle ? <Text style={{ opacity: 0.75 }}> · {e.subtitle}</Text> : null}
+        </Text>
+      ))}
+    </View>
+  ),
+
+  chips: ({ visible, ctx }) => (
+    <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+      {visible.map((e) => (
+        <Chip key={e.id} text={e.title || ""} line={ctx.chipLine} ctx={ctx} />
+      ))}
+    </View>
+  ),
+
+  "plain-rows": ({ visible, ctx }) => (
+    <View>
+      {visible.map((e) => (
+        <Text key={e.id} style={{ marginBottom: 1.5, color: ctx.ink }}>
+          <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
+          {(e.meta?.category as string) ? <Text style={{ opacity: 0.75 }}> · {e.meta?.category as string}</Text> : null}
+        </Text>
+      ))}
+    </View>
+  ),
+
+  "linked-list": ({ visible, ctx }) => (
+    <View>
+      {visible.map((e) => (
+        <View key={e.id} style={{ flexDirection: "row", marginBottom: 1.5 }}>
+          {e.link && !e.link.startsWith("#") ? (
+            <Link src={e.link} style={{ ...linkStyle(ctx), flex: 1, paddingRight: 6 }}><Text style={{ color: ctx.ink }}>{e.title}</Text></Link>
+          ) : (
+            <Text style={{ flex: 1, paddingRight: 6, color: ctx.ink }}>{e.title}</Text>
+          )}
+          {e.startDate ? (
+            <Text style={dateStyle(ctx)}>{fmtResumeDate(e.startDate, ctx.style.dateFormat, ctx.style.language)}</Text>
+          ) : null}
+        </View>
+      ))}
+    </View>
+  ),
+
+  "ref-cards": ({ section, visible, ctx }) => {
+    const small = ctx.t.basePt * 0.85;
+    const card = (e: ResumeEntry) => (
+      <View key={e.id} style={{ marginBottom: 5 }}>
+        <Text style={{ fontSize: ctx.t.entryPt, fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
+        {e.subtitle ? <Text style={{ fontSize: ctx.t.basePt * 0.9, color: ctx.ink }}>{e.subtitle}</Text> : null}
+        {(e.meta?.organization as string) ? <Text style={{ fontSize: small, color: ctx.muted }}>{e.meta?.organization as string}</Text> : null}
+        {(e.meta?.email as string) ? <Text style={{ fontSize: small, color: ctx.muted }}>{e.meta?.email as string}</Text> : null}
+      </View>
+    );
+    if (section.layout === "rows") return <View>{visible.map(card)}</View>;
+    return (
+      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+        {visible.map((e) => (
+          <View key={e.id} style={{ width: "50%" }}>{card(e)}</View>
+        ))}
+      </View>
+    );
+  },
+
+  "entry-rows": ({ visible, ctx }) => (
+    <View>
+      {visible.map((e) => {
+        const d = range(e.startDate, e.endDate, ctx.style);
+        return (
+          <View key={e.id} style={{ flexDirection: "row", marginBottom: 1.5 }}>
+            <Text style={{ flex: 1, paddingRight: 8, color: ctx.ink }}>
+              {titleNodes(e, ctx)}
+              {subtitleNodes(e, ctx, true)}
+            </Text>
+            {d ? <Text style={{ ...dateStyle(ctx), flexShrink: 0 }}>{d}</Text> : null}
+          </View>
+        );
+      })}
+    </View>
+  ),
+
+  "entry-grid": ({ visible, ctx }) => (
+    <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+      {visible.map((e) => (
+        <View key={e.id} style={{ width: "50%", paddingRight: 6 }}>
+          <EntryBlock e={e} ctx={ctx} />
+        </View>
+      ))}
+    </View>
+  ),
+
+  entries: ({ visible, ctx }) => <View>{visible.map((e) => <EntryBlock key={e.id} e={e} ctx={ctx} />)}</View>,
+};
+
 function SectionBody({ section, ctx }: { section: ResumeSection; ctx: Ctx }) {
   const visible = section.entries.filter((e) => !e.hidden);
   if (visible.length === 0) return null;
-  const small = ctx.t.basePt * 0.85;
-
-  switch (sectionShape(section)) {
-    case "prose":
-      return <View>{htmlToNodes(visible[0]?.description, ctx)}</View>;
-
-    case "skill-groups":
-      return (
-        <View>
-          {visible.map((e) => (
-            <Text key={e.id} style={{ marginBottom: 1.5, color: ctx.ink }}>
-              <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}: </Text>
-              {items(e).join(", ")}
-            </Text>
-          ))}
-        </View>
-      );
-
-    case "skill-chips":
-      return (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {visible.flatMap((e) => (items(e).length ? items(e) : [e.title || ""])).map((it, i) => (
-            <Chip key={i} text={it} bg={ctx.colors.accentTint} ctx={ctx} />
-          ))}
-        </View>
-      );
-
-    case "lang-dots":
-      return (
-        <View>
-          {visible.map((e) => (
-            <View key={e.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
-              <Text style={{ flex: 1, paddingRight: 6, fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
-              <Dots n={proficiencyDots(e.subtitle)} ctx={ctx} />
-            </View>
-          ))}
-        </View>
-      );
-
-    case "lang-grid":
-      return (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {visible.map((e) => (
-            <Text key={e.id} style={{ width: "50%", marginBottom: 1.5, color: ctx.ink }}>
-              <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
-              {e.subtitle ? <Text style={{ opacity: 0.75 }}> · {e.subtitle}</Text> : null}
-            </Text>
-          ))}
-        </View>
-      );
-
-    case "lang-list":
-      return (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {visible.map((e) => (
-            <Text key={e.id} style={{ marginRight: 14, marginBottom: 1.5, color: ctx.ink }}>
-              <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
-              {e.subtitle ? <Text style={{ opacity: 0.75 }}> · {e.subtitle}</Text> : null}
-            </Text>
-          ))}
-        </View>
-      );
-
-    case "chips":
-      return (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {visible.map((e) => (
-            <Chip key={e.id} text={e.title || ""} line={ctx.chipLine} ctx={ctx} />
-          ))}
-        </View>
-      );
-
-    case "plain-rows":
-      return (
-        <View>
-          {visible.map((e) => (
-            <Text key={e.id} style={{ marginBottom: 1.5, color: ctx.ink }}>
-              <Text style={{ fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
-              {(e.meta?.category as string) ? <Text style={{ opacity: 0.75 }}> · {e.meta?.category as string}</Text> : null}
-            </Text>
-          ))}
-        </View>
-      );
-
-    case "linked-list":
-      return (
-        <View>
-          {visible.map((e) => (
-            <View key={e.id} style={{ flexDirection: "row", marginBottom: 1.5 }}>
-              {e.link && !e.link.startsWith("#") ? (
-                <Link src={e.link} style={{ ...linkStyle(ctx), flex: 1, paddingRight: 6 }}><Text style={{ color: ctx.ink }}>{e.title}</Text></Link>
-              ) : (
-                <Text style={{ flex: 1, paddingRight: 6, color: ctx.ink }}>{e.title}</Text>
-              )}
-              {e.startDate ? (
-                <Text style={dateStyle(ctx)}>{fmtResumeDate(e.startDate, ctx.style.dateFormat, ctx.style.language)}</Text>
-              ) : null}
-            </View>
-          ))}
-        </View>
-      );
-
-    case "ref-cards": {
-      const card = (e: ResumeEntry) => (
-        <View key={e.id} style={{ marginBottom: 5 }}>
-          <Text style={{ fontSize: ctx.t.entryPt, fontWeight: 700, color: ctx.ink }}>{e.title}</Text>
-          {e.subtitle ? <Text style={{ fontSize: ctx.t.basePt * 0.9, color: ctx.ink }}>{e.subtitle}</Text> : null}
-          {(e.meta?.organization as string) ? <Text style={{ fontSize: small, color: ctx.muted }}>{e.meta?.organization as string}</Text> : null}
-          {(e.meta?.email as string) ? <Text style={{ fontSize: small, color: ctx.muted }}>{e.meta?.email as string}</Text> : null}
-        </View>
-      );
-      if (section.layout === "rows") return <View>{visible.map(card)}</View>;
-      return (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {visible.map((e) => (
-            <View key={e.id} style={{ width: "50%" }}>{card(e)}</View>
-          ))}
-        </View>
-      );
-    }
-
-    case "entry-rows":
-      return (
-        <View>
-          {visible.map((e) => {
-            const d = range(e.startDate, e.endDate, ctx.style);
-            return (
-              <View key={e.id} style={{ flexDirection: "row", marginBottom: 1.5 }}>
-                <Text style={{ flex: 1, paddingRight: 8, color: ctx.ink }}>
-                  {titleNodes(e, ctx)}
-                  {subtitleNodes(e, ctx, true)}
-                </Text>
-                {d ? <Text style={{ ...dateStyle(ctx), flexShrink: 0 }}>{d}</Text> : null}
-              </View>
-            );
-          })}
-        </View>
-      );
-
-    case "entry-grid":
-      return (
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {visible.map((e) => (
-            <View key={e.id} style={{ width: "50%", paddingRight: 6 }}>
-              <EntryBlock e={e} ctx={ctx} />
-            </View>
-          ))}
-        </View>
-      );
-
-    case "entries":
-      return <View>{visible.map((e) => <EntryBlock key={e.id} e={e} ctx={ctx} />)}</View>;
-  }
+  return SECTION_BODIES[sectionShape(section)]({ section, visible, ctx });
 }
 
 // ── section (heading + body) ────────────────────────────────────────────────
+
+// The box a heading decoration draws; a tab's bar and a plain heading add none.
+const decoStyle = (spec: HeadingSpec, ctx: Ctx): Style =>
+  spec.deco === "rule"
+    ? { borderBottomWidth: 1.1, borderBottomColor: spec.lineColor, paddingBottom: 2 }
+    : spec.deco === "frame"
+    ? { borderTopWidth: 0.7, borderBottomWidth: 0.7, borderTopColor: spec.lineColor, borderBottomColor: spec.lineColor, paddingVertical: 2 }
+    : spec.deco === "fill"
+    ? { backgroundColor: ctx.colors.accentTint, paddingVertical: 2, paddingHorizontal: 5 }
+    : spec.deco === "edge"
+    ? { borderLeftWidth: 2.5, borderLeftColor: ctx.colors.accent, paddingLeft: 5 }
+    : {};
+
+// The heading's glyph, when the style shows heading icons.
+function headingIcon(section: ResumeSection, ctx: Ctx) {
+  const spec = ctx.heading;
+  const iconSize = (ctx.style.headingIconSize || 13) * 0.75;
+  return ctx.style.headingIcons !== "none" && (
+    <View style={{ marginRight: 4 }}>
+      <LucideIcon
+        name={section.icon}
+        size={iconSize}
+        color={spec.accentText ? ctx.colors.accent : ctx.muted === LIGHT_MUTED ? LIGHT_INK : "#1f2937"}
+        filled={ctx.style.headingIcons === "filled"}
+      />
+    </View>
+  );
+}
 
 function SectionView({ section, ctx }: { section: ResumeSection; ctx: Ctx }) {
   const body = <SectionBody section={section} ctx={ctx} />;
   if (!body || section.entries.filter((e) => !e.hidden).length === 0) return null;
   const spec = ctx.heading;
   const text = spec.uppercase ? section.heading.toUpperCase() : section.heading;
-  const iconSize = (ctx.style.headingIconSize || 13) * 0.75;
 
   const base: Style = {
     fontSize: ctx.t.headingPt,
@@ -462,31 +498,13 @@ function SectionView({ section, ctx }: { section: ResumeSection; ctx: Ctx }) {
     color: spec.accentText ? ctx.colors.accent : ctx.ink,
     ...(spec.uppercase ? { letterSpacing: 0.4 } : {}),
   };
-  const deco: Style =
-    spec.deco === "rule"
-      ? { borderBottomWidth: 1.1, borderBottomColor: spec.lineColor, paddingBottom: 2 }
-      : spec.deco === "frame"
-      ? { borderTopWidth: 0.7, borderBottomWidth: 0.7, borderTopColor: spec.lineColor, borderBottomColor: spec.lineColor, paddingVertical: 2 }
-      : spec.deco === "fill"
-      ? { backgroundColor: ctx.colors.accentTint, paddingVertical: 2, paddingHorizontal: 5 }
-      : spec.deco === "edge"
-      ? { borderLeftWidth: 2.5, borderLeftColor: ctx.colors.accent, paddingLeft: 5 }
-      : {};
+  const deco = decoStyle(spec, ctx);
 
   return (
     <View style={{ marginBottom: ctx.style.elementSpacing * 0.75 }}>
       <View minPresenceAhead={28} style={{ marginBottom: 3, ...deco }}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {ctx.style.headingIcons !== "none" && (
-            <View style={{ marginRight: 4 }}>
-              <LucideIcon
-                name={section.icon}
-                size={iconSize}
-                color={spec.accentText ? ctx.colors.accent : ctx.muted === LIGHT_MUTED ? LIGHT_INK : "#1f2937"}
-                filled={ctx.style.headingIcons === "filled"}
-              />
-            </View>
-          )}
+          {headingIcon(section, ctx)}
           <Text style={base}>{text}</Text>
         </View>
         {spec.deco === "tab" && (
@@ -500,16 +518,53 @@ function SectionView({ section, ctx }: { section: ResumeSection; ctx: Ctx }) {
 
 // ── header ──────────────────────────────────────────────────────────────────
 
-function Header({ doc, ctx, g }: { doc: ResumeDocument; ctx: Ctx; g: ReturnType<typeof resolveGeometry> }) {
-  const { personal, style } = doc;
-  const center = style.headerAlign === "center";
-  const bandDark = !!ctx.colors.headerInk;
-  const ink = bandDark ? LIGHT_INK : undefined;
-  const mutedInk = bandDark ? LIGHT_MUTED : ctx.muted;
-  const sep = style.headerDetails === "bar" ? "  |  " : style.headerDetails === "bullet" ? "  •  " : "   ";
-  const iconMode = style.headerDetails === "icon";
-  const iconColor = style.accentApply.headerIcons ? ctx.colors.accent : mutedInk;
+// The portrait, when the document shows one. An SVG portrait is skipped, since
+// the engine embeds raster images only.
+function headerPhoto(personal: PersonalDetails, style: ResumeStyle) {
+  const photoOk = personal.photo && style.showPhoto && !personal.photo.startsWith("data:image/svg");
+  return photoOk && (
+    <Image
+      src={personal.photo!}
+      style={{
+        width: style.photoSize * 0.75,
+        height: style.photoSize * 0.75,
+        objectFit: "cover",
+        borderRadius: style.photoShape === "circle" ? style.photoSize : style.photoShape === "rounded" ? 9 : 0,
+        marginBottom: 4,
+      }}
+    />
+  );
+}
 
+function headerName(personal: PersonalDetails, style: ResumeStyle, ctx: Ctx, ink: string | undefined) {
+  return personal.name ? (
+    <Text
+      style={{
+        fontFamily: ctx.nameFamily,
+        fontSize: ctx.t.namePt,
+        fontWeight: 700,
+        // lineHeight resolves against the node's OWN size here; without
+        // it the name inherits the base line box and overlaps the title.
+        lineHeight: 1.12,
+        // On a dark band the band ink wins over the accent.
+        color: ink ?? (style.accentApply.name ? ctx.colors.accent : undefined),
+      }}
+    >
+      {personal.name}
+    </Text>
+  ) : null;
+}
+
+function headerTitle(personal: PersonalDetails, style: ResumeStyle, ctx: Ctx, ink: string | undefined) {
+  return personal.title ? (
+    <Text style={{ fontSize: ctx.t.basePt * 0.95, lineHeight: 1.3, opacity: 0.9, color: ink ?? (style.accentApply.jobTitle ? ctx.colors.accent : undefined) }}>
+      {personal.title}
+    </Text>
+  ) : null;
+}
+
+// The header's contacts in display order, each with its glyph's name.
+function contactItems(personal: PersonalDetails, ctx: Ctx, mutedInk: string) {
   const contacts: { icon: string; node: React.ReactNode; key: string }[] = [];
   if (personal.location) contacts.push({ icon: "MapPin", node: personal.location, key: "loc" });
   if (personal.email) contacts.push({ icon: "Mail", node: personal.email, key: "email" });
@@ -526,72 +581,65 @@ function Header({ doc, ctx, g }: { doc: ResumeDocument; ctx: Ctx; g: ReturnType<
       key: l.label,
     })
   );
+  return contacts;
+}
 
+// The contact row, each item glyphed or separated as the header details ask.
+function contactLine(personal: PersonalDetails, style: ResumeStyle, ctx: Ctx, center: boolean, mutedInk: string) {
+  const sep = style.headerDetails === "bar" ? "  |  " : style.headerDetails === "bullet" ? "  •  " : "   ";
+  const iconMode = style.headerDetails === "icon";
+  const iconColor = style.accentApply.headerIcons ? ctx.colors.accent : mutedInk;
+  const contacts = contactItems(personal, ctx, mutedInk);
+  return (
+    <View
+      style={{
+        flexDirection: "row", flexWrap: "wrap", marginTop: 3,
+        justifyContent: center ? "center" : "flex-start",
+      }}
+    >
+      {contacts.map((c, i) => (
+        <View key={c.key} style={{ flexDirection: "row", alignItems: "center" }}>
+          {!iconMode && i > 0 ? <Text style={{ fontSize: ctx.t.basePt * 0.8, color: mutedInk, opacity: 0.6 }}>{sep}</Text> : null}
+          {iconMode && (
+            <View style={{ marginRight: 2.5, marginLeft: i > 0 ? 7 : 0 }}>
+              <LucideIcon name={c.icon} size={ctx.t.basePt * 0.8} color={iconColor} />
+            </View>
+          )}
+          <Text style={{ fontSize: ctx.t.basePt * 0.8, color: mutedInk }}>{c.node}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+// The detail chips under the contacts, the empty ones left out.
+function extraLine(personal: PersonalDetails, ctx: Ctx, center: boolean, mutedInk: string) {
   const extras = Object.entries(personal.extra || {}).filter(([, v]) => v);
-  const photoOk = personal.photo && style.showPhoto && !personal.photo.startsWith("data:image/svg");
+  return extras.length > 0 && (
+    <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 1.5, justifyContent: center ? "center" : "flex-start" }}>
+      {extras.map(([k, v]) => (
+        <Text key={k} style={{ fontSize: ctx.t.basePt * 0.75, color: mutedInk, marginRight: 9 }}>
+          {k}: {v}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
+function Header({ doc, ctx, g }: { doc: ResumeDocument; ctx: Ctx; g: ReturnType<typeof resolveGeometry> }) {
+  const { personal, style } = doc;
+  const center = style.headerAlign === "center";
+  const bandDark = !!ctx.colors.headerInk;
+  const ink = bandDark ? LIGHT_INK : undefined;
+  const mutedInk = bandDark ? LIGHT_MUTED : ctx.muted;
 
   const inner = (
     <View style={{ alignItems: center ? "center" : "flex-start" }}>
-      {photoOk && (
-        <Image
-          src={personal.photo!}
-          style={{
-            width: style.photoSize * 0.75,
-            height: style.photoSize * 0.75,
-            objectFit: "cover",
-            borderRadius: style.photoShape === "circle" ? style.photoSize : style.photoShape === "rounded" ? 9 : 0,
-            marginBottom: 4,
-          }}
-        />
-      )}
-      {personal.name ? (
-        <Text
-          style={{
-            fontFamily: ctx.nameFamily,
-            fontSize: ctx.t.namePt,
-            fontWeight: 700,
-            // lineHeight resolves against the node's OWN size here; without
-            // it the name inherits the base line box and overlaps the title.
-            lineHeight: 1.12,
-            // On a dark band the band ink wins over the accent.
-            color: ink ?? (style.accentApply.name ? ctx.colors.accent : undefined),
-          }}
-        >
-          {personal.name}
-        </Text>
-      ) : null}
-      {personal.title ? (
-        <Text style={{ fontSize: ctx.t.basePt * 0.95, lineHeight: 1.3, opacity: 0.9, color: ink ?? (style.accentApply.jobTitle ? ctx.colors.accent : undefined) }}>
-          {personal.title}
-        </Text>
-      ) : null}
-      <View
-        style={{
-          flexDirection: "row", flexWrap: "wrap", marginTop: 3,
-          justifyContent: center ? "center" : "flex-start",
-        }}
-      >
-        {contacts.map((c, i) => (
-          <View key={c.key} style={{ flexDirection: "row", alignItems: "center" }}>
-            {!iconMode && i > 0 ? <Text style={{ fontSize: ctx.t.basePt * 0.8, color: mutedInk, opacity: 0.6 }}>{sep}</Text> : null}
-            {iconMode && (
-              <View style={{ marginRight: 2.5, marginLeft: i > 0 ? 7 : 0 }}>
-                <LucideIcon name={c.icon} size={ctx.t.basePt * 0.8} color={iconColor} />
-              </View>
-            )}
-            <Text style={{ fontSize: ctx.t.basePt * 0.8, color: mutedInk }}>{c.node}</Text>
-          </View>
-        ))}
-      </View>
-      {extras.length > 0 && (
-        <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 1.5, justifyContent: center ? "center" : "flex-start" }}>
-          {extras.map(([k, v]) => (
-            <Text key={k} style={{ fontSize: ctx.t.basePt * 0.75, color: mutedInk, marginRight: 9 }}>
-              {k}: {v}
-            </Text>
-          ))}
-        </View>
-      )}
+      {headerPhoto(personal, style)}
+      {headerName(personal, style, ctx, ink)}
+      {headerTitle(personal, style, ctx, ink)}
+      {contactLine(personal, style, ctx, center, mutedInk)}
+      {extraLine(personal, ctx, center, mutedInk)}
     </View>
   );
 
@@ -628,6 +676,44 @@ function Header({ doc, ctx, g }: { doc: ResumeDocument; ctx: Ctx; g: ReturnType<
 
 // ── the document ────────────────────────────────────────────────────────────
 
+const renderAll = (list: ResumeSection[], c: Ctx) =>
+  list.map((s) => <SectionView key={s.id} section={s} ctx={c} />);
+
+// The sidebar mode, the story in the wide column and the rail beside it in its own inks.
+function sidebarView(regions: RegionSplit, g: Geometry, colors: ColorPlan, ctx: Ctx) {
+  const railCtx: Ctx = colors.railInk
+    ? { ...ctx, ink: colors.railInk, muted: LIGHT_MUTED, chipLine: LIGHT_MUTED }
+    : ctx;
+  return (
+    <View style={{ flexDirection: "row" }}>
+      <View style={{ flex: 1, paddingRight: g.railGapMm * MM }}>{renderAll(regions.main, ctx)}</View>
+      <View style={{ width: g.railWmm * MM, ...(colors.railInk ? { color: colors.railInk } : {}) }}>
+        {renderAll(regions.side, railCtx)}
+      </View>
+    </View>
+  );
+}
+
+// The two-column modes, where mix keeps the summary above the columns and the
+// declaration below them.
+function twoColumnView(regions: RegionSplit, ctx: Ctx) {
+  const spanning = regions.mode === "mix"
+    ? regions.main.filter((s) => s.kind === "summary" || s.kind === "declaration")
+    : [];
+  const cols = regions.main.filter((s) => !spanning.includes(s));
+  const half = Math.ceil(cols.length / 2);
+  return (
+    <View>
+      {renderAll(spanning.filter((s) => s.kind === "summary"), ctx)}
+      <View style={{ flexDirection: "row" }}>
+        <View style={{ flex: 1, paddingRight: 14 }}>{renderAll(cols.slice(0, half), ctx)}</View>
+        <View style={{ flex: 1 }}>{renderAll(cols.slice(half), ctx)}</View>
+      </View>
+      {renderAll(spanning.filter((s) => s.kind === "declaration"), ctx)}
+    </View>
+  );
+}
+
 /**
  * The document rendered for PDF, in react-pdf primitives rather than DOM.
  *
@@ -647,40 +733,14 @@ export function PdfSheet({ doc }: { doc: ResumeDocument }) {
     style, colors, t, heading, bodyFamily, nameFamily,
     ink: "#1f2937", muted: "#4b5563", chipLine: "#d1d5db",
   };
-  const railCtx: Ctx = colors.railInk
-    ? { ...ctx, ink: colors.railInk, muted: LIGHT_MUTED, chipLine: LIGHT_MUTED }
-    : ctx;
 
   const regions = splitRegions(style, doc.sections);
-  const renderAll = (list: ResumeSection[], c: Ctx) =>
-    list.map((s) => <SectionView key={s.id} section={s} ctx={c} />);
 
   let body: React.ReactNode;
   if (regions.mode === "sidebar") {
-    body = (
-      <View style={{ flexDirection: "row" }}>
-        <View style={{ flex: 1, paddingRight: g.railGapMm * MM }}>{renderAll(regions.main, ctx)}</View>
-        <View style={{ width: g.railWmm * MM, ...(colors.railInk ? { color: colors.railInk } : {}) }}>
-          {renderAll(regions.side, railCtx)}
-        </View>
-      </View>
-    );
+    body = sidebarView(regions, g, colors, ctx);
   } else if (regions.mode === "two" || regions.mode === "mix") {
-    const spanning = regions.mode === "mix"
-      ? regions.main.filter((s) => s.kind === "summary" || s.kind === "declaration")
-      : [];
-    const cols = regions.main.filter((s) => !spanning.includes(s));
-    const half = Math.ceil(cols.length / 2);
-    body = (
-      <View>
-        {renderAll(spanning.filter((s) => s.kind === "summary"), ctx)}
-        <View style={{ flexDirection: "row" }}>
-          <View style={{ flex: 1, paddingRight: 14 }}>{renderAll(cols.slice(0, half), ctx)}</View>
-          <View style={{ flex: 1 }}>{renderAll(cols.slice(half), ctx)}</View>
-        </View>
-        {renderAll(spanning.filter((s) => s.kind === "declaration"), ctx)}
-      </View>
-    );
+    body = twoColumnView(regions, ctx);
   } else {
     body = <View>{renderAll(regions.main, ctx)}</View>;
   }

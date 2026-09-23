@@ -112,6 +112,116 @@ export const SECTION_CATALOG: Record<SectionKind, CatalogMeta> = {
 
 const yearOf = (d?: string) => (d ? new Date(d).getFullYear() || d : "");
 
+/** The settings and collections an entry builder reads from a snapshot. */
+interface EntrySource {
+  settings: PortfolioSettings;
+  all: <T extends PortfolioItem>(t: string) => T[];
+  website?: string;
+}
+
+/** One builder per synced section kind; `custom` and any other kind build nothing. */
+const ENTRY_BUILDERS = new Map<SectionKind, (src: EntrySource) => ResumeEntry[]>([
+  ["summary", ({ settings }) => {
+    const text = settings.bio || settings.body || "";
+    return text ? [{ id: entryId("summary"), sourceId: "settings", description: mdToHtml(text) }] : [];
+  }],
+  ["experience", ({ all }) =>
+    all<PortfolioExperience>("experience").map((i) => ({
+      id: entryId("exp"), sourceId: i.id, title: i.title, subtitle: i.company,
+      location: i.location, startDate: i.startDate, endDate: i.endDate,
+      link: i.link, description: mdToHtml(i.body),
+    }))],
+  ["education", ({ all }) =>
+    all<PortfolioEducation>("education").map((i) => ({
+      id: entryId("edu"), sourceId: i.id, title: i.title, subtitle: i.institution,
+      location: i.location, startDate: i.startDate, endDate: i.endDate, link: i.link,
+      description: mdToHtml(i.body), meta: { degree: i.degree, field: i.field, gpa: i.gpa },
+    }))],
+  ["courses", ({ all }) =>
+    all<PortfolioCourse>("courses").map((i) => ({
+      id: entryId("crs"), sourceId: i.id, title: i.title, subtitle: i.provider,
+      startDate: i.date, link: i.link, description: mdToHtml(i.body),
+    }))],
+  ["awards", ({ all }) =>
+    all<PortfolioAward>("awards").map((i) => ({
+      id: entryId("awd"), sourceId: i.id, title: i.title, subtitle: i.issuer,
+      startDate: i.date, link: i.link, description: mdToHtml(i.body),
+      meta: { amount: i.amount, awardType: i.awardType },
+    }))],
+  ["publications", ({ all }) =>
+    all<PortfolioPublication>("publications").map((i) => ({
+      id: entryId("pub"), sourceId: i.id, title: i.title,
+      subtitle: [i.venue, i.year].filter(Boolean).join(", "),
+      link: i.link || (i.doi ? `https://doi.org/${i.doi}` : undefined),
+      description: mdToHtml(i.body), meta: { authors: i.authors, doi: i.doi, year: i.year },
+    }))],
+  ["speaking", ({ all }) =>
+    all<PortfolioSpeaking>("speaking").map((i) => ({
+      id: entryId("spk"), sourceId: i.id, title: i.title, subtitle: i.event,
+      location: i.location, startDate: i.date, link: i.link || i.video || i.slides,
+      description: mdToHtml(i.body),
+    }))],
+  ["volunteering", ({ all }) =>
+    all<PortfolioVolunteering>("volunteering").map((i) => ({
+      id: entryId("vol"), sourceId: i.id, title: i.title, subtitle: i.organization,
+      location: i.location, startDate: i.startDate, endDate: i.endDate, link: i.link,
+      description: mdToHtml(i.body),
+    }))],
+  ["certificates", ({ all }) =>
+    all<PortfolioCertificate>("certificates").map((i) => ({
+      id: entryId("cert"), sourceId: i.id, title: i.title, subtitle: i.issuer,
+      startDate: i.date, link: i.link, description: mdToHtml(i.body),
+      meta: { credentialId: i.credentialId, certType: i.certType },
+    }))],
+  ["organizations", ({ all }) =>
+    all<PortfolioOrganization>("organizations").map((i) => ({
+      id: entryId("org"), sourceId: i.id, title: i.title, subtitle: i.role,
+      location: i.location, startDate: i.startDate, endDate: i.endDate,
+      link: i.website, description: mdToHtml(i.body), meta: { memberType: i.memberType },
+    }))],
+  ["references", ({ all }) =>
+    all<PortfolioReference>("references").map((i) => ({
+      id: entryId("ref"), sourceId: i.id, title: i.name, subtitle: i.title || i.role,
+      link: i.link, description: mdToHtml(i.body),
+      meta: { organization: i.organization, relationship: i.relationship, email: i.email, phone: i.phone },
+    }))],
+  ["projects", ({ all }) =>
+    all<PortfolioProject>("projects").map((i) => ({
+      id: entryId("prj"), sourceId: i.id, title: i.title, subtitle: i.role,
+      startDate: i.year, link: i.link, description: mdToHtml(i.desc || i.body),
+      meta: { stats: i.stats },
+    }))],
+  ["interests", ({ all }) =>
+    all<PortfolioInterest>("interests").map((i) => ({
+      id: entryId("int"), sourceId: i.id, title: i.title, meta: { category: i.category },
+    }))],
+  ["skills", ({ settings }) =>
+    parseKeyValue(settings.skills).map((g) => ({
+      id: entryId("skl"), sourceId: `skill-${g.category}`, title: g.category,
+      meta: { items: g.items },
+    }))],
+  ["languages", ({ settings }) =>
+    parseKeyValue(settings.languages).map((g) => ({
+      id: entryId("lng"), sourceId: `lang-${g.category}`, title: g.category,
+      subtitle: g.items[0] || "", meta: { items: g.items },
+    }))],
+  ["blog", ({ all, website }) =>
+    all<PortfolioBlogPost>("blog").map((i) => ({
+      id: entryId("blg"), sourceId: i.id, title: i.title,
+      link: i.externalUrl || absUrl(`/blog/${i.slug}`, website), startDate: i.date,
+      description: mdToHtml(i.excerpt),
+    }))],
+  ["garden", ({ all, website }) =>
+    all<PortfolioGardenPost>("posts").map((i) => ({
+      id: entryId("grd"), sourceId: i.id, title: i.title,
+      link: absUrl(`/garden/${i.slug}`, website), description: mdToHtml(i.desc),
+    }))],
+  ["declaration", ({ settings }) => {
+    const text = settings.declaration || "";
+    return text ? [{ id: entryId("dec"), sourceId: "settings", description: mdToHtml(text) }] : [];
+  }],
+]);
+
 /** Build entries for a synced section from an imported portfolio snapshot.
  *  A null snapshot yields empty sections (blank document). */
 export function buildEntries(
@@ -123,111 +233,8 @@ export function buildEntries(
     (snapshot?.content?.[t] ?? []) as T[];
   const website = settings.website;
 
-  switch (kind) {
-    case "summary": {
-      const text = settings.bio || settings.body || "";
-      return text ? [{ id: entryId("summary"), sourceId: "settings", description: mdToHtml(text) }] : [];
-    }
-    case "experience":
-      return all<PortfolioExperience>("experience").map((i) => ({
-        id: entryId("exp"), sourceId: i.id, title: i.title, subtitle: i.company,
-        location: i.location, startDate: i.startDate, endDate: i.endDate,
-        link: i.link, description: mdToHtml(i.body),
-      }));
-    case "education":
-      return all<PortfolioEducation>("education").map((i) => ({
-        id: entryId("edu"), sourceId: i.id, title: i.title, subtitle: i.institution,
-        location: i.location, startDate: i.startDate, endDate: i.endDate, link: i.link,
-        description: mdToHtml(i.body), meta: { degree: i.degree, field: i.field, gpa: i.gpa },
-      }));
-    case "courses":
-      return all<PortfolioCourse>("courses").map((i) => ({
-        id: entryId("crs"), sourceId: i.id, title: i.title, subtitle: i.provider,
-        startDate: i.date, link: i.link, description: mdToHtml(i.body),
-      }));
-    case "awards":
-      return all<PortfolioAward>("awards").map((i) => ({
-        id: entryId("awd"), sourceId: i.id, title: i.title, subtitle: i.issuer,
-        startDate: i.date, link: i.link, description: mdToHtml(i.body),
-        meta: { amount: i.amount, awardType: i.awardType },
-      }));
-    case "publications":
-      return all<PortfolioPublication>("publications").map((i) => ({
-        id: entryId("pub"), sourceId: i.id, title: i.title,
-        subtitle: [i.venue, i.year].filter(Boolean).join(", "),
-        link: i.link || (i.doi ? `https://doi.org/${i.doi}` : undefined),
-        description: mdToHtml(i.body), meta: { authors: i.authors, doi: i.doi, year: i.year },
-      }));
-    case "speaking":
-      return all<PortfolioSpeaking>("speaking").map((i) => ({
-        id: entryId("spk"), sourceId: i.id, title: i.title, subtitle: i.event,
-        location: i.location, startDate: i.date, link: i.link || i.video || i.slides,
-        description: mdToHtml(i.body),
-      }));
-    case "volunteering":
-      return all<PortfolioVolunteering>("volunteering").map((i) => ({
-        id: entryId("vol"), sourceId: i.id, title: i.title, subtitle: i.organization,
-        location: i.location, startDate: i.startDate, endDate: i.endDate, link: i.link,
-        description: mdToHtml(i.body),
-      }));
-    case "certificates":
-      return all<PortfolioCertificate>("certificates").map((i) => ({
-        id: entryId("cert"), sourceId: i.id, title: i.title, subtitle: i.issuer,
-        startDate: i.date, link: i.link, description: mdToHtml(i.body),
-        meta: { credentialId: i.credentialId, certType: i.certType },
-      }));
-    case "organizations":
-      return all<PortfolioOrganization>("organizations").map((i) => ({
-        id: entryId("org"), sourceId: i.id, title: i.title, subtitle: i.role,
-        location: i.location, startDate: i.startDate, endDate: i.endDate,
-        link: i.website, description: mdToHtml(i.body), meta: { memberType: i.memberType },
-      }));
-    case "references":
-      return all<PortfolioReference>("references").map((i) => ({
-        id: entryId("ref"), sourceId: i.id, title: i.name, subtitle: i.title || i.role,
-        link: i.link, description: mdToHtml(i.body),
-        meta: { organization: i.organization, relationship: i.relationship, email: i.email, phone: i.phone },
-      }));
-    case "projects":
-      return all<PortfolioProject>("projects").map((i) => ({
-        id: entryId("prj"), sourceId: i.id, title: i.title, subtitle: i.role,
-        startDate: i.year, link: i.link, description: mdToHtml(i.desc || i.body),
-        meta: { stats: i.stats },
-      }));
-    case "interests":
-      return all<PortfolioInterest>("interests").map((i) => ({
-        id: entryId("int"), sourceId: i.id, title: i.title, meta: { category: i.category },
-      }));
-    case "skills":
-      return parseKeyValue(settings.skills).map((g) => ({
-        id: entryId("skl"), sourceId: `skill-${g.category}`, title: g.category,
-        meta: { items: g.items },
-      }));
-    case "languages":
-      return parseKeyValue(settings.languages).map((g) => ({
-        id: entryId("lng"), sourceId: `lang-${g.category}`, title: g.category,
-        subtitle: g.items[0] || "", meta: { items: g.items },
-      }));
-    case "blog":
-      return all<PortfolioBlogPost>("blog").map((i) => ({
-        id: entryId("blg"), sourceId: i.id, title: i.title,
-        link: i.externalUrl || absUrl(`/blog/${i.slug}`, website), startDate: i.date,
-        description: mdToHtml(i.excerpt),
-      }));
-    case "garden":
-      return all<PortfolioGardenPost>("posts").map((i) => ({
-        id: entryId("grd"), sourceId: i.id, title: i.title,
-        link: absUrl(`/garden/${i.slug}`, website), description: mdToHtml(i.desc),
-      }));
-    case "declaration": {
-      const text = settings.declaration || "";
-      return text ? [{ id: entryId("dec"), sourceId: "settings", description: mdToHtml(text) }] : [];
-    }
-    case "custom":
-      return [];
-    default:
-      return [];
-  }
+  const build = ENTRY_BUILDERS.get(kind);
+  return build ? build({ settings, all, website }) : [];
 }
 
 export { yearOf };
@@ -598,30 +605,7 @@ export const SAMPLE_PHOTO =
  */
 export function sampleDocument(stylePatch: Partial<ResumeStyle>, adopt?: ResumeSection[]): ResumeDocument {
   let sections = sampleSections();
-  if (adopt?.length) {
-    const byKind = new Map(
-      sections.map((s) => [s.customType === "skill" ? "skills" : s.kind, s] as const)
-    );
-    const used = new Set<string>();
-    const adopted: ResumeSection[] = [];
-    for (const real of adopt) {
-      const kind = real.customType === "skill" ? "skills" : real.kind;
-      const match = byKind.get(kind);
-      if (!match || used.has(kind)) continue;
-      used.add(kind);
-      adopted.push({
-        ...match,
-        visible: real.visible,
-        layout: real.layout ?? match.layout,
-        region: real.region,
-      });
-    }
-    for (const s of sections) {
-      const kind = s.customType === "skill" ? "skills" : s.kind;
-      if (!used.has(kind)) adopted.push(s);
-    }
-    sections = adopted;
-  }
+  if (adopt?.length) sections = adoptStructure(sections, adopt);
   return {
     id: "sample",
     name: "Sample",
@@ -640,6 +624,33 @@ export function sampleDocument(stylePatch: Partial<ResumeStyle>, adopt?: ResumeS
     sections,
     style: { ...DEFAULT_STYLE, ...stylePatch },
   };
+}
+
+/** Copies the real sections' order, visibility, layout, and region onto the
+ *  sample's own; sample kinds the document lacks follow at the end. */
+function adoptStructure(sections: ResumeSection[], adopt: ResumeSection[]): ResumeSection[] {
+  const byKind = new Map(
+    sections.map((s) => [s.customType === "skill" ? "skills" : s.kind, s] as const)
+  );
+  const used = new Set<string>();
+  const adopted: ResumeSection[] = [];
+  for (const real of adopt) {
+    const kind = real.customType === "skill" ? "skills" : real.kind;
+    const match = byKind.get(kind);
+    if (!match || used.has(kind)) continue;
+    used.add(kind);
+    adopted.push({
+      ...match,
+      visible: real.visible,
+      layout: real.layout ?? match.layout,
+      region: real.region,
+    });
+  }
+  for (const s of sections) {
+    const kind = s.customType === "skill" ? "skills" : s.kind;
+    if (!used.has(kind)) adopted.push(s);
+  }
+  return adopted;
 }
 
 function sampleSections(): ResumeSection[] {

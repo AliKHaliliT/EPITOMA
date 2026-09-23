@@ -95,36 +95,55 @@ const RepoForm = ({ repoRef, onConnect, onDisconnect, onClose }: Omit<RepoDialog
               </p>
             )}
 
-            <div className="mt-5 flex items-center justify-end gap-2">
-              {repoRef && (
-                <button
-                  onClick={() => {
-                    onDisconnect();
-                    onClose();
-                  }}
-                  className="mr-auto flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-danger hover:text-danger"
-                >
-                  <Unlink size={13} /> Disconnect
-                </button>
-              )}
-              <button
-                onClick={onClose}
-                className="rounded-full border border-line px-4 py-2 text-sm font-medium text-muted transition-colors hover:text-ink"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={connect}
-                disabled={busy || !owner.trim() || !repo.trim() || !branch.trim()}
-                className="flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-surface transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
-              >
-                {busy && <Loader2 size={13} className="animate-spin" />}
-                {busy ? "Fetching…" : repoRef ? "Reconnect" : "Connect & fetch"}
-              </button>
-            </div>
+            {formButtons({ repoRef, busy, owner, repo, branch, connect, onDisconnect, onClose })}
     </m.div>
   );
 };
+
+/** What the form's buttons read and call. */
+interface FormButtonsProps {
+  repoRef: RepoRef | null;
+  busy: boolean;
+  owner: string;
+  repo: string;
+  branch: string;
+  connect: () => void;
+  onDisconnect: () => void;
+  onClose: () => void;
+}
+
+// Disconnect when connected, Cancel, and Connect, which waits for all three fields.
+function formButtons({ repoRef, busy, owner, repo, branch, connect, onDisconnect, onClose }: FormButtonsProps) {
+  return (
+    <div className="mt-5 flex items-center justify-end gap-2">
+      {repoRef && (
+        <button
+          onClick={() => {
+            onDisconnect();
+            onClose();
+          }}
+          className="mr-auto flex items-center gap-1.5 rounded-full border border-line px-4 py-2 text-sm font-medium text-muted transition-colors hover:border-danger hover:text-danger"
+        >
+          <Unlink size={13} /> Disconnect
+        </button>
+      )}
+      <button
+        onClick={onClose}
+        className="rounded-full border border-line px-4 py-2 text-sm font-medium text-muted transition-colors hover:text-ink"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={connect}
+        disabled={busy || !owner.trim() || !repo.trim() || !branch.trim()}
+        className="flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-surface transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
+      >
+        {busy && <Loader2 size={13} className="animate-spin" />}
+        {busy ? "Fetching…" : repoRef ? "Reconnect" : "Connect & fetch"}
+      </button>
+    </div>
+  );
+}
 
 /** The dialog for pointing the builder at a site repository to read seeds from. */
 export const RepoConnectDialog = ({ open, repoRef, onConnect, onDisconnect, onClose }: RepoDialogProps) => (

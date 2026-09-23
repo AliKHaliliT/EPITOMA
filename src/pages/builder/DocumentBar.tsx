@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type Dispatch, type SetStateAction } from "react";
 import {
   ChevronDown,
   Plus,
@@ -48,6 +48,9 @@ interface DocumentBarProps {
   exportDoc?: ResumeDocument | null;
 }
 
+/** The confirmation waiting on the visitor, if any. */
+type Pending = null | "forget" | "delete" | "sync";
+
 const relativeDate = (iso: string) => {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "never";
@@ -73,7 +76,7 @@ export const DocumentBar = ({
   exportDoc,
 }: DocumentBarProps) => {
   const [docMenu, setDocMenu] = useState(false);
-  const [pending, setPending] = useState<null | "forget" | "delete" | "sync">(null);
+  const [pending, setPending] = useState<Pending>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [newMenu, setNewMenu] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -134,76 +137,10 @@ export const DocumentBar = ({
     >
       {/* Document selector; renaming happens right here, in place of the
           name it changes. */}
-      <div className="relative">
-        {editingName ? (
-          <span className="flex items-center gap-1">
-            <input
-              autoFocus
-              value={nameDraft}
-              onChange={(e) => setNameDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") commitRename();
-                if (e.key === "Escape") setEditingName(false);
-              }}
-              aria-label="Document name"
-              className="w-[168px] rounded-lg border border-signal bg-well px-3 py-2 text-sm font-medium text-ink outline-none"
-            />
-            <button onClick={commitRename} className="p-2 text-signal hover:bg-field/10 rounded-lg" title="Save name (Enter)">
-              <Check size={15} />
-            </button>
-            <button onClick={() => setEditingName(false)} className="p-2 text-muted hover:text-danger rounded-lg" title="Cancel (Esc)">
-              <X size={15} />
-            </button>
-          </span>
-        ) : (
-        <span className="flex items-center gap-1">
-          <button
-            onClick={() => setDocMenu((v) => !v)}
-            className="flex items-center gap-2 px-3 py-2 bg-well border border-line rounded-lg text-sm font-medium text-ink min-w-[200px]"
-          >
-            {activeDoc?.kind === "cv" ? <FileBadge size={15} /> : <FileText size={15} />}
-            <span className="flex-1 text-left truncate">
-              {activeDoc ? activeDoc.name : "No documents"}
-            </span>
-            <ChevronDown size={15} className="text-muted" />
-          </button>
-          {/* Rename lives beside the name it edits; the input swaps in right
-              here, so nothing else in the bar moves. */}
-          {activeDoc && (
-            <button
-              onClick={startRename}
-              className="p-2 text-muted hover:text-ink hover:bg-surface rounded-lg"
-              title="Rename"
-            >
-              <Pencil size={15} />
-            </button>
-          )}
-        </span>
-        )}
-        {!editingName && docMenu && docs.length > 0 && (
-          <div className="absolute z-20 mt-1 w-full bg-card border border-line rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
-            {docs.map((d) => (
-              <button
-                key={d.id}
-                onClick={() => {
-                  onSelect(d.id);
-                  setDocMenu(false);
-                }}
-                className={cn(
-                  "flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:bg-surface",
-                  d.id === activeDoc?.id
-                    ? "text-ink font-medium"
-                    : "text-muted"
-                )}
-              >
-                {d.kind === "cv" ? <FileBadge size={14} /> : <FileText size={14} />}
-                <span className="flex-1 truncate">{d.name}</span>
-                <span className="text-[10px] uppercase tracking-wide opacity-60">{d.kind}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {documentSelector({
+        docs, activeDoc, onSelect, docMenu, setDocMenu,
+        editingName, setEditingName, nameDraft, setNameDraft, startRename, commitRename,
+      })}
 
       {/* New ▾ */}
       <div className="relative">
@@ -269,72 +206,10 @@ export const DocumentBar = ({
         <BookMarked size={14} className={repoRef ? "text-signal" : undefined} /> Repo
       </button>
       <span className="hidden items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted md:flex">
-        {repoRef ? (
-          <span className="max-w-44 truncate" title={`${repoRef.owner}/${repoRef.repo}@${repoRef.branch}`}>
-            {repoRef.owner}/{repoRef.repo}
-          </span>
-        ) : snapshot ? (
-          <>
-            Portfolio · {relativeDate(snapshot.exportedAt)}
-            <button
-              onClick={() => setPending("forget")}
-              className="p-0.5 hover:text-danger"
-              title="Forget imported portfolio"
-              aria-label="Forget imported portfolio"
-            >
-              <X size={11} />
-            </button>
-          </>
-        ) : (
-          "No portfolio"
-        )}
+        {sourceStatus(repoRef, snapshot, setPending)}
       </span>
 
-      {activeDoc && (
-        <>
-          {/* Duplicate/delete stay put (no layout jump) but sleep while a
-              rename is in flight, so neither can act on a half-renamed
-              document. */}
-          <button
-            onClick={onDuplicate}
-            disabled={editingName}
-            className="p-2 text-muted hover:text-ink hover:bg-surface rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
-            title="Duplicate"
-          >
-            <Copy size={15} />
-          </button>
-          <button
-            onClick={() => setPending("delete")}
-            disabled={editingName}
-            className="p-2 text-muted hover:text-danger hover:bg-danger dark:hover:bg-danger/20 rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
-            title="Delete"
-          >
-            <Trash2 size={15} />
-          </button>
-
-          <div className="flex-1" />
-
-          <span className="text-xs text-muted hidden sm:block">
-            Last synced {relativeDate(activeDoc.lastSyncedAt)}
-          </span>
-          <button
-            onClick={() => setPending("sync")}
-            disabled={(!snapshot && !repoRef) || syncing}
-            className="flex items-center gap-1.5 px-3 py-2 border border-line rounded-lg text-sm font-medium text-ink hover:bg-surface disabled:cursor-not-allowed disabled:opacity-45"
-            title={
-              repoRef
-                ? `Fetch the latest from ${repoRef.owner}/${repoRef.repo}, then sync this document`
-                : snapshot
-                ? "Sync from the imported portfolio"
-                : "Import a portfolio.json or connect a repo first: Sync pulls from it"
-            }
-          >
-            <RefreshCw size={14} className={syncing ? "animate-spin" : undefined} />
-            {syncing ? "Syncing…" : "Sync"}
-          </button>
-          <DownloadMenu doc={exportDoc ?? activeDoc} />
-        </>
-      )}
+      {activeDoc && documentActions({ activeDoc, editingName, onDuplicate, setPending, snapshot, repoRef, syncing, exportDoc })}
 
       {importError && (
         <p
@@ -401,3 +276,181 @@ export const DocumentBar = ({
     </div>
   );
 };
+
+/** What the document selector reads and writes. */
+interface SelectorProps {
+  docs: ResumeDocument[];
+  activeDoc: ResumeDocument | null;
+  onSelect: (id: string) => void;
+  docMenu: boolean;
+  setDocMenu: Dispatch<SetStateAction<boolean>>;
+  editingName: boolean;
+  setEditingName: Dispatch<SetStateAction<boolean>>;
+  nameDraft: string;
+  setNameDraft: Dispatch<SetStateAction<string>>;
+  startRename: () => void;
+  commitRename: () => void;
+}
+
+// The document button with its rename control and list, or the name input while renaming.
+function documentSelector({
+  docs, activeDoc, onSelect, docMenu, setDocMenu,
+  editingName, setEditingName, nameDraft, setNameDraft, startRename, commitRename,
+}: SelectorProps) {
+  return (
+    <div className="relative">
+      {editingName ? (
+        <span className="flex items-center gap-1">
+          <input
+            autoFocus
+            value={nameDraft}
+            onChange={(e) => setNameDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commitRename();
+              if (e.key === "Escape") setEditingName(false);
+            }}
+            aria-label="Document name"
+            className="w-[168px] rounded-lg border border-signal bg-well px-3 py-2 text-sm font-medium text-ink outline-none"
+          />
+          <button onClick={commitRename} className="p-2 text-signal hover:bg-field/10 rounded-lg" title="Save name (Enter)">
+            <Check size={15} />
+          </button>
+          <button onClick={() => setEditingName(false)} className="p-2 text-muted hover:text-danger rounded-lg" title="Cancel (Esc)">
+            <X size={15} />
+          </button>
+        </span>
+      ) : (
+      <span className="flex items-center gap-1">
+        <button
+          onClick={() => setDocMenu((v) => !v)}
+          className="flex items-center gap-2 px-3 py-2 bg-well border border-line rounded-lg text-sm font-medium text-ink min-w-[200px]"
+        >
+          {activeDoc?.kind === "cv" ? <FileBadge size={15} /> : <FileText size={15} />}
+          <span className="flex-1 text-left truncate">
+            {activeDoc ? activeDoc.name : "No documents"}
+          </span>
+          <ChevronDown size={15} className="text-muted" />
+        </button>
+        {/* Rename lives beside the name it edits; the input swaps in right
+            here, so nothing else in the bar moves. */}
+        {activeDoc && (
+          <button
+            onClick={startRename}
+            className="p-2 text-muted hover:text-ink hover:bg-surface rounded-lg"
+            title="Rename"
+          >
+            <Pencil size={15} />
+          </button>
+        )}
+      </span>
+      )}
+      {!editingName && docMenu && docs.length > 0 && (
+        <div className="absolute z-20 mt-1 w-full bg-card border border-line rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
+          {docs.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => {
+                onSelect(d.id);
+                setDocMenu(false);
+              }}
+              className={cn(
+                "flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:bg-surface",
+                d.id === activeDoc?.id
+                  ? "text-ink font-medium"
+                  : "text-muted"
+              )}
+            >
+              {d.kind === "cv" ? <FileBadge size={14} /> : <FileText size={14} />}
+              <span className="flex-1 truncate">{d.name}</span>
+              <span className="text-[10px] uppercase tracking-wide opacity-60">{d.kind}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Where Sync reads from, the connected repo or the imported portfolio, or neither yet.
+function sourceStatus(repoRef: RepoRef | null, snapshot: PortfolioSnapshot | null, setPending: Dispatch<SetStateAction<Pending>>) {
+  return repoRef ? (
+    <span className="max-w-44 truncate" title={`${repoRef.owner}/${repoRef.repo}@${repoRef.branch}`}>
+      {repoRef.owner}/{repoRef.repo}
+    </span>
+  ) : snapshot ? (
+    <>
+      Portfolio · {relativeDate(snapshot.exportedAt)}
+      <button
+        onClick={() => setPending("forget")}
+        className="p-0.5 hover:text-danger"
+        title="Forget imported portfolio"
+        aria-label="Forget imported portfolio"
+      >
+        <X size={11} />
+      </button>
+    </>
+  ) : (
+    "No portfolio"
+  );
+}
+
+/** What the open document's actions read and call. */
+interface ActionsProps {
+  activeDoc: ResumeDocument;
+  editingName: boolean;
+  onDuplicate: () => void;
+  setPending: Dispatch<SetStateAction<Pending>>;
+  snapshot: PortfolioSnapshot | null;
+  repoRef: RepoRef | null;
+  syncing: boolean;
+  exportDoc?: ResumeDocument | null;
+}
+
+// Duplicate, delete, the sync state, and the download menu for the open document.
+function documentActions({ activeDoc, editingName, onDuplicate, setPending, snapshot, repoRef, syncing, exportDoc }: ActionsProps) {
+  return (
+    <>
+      {/* Duplicate/delete stay put (no layout jump) but sleep while a
+          rename is in flight, so neither can act on a half-renamed
+          document. */}
+      <button
+        onClick={onDuplicate}
+        disabled={editingName}
+        className="p-2 text-muted hover:text-ink hover:bg-surface rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+        title="Duplicate"
+      >
+        <Copy size={15} />
+      </button>
+      <button
+        onClick={() => setPending("delete")}
+        disabled={editingName}
+        className="p-2 text-muted hover:text-danger hover:bg-danger dark:hover:bg-danger/20 rounded-lg disabled:cursor-not-allowed disabled:opacity-40"
+        title="Delete"
+      >
+        <Trash2 size={15} />
+      </button>
+
+      <div className="flex-1" />
+
+      <span className="text-xs text-muted hidden sm:block">
+        Last synced {relativeDate(activeDoc.lastSyncedAt)}
+      </span>
+      <button
+        onClick={() => setPending("sync")}
+        disabled={(!snapshot && !repoRef) || syncing}
+        className="flex items-center gap-1.5 px-3 py-2 border border-line rounded-lg text-sm font-medium text-ink hover:bg-surface disabled:cursor-not-allowed disabled:opacity-45"
+        title={
+          repoRef
+            ? `Fetch the latest from ${repoRef.owner}/${repoRef.repo}, then sync this document`
+            : snapshot
+            ? "Sync from the imported portfolio"
+            : "Import a portfolio.json or connect a repo first: Sync pulls from it"
+        }
+      >
+        <RefreshCw size={14} className={syncing ? "animate-spin" : undefined} />
+        {syncing ? "Syncing…" : "Sync"}
+      </button>
+      <DownloadMenu doc={exportDoc ?? activeDoc} />
+    </>
+  );
+}

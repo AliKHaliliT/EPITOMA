@@ -6,7 +6,7 @@ import {
   BookOpen, Link2, ExternalLink, ArrowUp, type LucideIcon,
 } from "lucide-react";
 import { planPushes } from "./pagination";
-import { PAGE_DIMS, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle } from "./model";
+import { PAGE_DIMS, PersonalDetails, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle, SectionLayout } from "./model";
 import { fmtResumeDate, languageLocale, presentWord } from "./dates";
 import { iconByName } from "@/shared/lib";
 import {
@@ -15,7 +15,7 @@ import {
   sectionStyle, loadFonts, tint, railColors, RAIL_FRAC, luminance,
 } from "./previewStyles";
 import { sectionRegion } from "./defaults";
-import { proficiencyDots } from "./layout";
+import { proficiencyDots, sectionShape, type SectionShape } from "./layout";
 
 const CONTACT_ICONS: Record<string, LucideIcon> = {
   Globe, Github, Linkedin, Twitter, GraduationCap, BookOpen, Link2,
@@ -47,15 +47,19 @@ function LinkIcon({ style }: { style: ResumeStyle }) {
   return <I size={10} className="inline ml-0.5 align-baseline" style={{ color: style.accentApply.linkIcons ? style.accentColor : undefined }} />;
 }
 
-/** One job/degree/item. The three layouts are visibly distinct whatever the
- *  other settings: 1 = date pushed to the right edge; 2 = stacked, the date on
- *  its own line; 3 = everything on one left-running line, the date trailing. */
-function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: ResumeStyle; atomKey?: string }) {
-  const dates = range(entry.startDate, entry.endDate, style);
-  const layout = style.entryLayout;
-  const subtitleInline = style.subtitlePlacement === "same" || layout === 3;
+/** The pieces both row shapes are drawn from. */
+interface RowParts {
+  entry: ResumeEntry;
+  style: ResumeStyle;
+  atomKey?: string;
+  dates: string;
+  titleEl: React.ReactNode;
+  subtitleEl: React.ReactNode;
+}
 
-  const titleEl = entry.title && (
+// The entry's title, linked when the entry carries a link.
+const entryTitle = (entry: ResumeEntry, style: ResumeStyle) =>
+  entry.title && (
     <span style={entryHeaderStyle()}>
       {entry.link ? (
         <a href={entry.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
@@ -67,29 +71,36 @@ function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: Resume
       )}
     </span>
   );
-  const subtitleEl = entry.subtitle && (
+
+// The entry's subtitle, led by a separator when it shares the title's line.
+const entrySubtitle = (entry: ResumeEntry, style: ResumeStyle, subtitleInline: boolean) =>
+  entry.subtitle && (
     <span style={subtitleStyle(style)}>
       {subtitleInline ? " · " : ""}
       {entry.subtitle}
     </span>
   );
 
-  if (layout === 3) {
-    return (
-      <div data-atom={atomKey} style={{ marginBottom: "var(--r-gap)" }}>
-        <div>
-          {titleEl}
-          {subtitleEl}
-          {entry.location && (
-            <span style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}> · {entry.location}</span>
-          )}
-          {dates && <span style={{ ...dateStyle(style), whiteSpace: "nowrap" }}> · {dates}</span>}
-        </div>
-        <Desc html={entry.description} style={style} />
+/** Layout 3, everything on one left-running line with the date trailing. */
+function oneLineRow({ entry, style, atomKey, dates, titleEl, subtitleEl }: RowParts) {
+  return (
+    <div data-atom={atomKey} style={{ marginBottom: "var(--r-gap)" }}>
+      <div>
+        {titleEl}
+        {subtitleEl}
+        {entry.location && (
+          <span style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}> · {entry.location}</span>
+        )}
+        {dates && <span style={{ ...dateStyle(style), whiteSpace: "nowrap" }}> · {dates}</span>}
       </div>
-    );
-  }
+      <Desc html={entry.description} style={style} />
+    </div>
+  );
+}
 
+/** Layouts 1 and 2, the date pushed to the right edge or stacked on its own line. */
+function blockRow({ entry, style, atomKey, dates, titleEl, subtitleEl, subtitleInline }: RowParts & { subtitleInline: boolean }) {
+  const layout = style.entryLayout;
   return (
     <div data-atom={atomKey} style={{ marginBottom: "var(--r-gap)" }}>
       <div className={layout === 1 ? "flex justify-between items-baseline gap-3" : ""}>
@@ -107,198 +118,339 @@ function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: Resume
   );
 }
 
+/** One job/degree/item. The three layouts are visibly distinct whatever the
+ *  other settings: 1 = date pushed to the right edge; 2 = stacked, the date on
+ *  its own line; 3 = everything on one left-running line, the date trailing. */
+function EntryRow({ entry, style, atomKey }: { entry: ResumeEntry; style: ResumeStyle; atomKey?: string }) {
+  const dates = range(entry.startDate, entry.endDate, style);
+  const layout = style.entryLayout;
+  const subtitleInline = style.subtitlePlacement === "same" || layout === 3;
+  const parts: RowParts = {
+    entry, style, atomKey, dates,
+    titleEl: entryTitle(entry, style),
+    subtitleEl: entrySubtitle(entry, style, subtitleInline),
+  };
+
+  if (layout === 3) return oneLineRow(parts);
+  return blockRow({ ...parts, subtitleInline });
+}
+
+/** The pieces every section body is drawn from. */
+interface BodyParts {
+  section: ResumeSection;
+  style: ResumeStyle;
+  visible: ResumeEntry[];
+  layout: SectionLayout;
+  atom: string;
+}
+
+// One body per section shape, the arrangement the layout contract resolves.
+const SECTION_BODIES: Record<SectionShape, (p: BodyParts) => React.ReactNode> = {
+  prose: ({ style, visible, atom }) => (
+    <div data-atom={atom}>
+      <Desc html={visible[0]?.description} style={style} />
+    </div>
+  ),
+
+  "skill-chips": ({ style, visible, atom }) => (
+    <div data-atom={atom} className="flex flex-wrap gap-1.5">
+      {visible.flatMap((e) =>
+        ((e.meta?.items as string[]) || [e.title || ""]).map((it, i) => (
+          <span key={e.id + i} className="px-2 py-0.5 rounded-full" style={{ background: `${style.accentColor}1f` }}>
+            {it}
+          </span>
+        ))
+      )}
+    </div>
+  ),
+
+  "skill-groups": ({ visible, atom }) => (
+    <div data-atom={atom} className="space-y-0.5">
+      {visible.map((e) => (
+        <div key={e.id} className="flex flex-wrap items-baseline gap-x-2">
+          <span style={{ fontWeight: 600 }}>{e.title}:</span>
+          <span style={{ opacity: 0.85 }}>{(e.meta?.items as string[] | undefined)?.join(", ")}</span>
+        </div>
+      ))}
+    </div>
+  ),
+
+  "lang-dots": ({ style, visible, atom }) => (
+    <div data-atom={atom} className="space-y-1">
+      {visible.map((e) => (
+        <div key={e.id} className="flex items-baseline justify-between gap-3">
+          <span style={{ fontWeight: 600 }}>{e.title}</span>
+          <span className="inline-flex items-center gap-[3px]" title={e.subtitle}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <span
+                key={n}
+                style={{
+                  width: "0.5em", height: "0.5em", borderRadius: "9999px",
+                  background: n <= proficiencyDots(e.subtitle) ? style.accentColor : "transparent",
+                  boxShadow: `inset 0 0 0 1px ${style.accentColor}`,
+                  opacity: n <= proficiencyDots(e.subtitle) ? 1 : 0.45,
+                }}
+              />
+            ))}
+          </span>
+        </div>
+      ))}
+    </div>
+  ),
+
+  "lang-grid": ({ visible, atom }) => (
+    <div data-atom={atom} className="grid grid-cols-2 gap-x-6 gap-y-0.5">
+      {visible.map((e) => (
+        <span key={e.id}>
+          <span style={{ fontWeight: 600 }}>{e.title}</span>
+          {e.subtitle && <span style={{ opacity: 0.75 }}> · {e.subtitle}</span>}
+        </span>
+      ))}
+    </div>
+  ),
+
+  "lang-list": ({ visible, atom }) => (
+    <div data-atom={atom} className="flex flex-wrap gap-x-6 gap-y-0.5">
+      {visible.map((e) => (
+        <span key={e.id}>
+          <span style={{ fontWeight: 600 }}>{e.title}</span>
+          {e.subtitle && <span style={{ opacity: 0.75 }}> · {e.subtitle}</span>}
+        </span>
+      ))}
+    </div>
+  ),
+
+  "plain-rows": ({ visible, atom }) => (
+    <div data-atom={atom} className="space-y-0.5">
+      {visible.map((e) => (
+        <div key={e.id}>
+          <span style={{ fontWeight: 600 }}>{e.title}</span>
+          {(e.meta?.category as string) && (
+            <span style={{ opacity: 0.75 }}> · {e.meta?.category as string}</span>
+          )}
+        </div>
+      ))}
+    </div>
+  ),
+
+  chips: ({ visible, atom }) => (
+    <div data-atom={atom} className="flex flex-wrap gap-1.5">
+      {visible.map((e) => (
+        <span key={e.id} className="px-2 py-0.5 rounded-full" style={{ border: "1px solid var(--r-chip-border, #d1d5db)", fontSize: "0.85em" }}>
+          {e.title}
+        </span>
+      ))}
+    </div>
+  ),
+
+  "linked-list": ({ section, style, visible }) => (
+    <ul className="space-y-0.5">
+      {visible.map((e) => (
+        <li key={e.id} data-atom={`e:${section.id}:${e.id}`} className="flex justify-between items-baseline gap-3">
+          <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
+            {e.title}
+            <LinkIcon style={style} />
+          </a>
+          {e.startDate && <span style={dateStyle(style)}>{fmtResumeDate(e.startDate, style.dateFormat, style.language)}</span>}
+        </li>
+      ))}
+    </ul>
+  ),
+
+  "ref-cards": ({ style, visible, layout, atom }) => (
+    <div data-atom={atom} className={layout === "rows" ? "space-y-2" : "grid grid-cols-2 gap-3"}>
+      {visible.map((e) => (
+        <div key={e.id}>
+          <div style={entryHeaderStyle()}>{e.title}</div>
+          {e.subtitle && <div style={{ ...subtitleStyle(style), fontSize: "0.9em" }}>{e.subtitle}</div>}
+          {(e.meta?.organization as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.organization as string}</div>}
+          {(e.meta?.email as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.email as string}</div>}
+        </div>
+      ))}
+    </div>
+  ),
+
+  "entry-grid": ({ style, visible, atom }) => (
+    <div data-atom={atom} className="grid grid-cols-2 gap-x-4">
+      {visible.map((e) => (
+        <EntryRow key={e.id} entry={e} style={style} />
+      ))}
+    </div>
+  ),
+
+  // Compact single-line rows: title, subtitle, date; no body text.
+  "entry-rows": ({ style, visible, atom }) => (
+    <div data-atom={atom} className="space-y-0.5">
+      {visible.map((e) => (
+        <div key={e.id} className="flex items-baseline justify-between gap-3">
+          <span className="min-w-0">
+            <span style={entryHeaderStyle()}>
+              {e.link ? (
+                <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
+                  {e.title}
+                  <LinkIcon style={style} />
+                </a>
+              ) : (
+                e.title
+              )}
+            </span>
+            {e.subtitle && <span style={subtitleStyle(style)}> · {e.subtitle}</span>}
+          </span>
+          {range(e.startDate, e.endDate, style) && (
+            <span style={dateStyle(style)}>{range(e.startDate, e.endDate, style)}</span>
+          )}
+        </div>
+      ))}
+    </div>
+  ),
+
+  entries: ({ section, style, visible }) => (
+    <>
+      {visible.map((e) => (
+        <EntryRow key={e.id} entry={e} style={style} atomKey={`e:${section.id}:${e.id}`} />
+      ))}
+    </>
+  ),
+};
+
 function SectionBody({ section, style }: { section: ResumeSection; style: ResumeStyle }) {
   const visible = section.entries.filter((e) => !e.hidden);
   if (visible.length === 0) return <p style={{ opacity: 0.4, fontSize: "0.85em", fontStyle: "italic" }}>No entries.</p>;
 
-  const kind = section.customType === "skill" ? "skills" : section.kind;
   const layout = section.layout || "list";
 
   const atom = `b:${section.id}`;
 
-  switch (kind) {
-    case "summary":
-    case "declaration":
-      return (
-        <div data-atom={atom}>
-          <Desc html={visible[0]?.description} style={style} />
-        </div>
-      );
+  return SECTION_BODIES[sectionShape(section)]({ section, style, visible, layout, atom });
+}
 
-    case "skills":
-      if (layout === "bubble") {
-        return (
-          <div data-atom={atom} className="flex flex-wrap gap-1.5">
-            {visible.flatMap((e) =>
-              ((e.meta?.items as string[]) || [e.title || ""]).map((it, i) => (
-                <span key={e.id + i} className="px-2 py-0.5 rounded-full" style={{ background: `${style.accentColor}1f` }}>
-                  {it}
-                </span>
-              ))
-            )}
-          </div>
-        );
-      }
-      return (
-        <div data-atom={atom} className="space-y-0.5">
-          {visible.map((e) => (
-            <div key={e.id} className="flex flex-wrap items-baseline gap-x-2">
-              <span style={{ fontWeight: 600 }}>{e.title}:</span>
-              <span style={{ opacity: 0.85 }}>{(e.meta?.items as string[] | undefined)?.join(", ")}</span>
-            </div>
-          ))}
-        </div>
-      );
+/** The header's box, aligned, kept off the rail, or bled to the sheet edge on its band. */
+function headerStyle(style: ResumeStyle, railWidthMm: number, headerAlign: "left" | "center", bandBg: string | null, bandDark: boolean): CSSProperties {
+  return {
+    textAlign: headerAlign as "left" | "center",
+    marginBottom: "var(--r-gap)",
+    // Without a full-bleed band, the header stays off the rail.
+    ...(style.columns === "sidebar" && style.colorScope !== "header"
+      ? { paddingRight: `${railWidthMm + 7}mm` }
+      : {}),
+    ...(bandBg
+      ? {
+          background: bandBg,
+          margin: `-${style.marginY}mm -${style.marginX}mm var(--r-gap)`,
+          padding: `${style.marginY}mm ${style.marginX}mm 12px`,
+          ...(bandDark
+            ? ({
+                color: "#f8fafc",
+                "--r-muted": "rgba(248,250,252,0.72)",
+              } as CSSProperties)
+            : {}),
+        }
+      : {}),
+  };
+}
 
-    case "languages":
-      if (layout === "dots") {
-        return (
-          <div data-atom={atom} className="space-y-1">
-            {visible.map((e) => (
-              <div key={e.id} className="flex items-baseline justify-between gap-3">
-                <span style={{ fontWeight: 600 }}>{e.title}</span>
-                <span className="inline-flex items-center gap-[3px]" title={e.subtitle}>
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <span
-                      key={n}
-                      style={{
-                        width: "0.5em", height: "0.5em", borderRadius: "9999px",
-                        background: n <= proficiencyDots(e.subtitle) ? style.accentColor : "transparent",
-                        boxShadow: `inset 0 0 0 1px ${style.accentColor}`,
-                        opacity: n <= proficiencyDots(e.subtitle) ? 1 : 0.45,
-                      }}
-                    />
-                  ))}
-                </span>
-              </div>
-            ))}
-          </div>
-        );
-      }
-      if (layout === "grid") {
-        return (
-          <div data-atom={atom} className="grid grid-cols-2 gap-x-6 gap-y-0.5">
-            {visible.map((e) => (
-              <span key={e.id}>
-                <span style={{ fontWeight: 600 }}>{e.title}</span>
-                {e.subtitle && <span style={{ opacity: 0.75 }}> · {e.subtitle}</span>}
-              </span>
-            ))}
-          </div>
-        );
-      }
-      return (
-        <div data-atom={atom} className="flex flex-wrap gap-x-6 gap-y-0.5">
-          {visible.map((e) => (
-            <span key={e.id}>
-              <span style={{ fontWeight: 600 }}>{e.title}</span>
-              {e.subtitle && <span style={{ opacity: 0.75 }}> · {e.subtitle}</span>}
-            </span>
-          ))}
-        </div>
-      );
+/** The portrait, framed to the chosen shape, when the document shows one. */
+function headerPhoto(personal: PersonalDetails, style: ResumeStyle, headerAlign: "left" | "center") {
+  return personal.photo && style.showPhoto && (
+    <img
+      src={personal.photo}
+      alt={personal.name}
+      style={{
+        width: style.photoSize, height: style.photoSize, objectFit: "cover",
+        borderRadius: style.photoShape === "circle" ? "9999px" : style.photoShape === "rounded" ? "12px" : "0",
+        margin: headerAlign === "center" ? "0 auto 6px" : "0 0 6px",
+      }}
+    />
+  );
+}
 
-    case "interests":
-      if (layout === "rows") {
-        return (
-          <div data-atom={atom} className="space-y-0.5">
-            {visible.map((e) => (
-              <div key={e.id}>
-                <span style={{ fontWeight: 600 }}>{e.title}</span>
-                {(e.meta?.category as string) && (
-                  <span style={{ opacity: 0.75 }}> · {e.meta?.category as string}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        );
-      }
-      return (
-        <div data-atom={atom} className="flex flex-wrap gap-1.5">
-          {visible.map((e) => (
-            <span key={e.id} className="px-2 py-0.5 rounded-full" style={{ border: "1px solid var(--r-chip-border, #d1d5db)", fontSize: "0.85em" }}>
-              {e.title}
-            </span>
-          ))}
-        </div>
-      );
+/** The header's contacts in display order, each with its glyph. */
+function contactItems(personal: PersonalDetails, style: ResumeStyle) {
+  const items: { icon?: LucideIcon; node: React.ReactNode; key: string }[] = [];
+  if (personal.location) items.push({ icon: MapPin, node: personal.location, key: "loc" });
+  if (personal.email) items.push({ icon: Mail, node: personal.email, key: "email" });
+  if (personal.phone) items.push({ icon: Phone, node: personal.phone, key: "phone" });
+  personal.links?.forEach((l) =>
+    items.push({
+      icon: CONTACT_ICONS[l.icon] || Link2,
+      node: (
+        <a href={l.url} target="_blank" rel="noreferrer" style={linkStyle(style)}>
+          {l.label}
+        </a>
+      ),
+      key: l.label,
+    })
+  );
+  return items;
+}
 
-    case "blog":
-    case "garden":
-      return (
-        <ul className="space-y-0.5">
-          {visible.map((e) => (
-            <li key={e.id} data-atom={`e:${section.id}:${e.id}`} className="flex justify-between items-baseline gap-3">
-              <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
-                {e.title}
-                <LinkIcon style={style} />
-              </a>
-              {e.startDate && <span style={dateStyle(style)}>{fmtResumeDate(e.startDate, style.dateFormat, style.language)}</span>}
-            </li>
-          ))}
-        </ul>
-      );
+/** The contact row, each item glyphed or separated as the header details ask. */
+function contactLine(personal: PersonalDetails, style: ResumeStyle, headerAlign: "left" | "center") {
+  const sep = style.headerDetails === "bar" ? "|" : style.headerDetails === "bullet" ? "•" : "";
+  const showIcons = style.headerDetails === "icon";
+  const iconColor = style.accentApply.headerIcons ? style.accentColor : "var(--r-muted, #6b7280)";
+  return (
+    <div
+      className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1"
+      style={{ fontSize: "0.8em", color: "var(--r-muted, #4b5563)", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
+    >
+      {contactItems(personal, style).map((c, i) => (
+        <span key={c.key} className="inline-flex items-center gap-1">
+          {showIcons && c.icon && <c.icon size={11} style={{ color: iconColor }} />}
+          {!showIcons && sep && i > 0 && <span className="opacity-50 mr-1">{sep}</span>}
+          {c.node}
+        </span>
+      ))}
+    </div>
+  );
+}
 
-    case "references":
-      return (
-        <div data-atom={atom} className={layout === "rows" ? "space-y-2" : "grid grid-cols-2 gap-3"}>
-          {visible.map((e) => (
-            <div key={e.id}>
-              <div style={entryHeaderStyle()}>{e.title}</div>
-              {e.subtitle && <div style={{ ...subtitleStyle(style), fontSize: "0.9em" }}>{e.subtitle}</div>}
-              {(e.meta?.organization as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.organization as string}</div>}
-              {(e.meta?.email as string) && <div style={{ fontSize: "0.85em", color: "var(--r-muted, #6b7280)" }}>{e.meta?.email as string}</div>}
-            </div>
-          ))}
-        </div>
-      );
+/** The free-text detail chips under the contacts, the empty ones left out. */
+function extraLine(personal: PersonalDetails, headerAlign: "left" | "center") {
+  return personal.extra && Object.keys(personal.extra).length > 0 && (
+    <div
+      className="flex flex-wrap gap-x-3 mt-0.5"
+      style={{ fontSize: "0.75em", color: "var(--r-muted, #6b7280)", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
+    >
+      {Object.entries(personal.extra)
+        .filter(([, v]) => v)
+        .map(([k, v]) => (
+          <span key={k}>
+            {k}: {v}
+          </span>
+        ))}
+    </div>
+  );
+}
 
-    default: {
-      if (layout === "grid") {
-        return (
-          <div data-atom={atom} className="grid grid-cols-2 gap-x-4">
-            {visible.map((e) => (
-              <EntryRow key={e.id} entry={e} style={style} />
-            ))}
-          </div>
-        );
-      }
-      if (layout === "rows") {
-        // Compact single-line rows: title, subtitle, date; no body text.
-        return (
-          <div data-atom={atom} className="space-y-0.5">
-            {visible.map((e) => (
-              <div key={e.id} className="flex items-baseline justify-between gap-3">
-                <span className="min-w-0">
-                  <span style={entryHeaderStyle()}>
-                    {e.link ? (
-                      <a href={e.link} target="_blank" rel="noreferrer" style={linkStyle(style)}>
-                        {e.title}
-                        <LinkIcon style={style} />
-                      </a>
-                    ) : (
-                      e.title
-                    )}
-                  </span>
-                  {e.subtitle && <span style={subtitleStyle(style)}> · {e.subtitle}</span>}
-                </span>
-                {range(e.startDate, e.endDate, style) && (
-                  <span style={dateStyle(style)}>{range(e.startDate, e.endDate, style)}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        );
-      }
-      return (
-        <>
-          {visible.map((e) => (
-            <EntryRow key={e.id} entry={e} style={style} atomKey={`e:${section.id}:${e.id}`} />
-          ))}
-        </>
-      );
-    }
-  }
+/** The name block with its portrait, job title, contacts, and detail chips. */
+function sheetHeader(personal: PersonalDetails, style: ResumeStyle, railWidthMm: number) {
+  const headerAlign = style.headerAlign === "center" ? "center" : "left";
+
+  // The header band carries its own ink, and a dark fill flips the block to
+  // light type exactly like the sidebar rail (and like both structural exports).
+  const bandBg = style.colorScope === "header" ? style.headerFillColor || tint(style.accentColor) : null;
+  const bandDark = bandBg !== null && luminance(bandBg) < 0.55;
+
+  return (
+    <header style={headerStyle(style, railWidthMm, headerAlign, bandBg, bandDark)}>
+      {headerPhoto(personal, style, headerAlign)}
+      {/* On a dark band legibility beats decoration, so the band ink wins
+          over an accent-colored name (same rule in Word and LaTeX). */}
+      {personal.name && (
+        <h1 style={{ ...nameStyle(style), ...(bandDark ? { color: "#f8fafc" } : {}) }}>{personal.name}</h1>
+      )}
+      {personal.title && (
+        <p style={{ ...jobTitleStyle(style), fontSize: "0.95em", opacity: 0.9, ...(bandDark ? { color: "#f8fafc" } : {}) }}>
+          {personal.title}
+        </p>
+      )}
+
+      {contactLine(personal, style, headerAlign)}
+
+      {extraLine(personal, headerAlign)}
+    </header>
+  );
 }
 
 const MM_TO_PX = 96 / 25.4; // CSS reference pixel: 96 per inch, 25.4mm per inch
@@ -398,33 +550,6 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc, pageHmm, style.marginY, style.footerText, onPageCount]);
 
-  const headerAlign = style.headerAlign === "center" ? "center" : "left";
-  const sep = style.headerDetails === "bar" ? "|" : style.headerDetails === "bullet" ? "•" : "";
-
-  // The header band's own ink: a dark fill flips the block to light type,
-  // exactly like the sidebar rail (and like both structural exports).
-  const bandBg = style.colorScope === "header" ? style.headerFillColor || tint(style.accentColor) : null;
-  const bandDark = bandBg !== null && luminance(bandBg) < 0.55;
-
-  const contactItems: { icon?: LucideIcon; node: React.ReactNode; key: string }[] = [];
-  if (personal.location) contactItems.push({ icon: MapPin, node: personal.location, key: "loc" });
-  if (personal.email) contactItems.push({ icon: Mail, node: personal.email, key: "email" });
-  if (personal.phone) contactItems.push({ icon: Phone, node: personal.phone, key: "phone" });
-  personal.links?.forEach((l) =>
-    contactItems.push({
-      icon: CONTACT_ICONS[l.icon] || Link2,
-      node: (
-        <a href={l.url} target="_blank" rel="noreferrer" style={linkStyle(style)}>
-          {l.label}
-        </a>
-      ),
-      key: l.label,
-    })
-  );
-
-  const showIcons = style.headerDetails === "icon";
-  const iconColor = style.accentApply.headerIcons ? style.accentColor : "var(--r-muted, #6b7280)";
-
   // Sidebar geometry: the rail is a fraction of the content width, and its
   // band bleeds through the right margin to the sheet edge.
   const pageWmm = (PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4).w;
@@ -498,79 +623,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
       <div ref={contentRef} style={{ position: "relative" }}>
         {/* Header: with the "header" color scope, the name block sits on a
             full-bleed tinted band (negative margins undo the page padding). */}
-        <header
-          style={{
-            textAlign: headerAlign as "left" | "center",
-            marginBottom: "var(--r-gap)",
-            // Without a full-bleed band, the header stays off the rail.
-            ...(style.columns === "sidebar" && style.colorScope !== "header"
-              ? { paddingRight: `${railWidthMm + 7}mm` }
-              : {}),
-            ...(bandBg
-              ? {
-                  background: bandBg,
-                  margin: `-${style.marginY}mm -${style.marginX}mm var(--r-gap)`,
-                  padding: `${style.marginY}mm ${style.marginX}mm 12px`,
-                  ...(bandDark
-                    ? ({
-                        color: "#f8fafc",
-                        "--r-muted": "rgba(248,250,252,0.72)",
-                      } as CSSProperties)
-                    : {}),
-                }
-              : {}),
-          }}
-        >
-          {personal.photo && style.showPhoto && (
-            <img
-              src={personal.photo}
-              alt={personal.name}
-              style={{
-                width: style.photoSize, height: style.photoSize, objectFit: "cover",
-                borderRadius: style.photoShape === "circle" ? "9999px" : style.photoShape === "rounded" ? "12px" : "0",
-                margin: headerAlign === "center" ? "0 auto 6px" : "0 0 6px",
-              }}
-            />
-          )}
-          {/* On a dark band, legibility beats decoration: the band ink wins
-              over an accent-colored name (same rule in Word and LaTeX). */}
-          {personal.name && (
-            <h1 style={{ ...nameStyle(style), ...(bandDark ? { color: "#f8fafc" } : {}) }}>{personal.name}</h1>
-          )}
-          {personal.title && (
-            <p style={{ ...jobTitleStyle(style), fontSize: "0.95em", opacity: 0.9, ...(bandDark ? { color: "#f8fafc" } : {}) }}>
-              {personal.title}
-            </p>
-          )}
-
-          <div
-            className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1"
-            style={{ fontSize: "0.8em", color: "var(--r-muted, #4b5563)", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
-          >
-            {contactItems.map((c, i) => (
-              <span key={c.key} className="inline-flex items-center gap-1">
-                {showIcons && c.icon && <c.icon size={11} style={{ color: iconColor }} />}
-                {!showIcons && sep && i > 0 && <span className="opacity-50 mr-1">{sep}</span>}
-                {c.node}
-              </span>
-            ))}
-          </div>
-
-          {personal.extra && Object.keys(personal.extra).length > 0 && (
-            <div
-              className="flex flex-wrap gap-x-3 mt-0.5"
-              style={{ fontSize: "0.75em", color: "var(--r-muted, #6b7280)", justifyContent: headerAlign === "center" ? "center" : "flex-start" }}
-            >
-              {Object.entries(personal.extra)
-                .filter(([, v]) => v)
-                .map(([k, v]) => (
-                  <span key={k}>
-                    {k}: {v}
-                  </span>
-                ))}
-            </div>
-          )}
-        </header>
+        {sheetHeader(personal, style, railWidthMm)}
 
         {/* Sections */}
         {style.columns === "sidebar" ? (
