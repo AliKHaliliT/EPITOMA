@@ -1,6 +1,6 @@
 // Builder-local copy of the guarded localStorage write (self-contained app -
 // no imports from the rest of src/). A full or unavailable store surfaces as
-// a console error plus a one-time alert instead of an unhandled throw.
+// a one-time alert instead of an unhandled throw.
 
 let warned = false;
 
@@ -17,8 +17,7 @@ export function safeSetItem(key: string, value: string): boolean {
     localStorage.setItem(key, value);
     warned = false;
     return true;
-  } catch (e) {
-    console.error(`Failed to write localStorage key "${key}"`, e);
+  } catch {
     if (!warned) {
       warned = true;
       alert(

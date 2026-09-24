@@ -23,6 +23,18 @@ import {
 
 const STORAGE_KEY = "os_resumes";
 
+/** A saved store the builder could not read, kept aside instead of rendered. */
+export interface RefusedCopy {
+  /** The localStorage key holding the copy, which is what the owner copies out or clears. */
+  key: string;
+  /** Why the copy could not be read, in the words of the parser that refused it. */
+  reason: string;
+}
+
+// What the latest read of the store could not use. A read that succeeds, or finds
+// nothing saved, leaves the list, so the builder only ever names a live problem.
+const refusals = new Map<string, RefusedCopy>();
+
 let idSeq = 0;
 const newId = (now: number) => `doc-${now}-${idSeq++}`;
 
@@ -96,16 +108,37 @@ export const ResumeService = {
    * Reads every saved document.
    *
    * @returns The stored documents, or an empty list when storage is empty or
-   *   unreadable; a broken store reads as no documents rather than a crash.
+   *   unreadable; a broken store reads as no documents rather than a crash, and
+   *   a store that does not parse to a list is recorded for `refused` so the
+   *   builder can name it.
    */
   list(): ResumeDocument[] {
+    refusals.delete(STORAGE_KEY);
+    let stored: string | null;
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
-    } catch (e) {
-      console.error("Failed to load resumes", e);
+      stored = localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return [];
     }
-    return [];
+    if (!stored) return [];
+    try {
+      const docs = JSON.parse(stored);
+      if (!Array.isArray(docs)) throw new TypeError("The saved store is not a list of documents.");
+      return docs;
+    } catch (e) {
+      refusals.set(STORAGE_KEY, { key: STORAGE_KEY, reason: e instanceof Error ? e.message : String(e) });
+      return [];
+    }
+  },
+
+  /**
+   * Names the saved store the latest read could not use, so the builder can say
+   * which key holds it before a save replaces it.
+   *
+   * @returns One entry for a store that did not parse to a list, empty otherwise.
+   */
+  refused(): RefusedCopy[] {
+    return [...refusals.values()];
   },
 
   /**
@@ -117,6 +150,7 @@ export const ResumeService = {
    */
   saveAll(docs: ResumeDocument[]) {
     safeSetItem(STORAGE_KEY, JSON.stringify(docs));
+    refusals.delete(STORAGE_KEY);
   },
 
   /**

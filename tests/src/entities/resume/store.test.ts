@@ -1,6 +1,7 @@
 // Characterization tests for ResumeService: pins document creation from a
 // portfolio snapshot, the sync/merge semantics (preserve structure, style,
 // per-entry hidden/order), blank creation, and duplication.
+// It also pins which stores a read refuses and when the refusal is forgotten.
 
 import { beforeEach, describe, expect, it } from "vitest";
 import { installLocalStorageMock } from "@/shared/testing/localStorageMock";
@@ -38,6 +39,27 @@ const SNAPSHOT: PortfolioSnapshot = {
 };
 
 let store: Map<string, string>;
+
+// Storage the browser will not open, as a disabled or sandboxed store behaves.
+function installUnreadableStorage() {
+  const denied = () => {
+    throw new DOMException("The operation is insecure.", "SecurityError");
+  };
+  Object.defineProperty(globalThis, "localStorage", {
+    value: {
+      getItem: denied,
+      setItem: denied,
+      removeItem: denied,
+      clear: denied,
+      key: denied,
+      get length() {
+        return denied();
+      },
+    },
+    configurable: true,
+    writable: true,
+  });
+}
 
 beforeEach(() => {
   store = installLocalStorageMock();
@@ -186,5 +208,53 @@ describe("persistence + duplicate", () => {
     // Deep copy: mutating the copy must not touch the original.
     copy.sections[0].heading = "changed";
     expect(ResumeService.get(doc.id)!.sections[0].heading).not.toBe("changed");
+  });
+});
+
+describe("list and refused", () => {
+  it("names a store that does not parse, with its key and the parser's reason", () => {
+    store.set("os_resumes", "{not json");
+    expect(ResumeService.list()).toEqual([]);
+    expect(ResumeService.refused()).toEqual([
+      { key: "os_resumes", reason: expect.stringMatching(/JSON/) },
+    ]);
+  });
+
+  it("names a store that parses to something other than a list", () => {
+    store.set("os_resumes", "{}");
+    expect(ResumeService.list()).toEqual([]);
+    expect(ResumeService.refused()).toEqual([
+      { key: "os_resumes", reason: "The saved store is not a list of documents." },
+    ]);
+  });
+
+  it("forgets the refusal once the store reads cleanly", () => {
+    store.set("os_resumes", "{not json");
+    ResumeService.list();
+    store.set("os_resumes", "[]");
+    ResumeService.list();
+    expect(ResumeService.refused()).toEqual([]);
+  });
+
+  it("forgets the refusal once the store is emptied", () => {
+    store.set("os_resumes", "{not json");
+    ResumeService.list();
+    store.delete("os_resumes");
+    expect(ResumeService.list()).toEqual([]);
+    expect(ResumeService.refused()).toEqual([]);
+  });
+
+  it("forgets the refusal once the whole collection is saved over it", () => {
+    store.set("os_resumes", "{not json");
+    ResumeService.list();
+    ResumeService.saveAll([]);
+    expect(store.get("os_resumes")).toBe("[]");
+    expect(ResumeService.refused()).toEqual([]);
+  });
+
+  it("reads storage it cannot open as no documents and names nothing", () => {
+    installUnreadableStorage();
+    expect(ResumeService.list()).toEqual([]);
+    expect(ResumeService.refused()).toEqual([]);
   });
 });

@@ -12,4 +12,5 @@ export { RAIL_FRAC, bodyStyle, dateStyle, descriptionClass, descriptionStyle, en
 export type { FieldOverlay, RegionPreset } from "./regions";
 export { FIELD_OVERLAYS, REGION_PRESETS, SIGNATURE_SECTION_ID, applyField, applyRegion } from "./regions";
 export { localizeHeading, placeDateLine, relocalizeSections, setDocumentLanguage } from "./headings";
+export type { RefusedCopy } from "./store";
 export { ResumeService } from "./store";

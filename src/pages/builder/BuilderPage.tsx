@@ -8,6 +8,7 @@ import { DocumentBar } from "./DocumentBar";
 import { OverviewPanel } from "./OverviewPanel";
 import { ContentPanel } from "./ContentPanel";
 import { CustomizePanel } from "./CustomizePanel";
+import { StoredDocumentsNotice } from "./StoredDocumentsNotice";
 
 type WorkspaceTab = "overview" | "content" | "customize";
 
@@ -86,6 +87,7 @@ export const ResumeBuilder = () => {
 
   return (
     <div className="space-y-8 pb-12">
+      <StoredDocumentsNotice refused={rs.refused} />
       <div>
         <div className="flex items-center gap-3 mb-2">
           <BrandMark />

@@ -99,7 +99,11 @@ creates blank documents and Sync is disabled with guidance.
 A `ResumeDocument` (`src/entities/resume/model.ts`) is `{ personal, sections[], style }` plus
 metadata; each section holds entries whose `sourceId` links back to the portfolio item.
 Documents live in localStorage under `os_resumes` (active id in `os_resumes_active`),
-managed by `src/entities/resume/store.ts` through the `useResumes` hook.
+managed by `src/entities/resume/store.ts` through the `useResumes` hook. The hook saves the
+collection only once it differs from what the first read returned, so a visit that changes
+nothing never writes. A store that does not parse to a list reads as no documents, and the
+builder names its key in a notice until the first change saves over it
+([decision 0023, Name an unreadable document store on the builder](decisions/0023-name-an-unreadable-document-store-on-the-builder.md)).
 
 `createDocument(kind, now, snapshot)` builds a Resume or CV from
 `DEFAULT_SECTION_SPECS[kind]` (`lib/resumeDefaults.ts`); the two kinds differ only in that

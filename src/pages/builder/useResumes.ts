@@ -2,7 +2,7 @@
 // ResumeService, and auto-persists on change. Content comes from the
 // imported portfolio snapshot (portfolio/source.ts).
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ResumeService, DocumentKind, ResumeDocument } from "@/entities/resume";
 import { currentSnapshot } from "@/entities/portfolio";
 import { safeSetItem } from "@/shared/lib";
@@ -15,23 +15,22 @@ const ACTIVE_KEY = "os_resumes_active";
  * Lives with the page because it reaches both the resume entity and the
  * portfolio entity, and the page is the only layer allowed to touch both.
  *
- * @returns The documents, the active one, and the writers the panels call.
+ * @returns The documents, the active one, the saved store the builder could
+ *   not read, and the writers the panels call.
  */
 export function useResumes() {
-  const [docs, setDocs] = useState<ResumeDocument[]>(() => ResumeService.list());
+  // What the first read found. The collection is saved only once it differs from
+  // this, so a visit that changes nothing never writes over a store it could not read.
+  const [loaded] = useState(() => ResumeService.list());
+  const [docs, setDocs] = useState<ResumeDocument[]>(loaded);
   const [activeId, setActiveId] = useState<string | null>(
     () => localStorage.getItem(ACTIVE_KEY) || ResumeService.list()[0]?.id || null
   );
 
   // Persist the whole collection whenever it changes.
-  const first = useRef(true);
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    ResumeService.saveAll(docs);
-  }, [docs]);
+    if (docs !== loaded) ResumeService.saveAll(docs);
+  }, [docs, loaded]);
 
   useEffect(() => {
     if (activeId) safeSetItem(ACTIVE_KEY, activeId);
@@ -122,5 +121,7 @@ export function useResumes() {
     rename,
     importDoc,
     sync,
+    // A store the first read refused stays named until the first change saves over it.
+    refused: docs === loaded ? ResumeService.refused() : [],
   };
 }
