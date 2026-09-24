@@ -16,9 +16,10 @@ the indexed document that covers whatever you are about to touch.
 | `npm install` | Install dependencies |
 | `npm run dev` | Vite dev server on port 3200 (strict) |
 | `npm run build` | Type-check then production build to `dist/` |
-| `npm test` | Vitest suites for the service and the portfolio source |
-| `npm run lint` | ESLint |
+| `npm test` | Vitest suites for the service and the portfolio source, in a shuffled order under a seed the run prints |
+| `npm run lint` | ESLint, which holds the layer rule and the function-shape limits |
 | `npm run docs` | The living documents against the tree and the calendar |
+| `npm run docs:selftest` | Every rule of the docs audit against a planted defect, since a check that never fires and a check that cannot fire look identical |
 | `npm run typecheck` | Type-check all projects (the root tsconfig is solution-style; a plain `tsc --noEmit` checks nothing) |
 
 Run `npm test` after touching the resume entity's `store`, the portfolio `source`, or the
@@ -29,12 +30,22 @@ The checks report at two levels. A failure is a verdict, it stops the command, a
 means a rule the tool fully decides has been broken. A warning is advice, it leaves the
 exit status clean, and it comes from a check that cannot decide its own question and so
 is not allowed to gate. Advice is not noise and not optional reading. Every warning is
-looked at and then either fixed or dismissed in writing, in the change that produced it,
-and a warning is never silenced with a suppression comment to make a run look clean. The
-advisory checks here are the credential and regular-expression heuristics in the lint
-configuration, which guess from the shape of a string or a pattern and are wrong often
-enough that they cannot be a gate, and the prose-vocabulary grep and the spell check in CI, which
-read an honest domain term the same as a tell or a typo and so advise for review.
+looked at and then either fixed or dismissed in writing in the commit message of the
+change that produced it, so the judgment outlives the run that asked for it, and a warning
+is never silenced with a suppression comment to make a run look clean. A finding printed on
+every run by design, like a review row of the invariants ledger, was answered by the record
+that made it so and needs no repetition. The advisory checks here are the credential and
+regular-expression heuristics in the lint configuration, which guess from the shape of a
+string or a pattern and are wrong often enough that they cannot be a gate, the docs audit's
+vocabulary advisory, which reads an honest domain term the same as a tell and so advises for
+review, its spelling advisory, which runs where codespell is installed and names itself as
+not run elsewhere, and its form advisory, which counts the references a prose paragraph
+names and cannot tell an enumeration from an argument, so it advises a list or a table and
+gates nothing. Its splice advisory names a colon that opens a lowercase clause in a record
+main does not hold yet, because a list colon and a spliced one look alike to a machine, and
+it falls silent once the record has landed, since a defect found in a merged record stays. A
+check the tree gave nothing to run is named as not run, with what it needs, so a clean
+verdict never hides a check that never looked.
 
 ## Hard rules
 
@@ -42,8 +53,10 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
 
 - **An em dash is legal where it clearly beats the comma, the parenthesis, or the period
   it replaces**, and it counts as its paragraph's one flourish. A tracked file carries at
-  most two; CI counts that boundary, while the judgment of fit and commit messages stay
-  with review.
+  most two; the docs audit counts that boundary, so a tree with no remote is held to it as
+  well, and it judges a record only from the commit the count's own scope sentence arrived
+  in, because a record over the budget admits no edit that could bring it under; the
+  judgment of fit and commit messages stay with review.
 - **Commit history speaks in the owner's voice alone.** No attribution trailers, no
   Co-Authored-By lines, nothing naming a tool or an assistant in a commit message. Held in
   review, like every commit-message rule.
@@ -53,17 +66,53 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   review's work, never left to look automated, because the half no tool reaches is the
   half that rots and it rots faster behind a passing signal. This is why the family
   carries no coverage threshold, no maturity score, and no metric standing in for a rule
-  it cannot decide. A check that reads history binds from the arrival of its
-  own scope, found in the tree's own history and dated by the sentence that states that
-  scope, never by a name a child's past could already carry, because a commit cannot be
-  unmade and a rule reaching behind its arrival can never go green.
+  it cannot decide. A check that reads history binds from the arrival of its own scope,
+  found in the tree's own history and dated by the sentence that states the scope, never
+  by a name or a date a child's past could already carry, because a commit cannot be
+  unmade and a rule that reaches behind its arrival can never go green; when the scope
+  changes, the sentence changes with it.
+- **A rule lands in the strongest form its mistake allows.** Where a type the checker
+  rejects, an import the linter refuses, or a copy the family audit holds byte-identical
+  can make the mistake impossible, the rule lands there and needs no sentence. Where
+  nothing can make it impossible, it lands as a check that decides its own question and
+  gates. Where no check can decide it, it lands as an advisory or as a clause held in
+  review. Prose is the last form, because a rule that lives only in a sentence binds only
+  a reader who already agrees with it, and the em dash count and the form advisory both
+  began as sentences somebody had to remember. The form is chosen before the rule is
+  written, and the record of the rule names the form it took and why no stronger one was
+  available.
 - **A check that makes a worker damage the work is worse than no check.** When a rule
   fights something real, neither bend the work to earn a green run nor rewrite the rule.
   Pause the work in a state it can resume from, report the conflict, propose the change,
   and wait for the owner's explicit approval, because a rule change slipped into a busy
   diff is a decision nobody made. A length rule cuts filler and never information, a
   repair is verified for its side effects rather than for its intent, and a warning is
-  answered rather than avoided, since an advisory a worker silences has become a gate.
+  answered rather than avoided, since an advisory a worker silences has become a gate. A
+  question to the owner, here or in a closing note, is posed as numbered options, each
+  stating in one sentence what the agent will do if it is chosen, with the recommended one
+  marked, so the answer can be a number or a word; a reply that matches no option is
+  restated in one sentence at the top of the next message, as what was understood and is
+  about to be done, before anything is done. A change in the tree this session did not
+  make, a file edited, added, or moved by no act of its own, is another actor, a session
+  or a tool, and is reported and left alone rather than repaired, because a repair of what
+  one did not break undoes someone's work.
+- **One working tree and one branch per session, never two sessions in one tree.** A
+  second tree created inside the repository lives under `.worktrees/`, which the ignore
+  file names, so it is never a nested checkout in the tracked tree. A change lands by
+  merging main into the branch, running the gate on the merged tree, pushing the branch,
+  waiting for its run to pass, fast-forwarding main, and deleting the branch locally and on
+  the remote in the push that moves main, so main never carries a tree the gate has not
+  seen whole and no landed branch outlives its landing to be started from by mistake;
+  integration is a merge and not a rebase where records pin commits, because a rebase
+  rewrites the commits they name. The workflow fails a run while any remote branch beside
+  main is already merged into it, which holds the remote half, and the docs audit fails
+  while any local branch beside main and the ones checked out is already merged into it,
+  which holds the local half wherever the audit runs. Where the repository names no
+  remote, the branch is still merged with main, gated whole in the terminal,
+  fast-forwarded, and deleted, the push and the wait having nothing to act on, and the docs
+  audit names the workflow's one check beyond the gate's commands, the landed-branches
+  step, as not run for want of a remote, so a tree that never met a run says so on every
+  run rather than passing for lack of one.
 - **A completeness claim names its boundary.** Saying that every caller was updated or
   every usage fixed is a fact only when it names the enumerable list it exhausted, a grep,
   a file list, a suite run, that a reader can re-derive. A claim over a region the
@@ -84,6 +133,13 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   only while its work is genuinely unfinished. Completing work deletes its entry in the
   same change and never replaces it with a narration of the landing, and every change ends
   with a sweep for entries it completed or invalidated, agent and human alike.
+- **Read [docs/INVARIANTS.md](docs/INVARIANTS.md) before changing what the builder
+  promises.** It lists what must stay true, one row per claim, each with the holder that
+  refuses a violation and the rung that says what its green is worth. A change that adds,
+  moves, or retires a claim changes its row in the same change, a claim nothing decides is
+  written with review as its holder so the audit prints it on every run instead of leaving
+  it in memory, and no row says proved, because a sampled property is not a proof and a
+  passing test is not a theorem.
 - **All prose must read as if a person wrote it.** Never write the clause-colon splice, a
   sentence shaped as claim, colon, elaboration; in prose a colon may only introduce a
   list, a quote, or a label. The softer language-model tells (balanced semicolon
@@ -103,11 +159,11 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   entered only through its `index.ts` (suites excepted), and same-layer slices never
   import each other; a concern spanning two of them moves up a layer. The page geometry
   stays with the resume entity because the preview and the exporters both measure it. See
-  [decision 0004](docs/decisions/0004-build-the-builder-as-one-way-sliced-layers.md).
+  [decision 0004, Build the builder as one-way sliced layers](docs/decisions/0004-build-the-builder-as-one-way-sliced-layers.md).
 - **Content is checked at the door.** An uploaded snapshot passes `isPortfolioSnapshot`;
   an item rebuilt from a fetched seed file passes `validatePortfolioItem`. Never widen a
   type with a cast to make remote content fit. See
-  [decision 0005](docs/decisions/0005-check-fetched-seed-files-against-the-contract.md).
+  [decision 0005, Check fetched seed files against the contract](docs/decisions/0005-check-fetched-seed-files-against-the-contract.md).
 - **Colors come only from the token utilities** defined in `src/app/styles/tokens.css`
   (`bg-surface`, `text-ink`, `border-line`, `text-signal`, and so on). Never hardcode a
   color, never reach for a raw palette class, and never spell a token the long way as
@@ -115,6 +171,17 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   variable itself appears. The sheet itself is the deliberate exception, noted below.
 - **The environment is read only through `shared/config`.** No other module touches
   `import.meta.env`.
+- **A function stays within three shape limits**, ten paths through it, five nested
+  blocks, and fifty statements, and the linter gates all three with the rest of the lint,
+  the audit scripts included. A finding is answered by splitting the function, moving a
+  repeated block into one helper, or turning a branch chain into a table, never by removing
+  a guard; a function that genuinely needs more is a conflict for the owner under the pause
+  rule, never a suppression.
+- **Nothing prints from product code**, and the linter gates the rule with the scripts
+  exempt, because a print left behind while debugging is the commonest byte to reach a
+  tracked module unnoticed. A command's own output goes through its command entry, and a
+  diagnostic goes where the failure path already sends it, the typed error, the storage
+  alert, or the notice that names an unreadable document store, never the console.
 - **Suites mirror the source tree and substitute only at a seam.** One suite per unit under
   test, at the matching path beneath `tests/`. A collaborator is replaced at an architectural
   seam, by a hand-written fake satisfying the contract it stands in for, and never by mocking a
@@ -123,14 +190,27 @@ These are non-negotiable. Depth lives in the indexed documents; this is the chec
   breadth stays a judgment call while placement and substitution do not. An invariant with
   no observable output, such as work done once rather than twice, is observed through a
   counting fake at the seam it crosses, and where no seam exists the invariant is asking for
-  one. See [decision 0009](docs/decisions/0009-adopt-the-styles-test-contract.md).
+  one. A test is proved by the failure it catches. Before it is written, its name states the
+  break it catches and its expected value is derived without the code under test, so a value
+  the code computes for itself and a test that can fail only on an intentional decision are
+  both refused. After it is written, the code is mutated, in thought or in a scratch copy,
+  against a closed list, a wrong constant or argument, a wrong branch, a missing side effect,
+  an empty or default return, a missing check for zero, empty, nil, unauthorized or malformed
+  input, and a test fails for each, a survivor being a gap unless the types and the control
+  flow show the mutant equivalent. After a fix, the fix is reverted, the regression test is
+  watched failing on its assertion and not in its harness, and the fix is restored. A suite
+  cannot reach a provider or the network. The test setup refuses every request that would
+  leave the loopback, and a test that must reach a host names it in the open, because an
+  adapter that resolves its credentials from the environment is a working adapter on a
+  machine that has them, and it bills. See
+  [decision 0009, Adopt the style's test contract](docs/decisions/0009-adopt-the-styles-test-contract.md).
 - **Follow the doc-comment convention** in the rulebook's code-level section and the
   documentation rules in [docs/CONVENTIONS.md](docs/CONVENTIONS.md); that file is frozen
   and must not be edited.
 - **The documentation rulebook is owned by the style.** [docs/CONVENTIONS.md](docs/CONVENTIONS.md)
   changes only in the Helm template inside the My-Styles repository, never here, and this
   project never diverges from its copy. A rule believed wrong or missing goes upstream
-  instead (see [The upstream report](#the-upstream-report)).
+  instead (see [The upstream file](#the-upstream-file)).
 - **Motion runs behind `LazyMotion` strict** with the `domMax` feature set (the `Reorder`
   drag lists need it): always import and use `m.` from framer-motion, never `motion.`.
 - **Self-containment.** This app imports only npm packages plus its own `src/`. It carries
@@ -163,13 +243,14 @@ Closing a task follows one loop: run the checking commands above, weigh the chan
 - **Two hats**: shape changes and behavior changes are separate steps, and no incidental reformatting rides along.
 - **Waste**: nothing speculative and nothing the change orphaned is left behind.
 - **The measured line**: nothing is made faster without a measurement that demanded it, and every optimization that lands records its measurement and its price.
-- **Test honesty**: substitutes stand in only at the declared seams, time, randomness, and order are controlled, and where an optional dependency sits behind a port with a fallback implementation, the suite executes both paths and holds them to a tolerance a decision record states with the measurement that set it, over a fixture on which the two can disagree.
+- **Test honesty**: substitutes stand in only at the declared seams, time, randomness, and order are controlled, the suite runs in a shuffled order under a seed the run prints so a test leaning on its neighbour fails on the day it is written and the run that caught it can be replayed, and where an optional dependency sits behind a port with a fallback implementation, the suite executes both paths and holds them to a tolerance a decision record states with the measurement that set it, over a fixture on which the two can disagree, and no request leaves the loopback, since the test setup refuses one and a test that must reach a host names the host in the open.
 - **Point-of-use truth**: the doc comment or docstring each export carries is true, not merely present.
 - **Intent-split placement**: every documentation change lands in the document whose reader it serves, per the rulebook's species.
 - **Decision records**: any choice made here that would be re-litigated without a record gets one now.
 - **Debt**: every shortcut taken is written in STATE.md before delivery, never carried in memory.
+- **Invariants bound**: every claim the change adds, moves, or retires has its row in [docs/INVARIANTS.md](docs/INVARIANTS.md), each row naming a holder in the tree and its rung, and a claim nothing decides is held by review and printed by the audit rather than carried in memory.
 - **Upstream honesty**: every workaround of template-owned bytes or template-prescribed behavior, and every improvement that qualified, is an entry in [docs/UPSTREAM.md](docs/UPSTREAM.md) before delivery, nameless as to this project, and the closing note names each entry added by its heading, or says there is none.
-- **The commands**: every checking command above has passed against the final state of the tree, and every advisory finding printed along the way has been read and then fixed or dismissed in writing.
+- **The commands**: every checking command above has passed against the final state of the tree, which is the tree that gets pushed, so a merge or a rebase after the last run makes a new final tree and the commands run again on it, and every advisory finding printed along the way has been read and then fixed or dismissed in the commit message.
 - **The hard rules**: the change disagrees with no review-held clause of this guide's Hard rules, re-read now, not recalled.
 
 ## The upstream file
@@ -181,15 +262,48 @@ advantage, and the same road carries defects: a workaround of the template's own
 prescribed behavior that nobody reports leaves every later child to hit it.
 
 [docs/UPSTREAM.md](docs/UPSTREAM.md) is the one living document for this, present from
-adoption on and registered in the index below. It opens with the template and the commit this
-project is aligned to, and holds one `## Open` section carrying either the words
-`Nothing open.` or entries. Each entry is a heading of the form `### YYYY-MM-DD` and a title,
-then a `Kind:` line reading `improvement` or `defect`, a `Pin:` line naming the template
-commit it was written against, and four parts under the bold labels **What it is**, **How the
-work surfaced it**, **Why it is believed better** or **What was worked around**, and **Records
-checked**. An entry names nothing that identifies this project, no project name, no person, no
-host, no path that points at it, and no fact about its domain beyond what the entry needs,
-because the file is handed to a public repository and may be quoted verbatim into its records.
+adoption on and registered in the index below. Its schema is fixed:
+
+- The file opens with its title, one line naming the template and the commit this project
+  is aligned to, `Aligned to <template> at <commit>`, and one sentence saying that every
+  entry is a lead and not a verdict, to be verified against the template's own tree before
+  it is adopted.
+- One section, `## Open`, holds either the words `Nothing open.` or entries.
+- Each entry is a heading of the form `### YYYY-MM-DD` followed by a title, then a `Kind:`
+  line reading `improvement` or `defect`, and a `Pin:` line naming the template commit the
+  entry was written against.
+- Each entry carries four parts under the bold labels **What it is**, **How the work
+  surfaced it**, **Why it is believed better** or **What was worked around**, and
+  **Records checked**.
+
+An entry names nothing that identifies this project, no project name, no person, no host, no
+path that points at it, and no fact about its domain beyond what the entry needs, because the
+file is handed to a public repository and may be quoted verbatim into its records.
+
+The shape, as bytes to copy rather than a sentence to interpret:
+
+```markdown
+# Upstream
+
+Aligned to <template> at <commit>.
+
+Every entry below is a lead, not a verdict; verify it against the template's own tree before adopting it.
+
+## Open
+
+### 2026-09-09 A title in plain words
+
+Kind: improvement
+Pin: <commit>
+
+**What it is.** One paragraph.
+
+**How the work surfaced it.** One paragraph.
+
+**Why it is believed better.** One paragraph, or **What was worked around.** for a defect.
+
+**Records checked.** One paragraph.
+```
 
 Entries come in two kinds and only the first is judged. An improvement earns an entry when it
 is genuinely better rather than differently shaped, the template lacks it, and neither the
@@ -212,17 +326,22 @@ re-dated once past its horizon, because silence for a season is the style's answ
 
 Re-alignment is one refactor, not a trickle. Read the decision records the template gained
 since the pin, because every rule change carries one; recopy the files the style owns verbatim,
-the rulebook, the docs audit, the inherited records as one folder, and the tool-configuration
-blocks with their project names re-adapted, since the lint and type-check settings and the
-comments giving their reasons are style-owned law like the rulebook, a line marked
-`Stack binding` excepted; re-adapt from a diff whatever was adapted before; for every rule this
-configuration has that the style's does not, sweep out what that rule required, since its
-absence upstream is a refusal rather than an oversight; resolve every open entry of the
-upstream file as above; run every checking command above; and move the pin on the first line of
-that file. A history-reading check binds this project from the commit its scope sentence
-arrived in, the re-alignment commit itself, so a red gate over older commits is a defect to
-send upstream rather than a reason to rewrite history. No changelog is kept, because the
-records are the changelog and a summary would be a lossy copy of them.
+the rulebook, the docs audit and its selftest, the inherited records as one folder, and the
+tool-configuration blocks with their project names re-adapted, since the lint and type-check
+settings and the comments giving their reasons are style-owned law like the rulebook, a line
+marked `Stack binding` excepted; re-adapt from a diff whatever was adapted before; for every
+rule this configuration has that the style's does not, sweep out what that rule required,
+since its absence upstream is a refusal rather than an oversight; resolve every open entry of
+the upstream file as above; write the re-alignment as one decision record of this project's
+own, which links every record the inherited folder gained, each with its title, and says for
+each what in the tree it bound and what changed, or that it bound nothing and why, because
+reading a record is not applying it, while the docs audit holds that every record the folder
+gained is cited by a record of this project's own and leaves the honesty of each citation to
+review; run every checking command above; and move the pin on the first line of that file. A
+history-reading check binds this project from the commit its scope sentence arrived in, the
+re-alignment commit itself, so a red gate over older commits is a defect to send upstream
+rather than a reason to rewrite history. No changelog is kept, because the records are the
+changelog and a summary would be a lossy copy of them.
 
 ## Documentation index
 
@@ -235,12 +354,13 @@ document, register it here in the same change; when you remove one, delist it he
 | [README.md](README.md) | Human-facing overview: philosophy, structure, and setup. |
 | [STATE.md](STATE.md) | Living project state (Now / Next / Deferred / Blocked). Read first, always. |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The annotated map of the whole builder. Read before any structural change. |
+| [docs/INVARIANTS.md](docs/INVARIANTS.md) | What must stay true about the builder, one row per claim with the holder that refuses a violation and the rung that says what its green is worth. Read before changing what the builder promises; a change to a claim changes its row. |
 | [docs/CONVENTIONS.md](docs/CONVENTIONS.md) | The documentation rulebook: document species, schemas, naming. Frozen; owned by the style. Read before writing or changing any documentation. |
 | [docs/BASELINE.md](docs/BASELINE.md) | The repository baseline: always-present files, never-tracked files, and their modification rules. Read before adding, removing, or reshaping root-level or dot files. |
 | [docs/EXPORT-PARITY.md](docs/EXPORT-PARITY.md) | The cross-format export contract: what the preview, PDF, LaTeX, and Word outputs must agree on. Read before touching any exporter. |
 | [docs/UPSTREAM.md](docs/UPSTREAM.md) | What is pending between this project and its style: the alignment pin and every open improvement or workaround. Read before writing an upstream entry. |
 | [docs/inherited/](docs/inherited/) | The style's own decision records, carried whole at the alignment pin and never edited here. Read one before proposing a rule the style may already have ruled on. |
-| [docs/decisions/](docs/decisions/) | Immutable decision records holding the project's "why". Read the relevant record before revisiting a settled topic; never edit an accepted record. |
+| [docs/decisions/](docs/decisions/) | Immutable decision records holding the project's "why". Read the relevant record before revisiting a settled topic; never edit an accepted record beyond its status line and a dead link's target. |
 
 There are no assistant-specific instruction files. Every assistant reads this file
 directly. If a tool genuinely cannot read AGENTS.md, give it a one-line shim that imports

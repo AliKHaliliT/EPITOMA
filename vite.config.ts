@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -33,5 +34,12 @@ export default defineConfig({
         },
       },
     },
+  },
+  test: {
+    // The suite runs in a shuffled order under a seed the run prints, so a test that leans on
+    // its neighbour fails on the day it is written; replay a run with --sequence.seed=<printed>.
+    sequence: { shuffle: true },
+    // No request leaves the loopback; the setup refuses one before its socket opens.
+    setupFiles: ["./tests/setup.ts"],
   },
 });

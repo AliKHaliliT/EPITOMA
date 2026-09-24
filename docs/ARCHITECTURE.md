@@ -36,7 +36,7 @@ with the exporters, because the on-screen preview and every exporter measure the
 sheet, and an entity may not import a feature. And the builder state hook lives with
 the page, because it reaches both entities at once and the page is the layer allowed to
 do that. The reasoning is recorded in
-[decision 0004](decisions/0004-build-the-builder-as-one-way-sliced-layers.md).
+[decision 0004, Build the builder as one-way sliced layers](decisions/0004-build-the-builder-as-one-way-sliced-layers.md).
 
 The portfolio contract lives in `shared/contract` rather than with the portfolio entity,
 because the resume entity reads it too and same-layer slices may not import each other.
@@ -49,6 +49,8 @@ One page. `src/app/App.tsx` provides the ground and the reading rail;
 list, New, Import, Sync, Download), the Overview, Content, and Customize tabs, and a
 persistent preview. The Customize tab's Region pane applies market and field presets
 (`src/entities/resume/regions.ts`) as whole-document changes through the builder's update hook. There is no router and no server.
+In a browser whose saved documents could not be read, a small notice at the foot of the
+viewport names the key that still holds them.
 
 ```text
 epitoma/
@@ -61,7 +63,8 @@ epitoma/
 ├── tsconfig.node.json          # Compiler options for the build tooling (vite.config.ts)
 │
 ├── scripts/                    # Tracked repository tooling
-│   └── audit-docs.mjs          # The docs audit; the gate's Docs command
+│   ├── audit-docs.mjs          # The docs audit; the gate's Docs command
+│   └── audit-docs-selftest.mjs # Proves every rule of the audit against a planted defect
 │
 ├── docs/                       # Technical documentation (indexed in AGENTS.md)
 │
@@ -75,16 +78,20 @@ epitoma/
 │   └── shared/                 # contract, config, lib, ui, testing
 │
 └── tests/                      # Vitest suites mirroring the src structure
+    ├── setup.ts                # Refuses any connection that would leave the loopback
     └── src/
 ```
 
 ## The portfolio bridge
 
 Content arrives exclusively as a `portfolio.json` file exported by the ecosystem's admin
-panel (format `vita-portfolio`, versioned). `src/entities/portfolio/source.ts` validates an
-imported file and persists it under `os_resume_portfolio`; `usePortfolio.ts` holds it for
-the UI. The app keeps its **own copy of the contract** in `src/shared/contract/portfolio.ts`,
-and the `format`/`version` fields keep it honest against the exporter.
+panel, in the versioned `vita-portfolio` format. Three modules carry it.
+
+| Module | Role |
+| --- | --- |
+| `src/entities/portfolio/source.ts` | Validates an imported file and persists it under `os_resume_portfolio` |
+| `src/entities/portfolio/usePortfolio.ts` | Holds the snapshot for the UI |
+| `src/shared/contract/portfolio.ts` | The app's **own copy of the contract**, whose `format` and `version` fields keep it honest against the exporter |
 
 A snapshot arriving as a file is checked whole by `isPortfolioSnapshot` before it is
 persisted or read back, and a file that fails says so in words the owner can act on.
@@ -98,8 +105,16 @@ creates blank documents and Sync is disabled with guidance.
 
 A `ResumeDocument` (`src/entities/resume/model.ts`) is `{ personal, sections[], style }` plus
 metadata; each section holds entries whose `sourceId` links back to the portfolio item.
-Documents live in localStorage under `os_resumes` (active id in `os_resumes_active`),
-managed by `src/entities/resume/store.ts` through the `useResumes` hook. The hook saves the
+
+Documents live in localStorage under two keys, managed by `src/entities/resume/store.ts`
+through the `useResumes` hook.
+
+| Key | Holds |
+| --- | --- |
+| `os_resumes` | Every document, as one list |
+| `os_resumes_active` | The id of the document open in the builder |
+
+The hook saves the
 collection only once it differs from what the first read returned, so a visit that changes
 nothing never writes. A store that does not parse to a list reads as no documents, and the
 builder names its key in a notice until the first change saves over it
@@ -158,18 +173,27 @@ a new document with its styling intact.
 
 ## Testing
 
-Three rules hold however broad the suite is. Suites live in `tests/`, mirroring the source
+Five rules hold however broad the suite is. Suites live in `tests/`, mirroring the source
 tree, one suite named after the unit it covers. A collaborator is replaced only at an
 architectural seam, by a hand-written fake satisfying the contract it stands in for, never by
 mocking a module's internals, since a test bound to an implementation voids the
 substitutability the layering exists to provide. And no coverage threshold is imposed, because
 a percentage gate buys assertions that assert nothing, so breadth stays a judgment call while
-placement and substitution do not.
+placement and substitution do not. And a test is proved by the failure it catches, named
+before it is written, watched failing against a mutation after, and watched failing again when
+the fix it guards is reverted, because a test that has never failed has proved only that it
+runs. And no request leaves the loopback, `tests/setup.ts` refusing any connection to another
+host before its socket opens and a test that must reach a host naming it in the open, because
+an adapter that resolves its credentials from the environment is a working adapter on a
+machine that has them. The suite runs in a shuffled order under a seed the run prints, so a
+test that leans on its neighbour fails on the day it is written.
 
-The 3 suites here are characterization tests over the resume service and the portfolio source. They contain no module
-mocking at all, which is what made adopting the rule a description of existing practice rather
-than a migration. The reasoning is recorded in
-[decision 0009](decisions/0009-adopt-the-styles-test-contract.md), and the rule itself is owned by the style.
+The 8 suites here are characterization and unit tests over the resume service, its headings,
+pagination, and region presets, the portfolio source, a real snapshot, the export parity, and
+the month library. They contain no module mocking at all, which is what made adopting the rule
+a description of existing practice rather than a migration. The reasoning is recorded in
+[decision 0009, Adopt the style's test contract](decisions/0009-adopt-the-styles-test-contract.md),
+and the rule itself is owned by the style.
 
 ## Exemplars
 
