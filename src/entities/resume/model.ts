@@ -70,7 +70,7 @@ export interface ResumeSection {
   entries: ResumeEntry[];
 }
 
-/** One labelled link in the document header. */
+/** One labeled link in the document header. */
 export interface PersonalLink {
   /** Stable list key; optional because links saved before it existed lack one. */
   id?: string;

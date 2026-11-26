@@ -4,7 +4,7 @@ import { FlowAtom, PageGeometry, planPushes } from "@/entities/resume";
 const GEO: PageGeometry = { pageH: 1000, marginY: 100 };
 
 /**
- * Where the plan puts each block, modelled the way the browser does it.
+ * Where the plan puts each block, modeled the way the browser does it.
  *
  * A paddingTop does not move the element's own box, it makes the box taller and
  * moves what follows. So a pushed block's content starts below its own box top,

@@ -62,7 +62,7 @@ export interface PortfolioItem {
 export interface PortfolioExperience extends PortfolioItem {
   company?: string;
 }
-/** A degree or programme, with the fields a CV education line needs. */
+/** A degree or program, with the fields a CV education line needs. */
 export interface PortfolioEducation extends PortfolioItem {
   institution?: string;
   degree?: string;

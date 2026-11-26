@@ -505,7 +505,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   {
     key: "ledger",
     label: "Ledger",
-    description: "Lora serif, hyphen lists, understated ochre. Quietly archival.",
+    description: "Lora serif, hyphen lists, understated ocher. Quietly archival.",
     kinds: ["cv"],
     style: {
       columns: "one", headerAlign: "left", headingStyle: 2, headingCase: "uppercase",

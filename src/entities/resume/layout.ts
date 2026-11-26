@@ -10,7 +10,7 @@ import { RAIL_FRAC, luminance, railColors, tint } from "./previewStyles";
 
 // ── geometry ────────────────────────────────────────────────────────────────
 
-/** The sheet's measurements in millimetres, margins and columns included. */
+/** The sheet's measurements in millimeters, margins and columns included. */
 export interface Geometry {
   pageWmm: number;
   pageHmm: number;
@@ -29,7 +29,7 @@ export interface Geometry {
  *
  * @param style - The document style, which names the page format and margins.
  *
- * @returns Every measurement in millimetres, with an unknown page format falling back to A4.
+ * @returns Every measurement in millimeters, with an unknown page format falling back to A4.
  */
 export function resolveGeometry(style: ResumeStyle): Geometry {
   const d = PAGE_DIMS[style.pageFormat] ?? PAGE_DIMS.A4;

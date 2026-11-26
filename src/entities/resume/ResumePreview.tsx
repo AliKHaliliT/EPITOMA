@@ -21,7 +21,7 @@ const CONTACT_ICONS: Record<string, LucideIcon> = {
   Globe, Github, Linkedin, Twitter, GraduationCap, BookOpen, Link2,
 };
 
-// ── date formatting (honours style.dateFormat + style.language) ─────────────
+// ── date formatting (honors style.dateFormat + style.language) ─────────────
 const range = (s: string | undefined, e: string | undefined, style: ResumeStyle) => {
   const f = (d: string | undefined) => fmtResumeDate(d, style.dateFormat, style.language);
   if (!s && !e) return "";
@@ -478,7 +478,7 @@ export const ResumeSheet = ({ doc, live, onPageCount }: {
   // Pagination: no block may straddle a printed page boundary. Every atom
   // ([data-atom], inside a [data-flow]) that would cross the bottom margin is
   // pushed to the next page's top margin via paddingTop; a heading left alone
-  // at a page's foot travels with its first block. The maths works on natural
+  // at a page's foot travels with its first block. The math works on natural
   // positions (current pushes subtracted), and the same pushes flow into the
   // print/PDF output.
   //

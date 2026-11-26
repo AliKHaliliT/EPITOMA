@@ -67,7 +67,7 @@ function applyDateFormat(fmt: string, y: string, month: number, mon: string, day
   }
 }
 
-/** Honours the document's `style.dateFormat` (MMM YYYY / MMM DD, YYYY /
+/** Honors the document's `style.dateFormat` (MMM YYYY / MMM DD, YYYY /
  *  MM/YYYY / YYYY) in the document's language. */
 export function fmtResumeDate(d: string | undefined, fmt: string, language?: string): string {
   if (!d) return "";
