@@ -6,4 +6,5 @@ export { applyPalette, bootPalette, clearPalette, isPalette, savePalette } from 
 export type { PaletteMode } from "./paletteCss";
 export { generatePaletteCss } from "./paletteCss";
 export { safeSetItem } from "./storage";
+export { sanitizeHtml } from "./sanitize";
 export { cn } from "./utils";

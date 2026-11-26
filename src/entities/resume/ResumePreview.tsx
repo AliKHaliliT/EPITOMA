@@ -8,7 +8,7 @@ import {
 import { planPushes } from "./pagination";
 import { PAGE_DIMS, PersonalDetails, ResumeDocument, ResumeEntry, ResumeSection, ResumeStyle, SectionLayout } from "./model";
 import { fmtResumeDate, languageLocale, presentWord } from "./dates";
-import { iconByName } from "@/shared/lib";
+import { iconByName, sanitizeHtml } from "@/shared/lib";
 import {
   pageStyle, nameStyle, jobTitleStyle, headingStyle, subtitleStyle, dateStyle,
   entryHeaderStyle, linkStyle, descriptionClass, descriptionStyle, bodyStyle,
@@ -36,7 +36,7 @@ function Desc({ html, style }: { html?: string; style: ResumeStyle }) {
     <div
       className={descriptionClass(style)}
       style={{ ...descriptionStyle(style), fontSize: "0.92em", marginTop: "1px" }}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
     />
   );
 }

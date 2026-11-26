@@ -10,6 +10,7 @@ What must stay true about this builder, one row per claim, each bound to the hol
 | No module outside the portfolio entity and `shared/config` calls `fetch`. | `eslint.config.js` "HTTP lives in its documented home" | impossible |
 | Nothing in product code prints to the console. | `eslint.config.js` "no-console" | impossible |
 | No raw palette class ships. | `scripts/audit-docs.mjs` "raw palette class" | impossible |
+| Description HTML reaches the preview with no script, event handler, or `javascript:` link left in it. | `tests/src/shared/lib/sanitize.test.ts` "drops a script a record's markup carries" | listed cases |
 | No test opens a connection to a host beyond this machine. | `tests/setup.ts` "refused a connection" | impossible |
 | No comment in the tree defers work with a marker. | `eslint.config.js` "no-warning-comments" | impossible |
 | No tracked text file carries an invisible character, a generated file apart. | `scripts/audit-docs.mjs` "checkInvisible" | impossible |
